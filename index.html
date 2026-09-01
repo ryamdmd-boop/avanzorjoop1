@@ -1,94 +1,1879 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة الشواغر الوظيفية</title>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 800px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    h1, h2 { color: #1a202c; }
-    input, textarea, button { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 16px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; }
-    button { background-color: #3182ce; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background-color: #2b6cb0; }
-    .job-item { background: #edf2f7; padding: 15px; border-radius: 6px; margin-bottom: 10px; border-right: 4px solid #3182ce; }
-    .job-item h3 { margin: 0 0 5px 0; }
-    .job-item p { margin: 0; color: #4a5568; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أقنزور - نظام إدارة التوظيف</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --primary:#0d1b4c;--primary-dark:#081038;--primary-light:#1a2d6d;
+  --primary-50:#e8ecf7;--primary-100:#d0d8ef;
+  --accent:#4a6cf7;--accent-light:#6b8cff;--accent-dark:#3451c7;
+  --gold:#f59e0b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#06b6d4;
+  --bg:#f0f2f7;--card:#ffffff;--text:#0d1b4c;--text-light:#5a6580;--text-lighter:#8892a8;
+  --border:#e2e6ef;--border-light:#f0f2f7;
+  --shadow:0 1px 3px rgba(13,27,76,.06),0 1px 2px rgba(13,27,76,.04);
+  --shadow-md:0 4px 6px -1px rgba(13,27,76,.08);
+  --shadow-lg:0 10px 25px -5px rgba(13,27,76,.12);
+  --radius:10px;--sidebar-w:260px;
+  --gradient:linear-gradient(135deg,#0d1b4c 0%,#1a2d6d 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#f0f2f7}::-webkit-scrollbar-thumb{background:#c5cbe0;border-radius:4px}
+
+[dir="ltr"] .sidebar { right: auto; left: 0; border-left: none; border-right: 1px solid var(--border); }
+[dir="ltr"] .main { margin-right: 0 !important; margin-left: var(--sidebar-w); }
+[dir="ltr"] .nav-link { border-right: none; border-left: 3px solid transparent; }
+[dir="ltr"] .nav-link.active { border-right-color: transparent; border-left-color: var(--accent); }
+[dir="ltr"] .stat-card { border-right: none; border-left: 4px solid var(--primary); }
+[dir="ltr"] th { text-align: left; }
+[dir="ltr"] .user-info-text { text-align: left; }
+[dir="ltr"] .vacancy-card::before { right: auto; left: 0; }
+[dir="ltr"] .modal-footer { justify-content: flex-start; }
+[dir="ltr"] .toast { left: auto; right: 20px; transform: translateX(120%); }
+[dir="ltr"] .toast.show { transform: translateX(0); }
+[dir="ltr"] .timeline-item::before { right: auto; left: -21px; }
+[dir="ltr"] .timeline { padding-right: 0; padding-left: 24px; }
+[dir="ltr"] .timeline::before { right: auto; left: 7px; }
+[dir="ltr"] .info-item { border-right: none; border-left: 3px solid var(--accent); }
+[dir="ltr"] .vacancy-owner { flex-direction: row-reverse; }
+
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--gradient);padding:20px}
+.login-box{background:#fff;border-radius:16px;padding:40px;max-width:420px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);position:relative}
+.login-logo{text-align:center;margin-bottom:28px;padding-bottom:24px;border-bottom:2px solid var(--border-light)}
+.login-logo svg{margin-bottom:12px}
+.login-logo h1{font-size:22px;color:var(--primary);font-weight:800;margin-bottom:4px}
+.login-title{font-size:18px;font-weight:700;color:var(--primary);margin-bottom:20px;text-align:center}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--primary)}
+.form-control{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;transition:all .2s;background:#fff;font-family:inherit}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,108,247,.12)}
+.login-error{background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:16px;text-align:center;display:none}
+.btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;width:100%}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+
+.app-container{display:none;min-height:100vh}
+.app-container.active{display:flex}
+.sidebar{width:var(--sidebar-w);background:#fff;min-height:100vh;position:fixed;right:0;top:0;border-left:1px solid var(--border);z-index:100;display:flex;flex-direction:column}
+.logo{padding:18px 20px;background:var(--gradient);color:#fff;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--accent)}
+.logo-svg{width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.logo-text h1{font-size:17px;font-weight:800;letter-spacing:.5px}
+.logo-text p{font-size:11px;opacity:.85;margin-top:2px}
+.nav-menu{list-style:none;padding:14px 10px;flex:1;overflow-y:auto}
+.nav-item{margin-bottom:3px}
+.nav-link{display:flex;align-items:center;gap:12px;padding:11px 14px;color:var(--text-light);text-decoration:none;border-radius:8px;transition:all .2s;cursor:pointer;font-size:14px;font-weight:500;border-right:3px solid transparent}
+.nav-link:hover{background:var(--primary-50);color:var(--primary)}
+.nav-link.active{background:var(--primary-50);color:var(--primary);border-right-color:var(--accent);font-weight:600}
+.nav-icon{font-size:17px;width:22px;text-align:center}
+.sidebar-footer{padding:12px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-lighter);text-align:center;background:var(--primary-50)}
+
+.main{margin-right:var(--sidebar-w);flex:1;padding:20px 28px;width:calc(100% - var(--sidebar-w));min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:14px;flex-wrap:wrap}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.topbar-left{display:flex;gap:10px;align-items:center}
+.current-user{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#fff;border:1px solid var(--border);border-radius:10px;cursor:pointer}
+.current-user:hover{border-color:var(--accent)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.user-info-text{text-align:right}
+.user-name{font-weight:700;font-size:13px;color:var(--primary)}
+.user-role{font-size:11px;color:var(--text-light)}
+.logout-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px}
+.logout-btn:hover{background:#fee2e2}
+
+.lang-switch{display:flex;gap:3px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px;box-shadow:var(--shadow)}
+.lang-btn{padding:6px 12px;border:none;background:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-light);transition:all .2s;display:flex;align-items:center;gap:5px}
+.lang-btn:hover{background:var(--primary-50);color:var(--primary)}
+.lang-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(74,108,247,.3)}
+
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:700;color:var(--primary)}
+.page-subtitle{color:var(--text-light);font-size:13px;margin-top:4px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;border-right:4px solid var(--primary);transition:all .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-card.accent{border-color:var(--accent)}.stat-card.success{border-color:var(--success)}.stat-card.warning{border-color:var(--warning)}.stat-card.info{border-color:var(--info)}.stat-card.danger{border-color:var(--danger)}
+.stat-label{color:var(--text-light);font-size:12px;margin-bottom:5px;font-weight:500}
+.stat-value{font-size:26px;font-weight:700;color:var(--primary)}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--primary-50);color:var(--primary)}
+.stat-card.accent .stat-icon{background:#eef1ff;color:var(--accent)}
+.stat-card.success .stat-icon{background:#d1fae5;color:var(--success)}
+.stat-card.warning .stat-icon{background:#fef3c7;color:var(--warning)}
+.stat-card.info .stat-icon{background:#cffafe;color:var(--info)}
+.stat-card.danger .stat-icon{background:#fee2e2;color:var(--danger)}
+
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:700;color:var(--primary)}
+
+.vacancies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.vacancy-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;border:1px solid var(--border);position:relative;overflow:hidden}
+.vacancy-card::before{content:"";position:absolute;top:0;right:0;width:100%;height:4px;background:var(--gradient)}
+.vacancy-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+.vacancy-title{font-size:16px;font-weight:700;margin-bottom:6px;margin-top:4px;color:var(--primary)}
+.vacancy-meta-row{display:flex;gap:12px;color:var(--text-light);font-size:12px;margin-bottom:10px;flex-wrap:wrap}
+.vacancy-meta-row span{display:flex;align-items:center;gap:4px}
+.vacancy-owner{background:var(--primary-50);padding:6px 10px;border-radius:6px;font-size:11px;color:var(--primary);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.vacancy-stats{display:flex;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light)}
+.vacancy-stat{text-align:center;flex:1}
+.vacancy-stat-num{font-size:18px;font-weight:700;color:var(--primary)}
+.vacancy-stat-label{font-size:11px;color:var(--text-light)}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.b-new{background:#dbeafe;color:#1e40af}.b-contacted{background:#fef3c7;color:#92400e}.b-interview-scheduled{background:#e0e7ff;color:#3730a3}
+.b-interviewed{background:#ddd6fe;color:#5b21b6}.b-evaluating{background:#fef3c7;color:#92400e}.b-final{background:#fce7f3;color:#9d174d}
+.b-accepted{background:#d1fae5;color:#065f46}.b-rejected{background:#fee2e2;color:#991b1b}.b-withdrawn{background:#e2e8f0;color:#475569}
+.b-open{background:#d1fae5;color:#065f46}.b-hiring{background:#dbeafe;color:#1e40af}.b-filled{background:#e0e7ff;color:#3730a3}.b-stopped{background:#fee2e2;color:#991b1b}
+
+.table-wrapper{overflow-x:auto;border-radius:var(--radius);background:#fff}
+table{width:100%;border-collapse:collapse}
+th{background:var(--primary-50);padding:11px 12px;text-align:right;font-size:12px;font-weight:600;color:var(--primary);border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:12px;border-bottom:1px solid var(--border-light);font-size:13px;vertical-align:middle;color:var(--text)}
+tr:hover td{background:var(--primary-50)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,76,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(3px)}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:760px;width:100%;max-height:92vh;overflow:hidden;box-shadow:0 25px 50px rgba(13,27,76,.25);animation:slideUp .3s;display:flex;flex-direction:column}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--gradient);color:#fff}
+.modal-title{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#fff;width:32px;height:32px;border-radius:6px}
+.modal-close:hover{background:rgba(255,255,255,.15)}
+.modal-body{padding:22px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--primary-50)}
+
+.toast{position:fixed;top:20px;left:20px;background:var(--primary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:var(--shadow-lg);z-index:2000;transform:translateX(-120%);transition:transform .3s;font-size:13px}
+.toast.show{transform:translateX(0)}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.toast.warning{background:var(--warning)}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-light)}
+.empty-state-icon{font-size:56px;margin-bottom:14px;opacity:.4}
+.empty-state-title{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--primary)}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.permissions-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.permission-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--primary-50);border-radius:6px}
+.permission-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent)}
+
+.storage-indicator{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(100%)}
+  .sidebar.open{transform:translateX(0)}
+  [dir="ltr"] .sidebar{transform:translateX(-100%)}
+  [dir="ltr"] .sidebar.open{transform:translateX(0)}
+  .main{margin-right:0 !important;margin-left:0 !important;width:100%;padding:14px}
+  .permissions-grid{grid-template-columns:1fr}
+}
+.flex{display:flex}.gap-2{gap:8px}.gap-3{gap:12px}.flex-between{display:flex;justify-content:space-between;align-items:center}.flex-wrap{flex-wrap:wrap}
+.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
+.text-sm{font-size:12px}.text-muted{color:var(--text-light)}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>إدارة الشواغر الوظيفية</h1>
-    
-    <!-- نموذج إضافة شاغر جديد -->
-    <div class="card">
-      <h2>إضافة شاغر جديد</h2>
-      <input type="text" id="jobTitle" placeholder="المسمى الوظيفي">
-      <textarea id="jobDesc" placeholder="تفاصيل الوظيفة أو الملاحظات"></textarea>
-      <button onclick="addJob()">نشر الشاغر فوراً</button>
-    </div>
 
-    <!-- قائمة عرض الشواغر اللحظية -->
-    <div class="card">
-      <h2>الشواغر المتاحة حالياً</h2>
-      <div id="jobsList">جاري تحميل الشواغر...</div>
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div style="position:absolute;top:14px;left:14px">
+      <div class="lang-switch" id="loginLangSwitch">
+        <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+      </div>
     </div>
+    <div class="login-logo">
+      <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="#0d1b4c" rx="12"/>
+        <text x="50" y="48" font-family="Arial" font-size="22" font-weight="bold" fill="white" text-anchor="middle">أقنزور</text>
+        <text x="50" y="72" font-family="Arial" font-size="18" font-weight="bold" fill="white" text-anchor="middle">avnzor</text>
+      </svg>
+      <h1>أقنزور | avnzor</h1>
+    </div>
+    <div class="login-title" id="loginTitle">تسجيل الدخول للنظام</div>
+    <div class="login-error" id="loginError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label id="loginUsernameLabel">اسم المستخدم</label>
+        <input type="text" class="form-control" id="loginUsername" required placeholder="أدخل اسم المستخدم">
+      </div>
+      <div class="form-group">
+        <label id="loginPasswordLabel">كلمة المرور</label>
+        <input type="password" class="form-control" id="loginPassword" required placeholder="أدخل كلمة المرور">
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:10px" id="loginSubmitBtn">تسجيل الدخول</button>
+    </form>
   </div>
+</div>
 
-  <!-- Firebase Web SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<div class="app-container" id="appContainer">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-svg">
+        <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" fill="#0d1b4c" rx="12"/>
+          <text x="50" y="48" font-family="Arial" font-size="22" font-weight="bold" fill="white" text-anchor="middle">أقنزور</text>
+          <text x="50" y="72" font-family="Arial" font-size="18" font-weight="bold" fill="white" text-anchor="middle">avnzor</text>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>أقنزور | avnzor</h1>
+        <p id="sidebarSubtitle">نظام إدارة التوظيف</p>
+      </div>
+    </div>
+    <ul class="nav-menu" id="navMenu">
+      <li class="nav-item"><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span><span id="navDashboard">لوحة التحكم</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="vacancies"><span class="nav-icon"></span><span id="navVacancies">الشواغر الوظيفية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="candidates"><span class="nav-icon">👥</span><span id="navCandidates">المرشحون</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="interviews"><span class="nav-icon">📅</span><span id="navInterviews">المقابلات</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="archive"><span class="nav-icon">📁</span><span id="navArchive">أرشيف السير الذاتية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon">📤</span><span id="navCvrequest">طلب السير الذاتية</span></a></li>
+    </ul>
+    <div class="sidebar-footer">أقنزور v6.1 © 2026</div>
+  </aside>
 
-    const firebaseConfig = {
-      projectId: "avnzorjoop"
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none" id="menuToggle">☰</button>
+        <div class="current-user" onclick="showUserMenu()">
+          <div class="user-avatar" id="currentUserAvatar">م</div>
+          <div class="user-info-text">
+            <div class="user-name" id="currentUserName">—</div>
+            <div class="user-role" id="currentUserRole">—</div>
+          </div>
+          <button class="logout-btn" onclick="event.stopPropagation();logout()" title="تسجيل خروج">🚪</button>
+        </div>
+      </div>
+      <div class="topbar-left">
+        <div class="lang-switch" id="appLangSwitch">
+          <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
+          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬 EN</button>
+        </div>
+      </div>
+    </div>
+    <div id="app"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== TRANSLATIONS ====================
+const TRANSLATIONS = {
+  ar: {
+    'app.name': 'أقنزور | avnzor',
+    'app.subtitle': 'نظام إدارة التوظيف',
+    'login.title': 'تسجيل الدخول للنظام',
+    'login.error': 'اسم المستخدم أو كلمة المرور غير صحيحة',
+    'login.username': 'اسم المستخدم',
+    'login.usernamePh': 'أدخل اسم المستخدم',
+    'login.password': 'كلمة المرور',
+    'login.passwordPh': 'أدخل كلمة المرور',
+    'login.submit': 'تسجيل الدخول',
+    'logout': 'تسجيل خروج',
+    'logout.confirm': 'تسجيل الخروج؟',
+    'nav.dashboard': 'لوحة التحكم',
+    'nav.vacancies': 'الشواغر الوظيفية',
+    'nav.candidates': 'المرشحون',
+    'nav.interviews': 'المقابلات',
+    'nav.archive': 'أرشيف السير الذاتية',
+    'nav.cvrequest': 'طلب السير الذاتية',
+    'nav.settings': 'إدارة المستخدمين',
+    'sidebar.footer': 'أقنزور v6.1 © 2026',
+    'dashboard.welcome': 'مرحباً،',
+    'dashboard.subtitle': 'نظرة عامة على نظام التوظيف',
+    'dashboard.myStats': 'إحصائياتك (حسب صلاحياتك)',
+    'dashboard.openVacancies': 'شواغرك المفتوحة',
+    'dashboard.myCandidates': 'مرشحوك',
+    'dashboard.accepted': 'المقبولون',
+    'dashboard.rejected': 'المرفوضون',
+    'dashboard.availableVacancies': 'الشواغر الوظيفية المتاحة لك',
+    'dashboard.noVacancies': 'لا توجد شواغر متاحة لصلاحياتك الحالية',
+    'dashboard.contactAdmin': 'يرجى التواصل مع مدير النظام لتعديل الصلاحيات',
+    'vacancies.title': 'الشواغر الوظيفية',
+    'vacancies.available': 'شاغر متاح لك',
+    'vacancies.search': ' بحث في الشواغر...',
+    'vacancies.none': 'لا توجد شواغر متاحة',
+    'vacancies.new': '➕ شاغر جديد',
+    'vacancies.owner': 'المسؤول',
+    'vacancies.candidate': 'مرشح',
+    'vacancies.accepted': 'مقبول',
+    'vacancies.back': '→ رجوع',
+    'vacancies.totalCandidates': 'إجمالي المرشحين',
+    'vacancies.noCandidates': 'لا يوجد مرشحون',
+    'vacancies.notAllowed': 'غير مسموح لك بعرض هذا الشاغر أو أنه غير موجود',
+    'vacancies.edit': '✏️ تعديل الشاغر',
+    'vacancies.close': '🔒 إغلاق الشاغر',
+    'vacancies.delete': '🗑️ حذف الشاغر',
+    'vacancies.reopen': '🔓 إعادة فتح الشاغر',
+    'vacancies.confirmDelete': 'حذف هذا الشاغر نهائياً؟ سيتم نقل المرشحين للأرشيف.',
+    'vacancies.confirmClose': 'تغيير حالة الشاغر إلى "مغلق"؟',
+    'vacancies.confirmReopen': 'إعادة فتح هذا الشاغر؟',
+    'candidates.title': 'المرشحون',
+    'candidates.candidate': 'مرشح',
+    'candidates.search': '🔍 بحث بالاسم أو الجوال...',
+    'candidates.allVacancies': 'كل الشواغر المتاحة',
+    'candidates.allStatuses': 'كل الحالات',
+    'candidates.noResults': 'لا توجد نتائج',
+    'candidates.new': '➕ مرشح جديد',
+    'candidates.name': 'الاسم',
+    'candidates.job': 'الوظيفة',
+    'candidates.phone': 'الجوال',
+    'candidates.email': 'البريد',
+    'candidates.status': 'الحالة',
+    'candidates.cv': 'CV',
+    'candidates.date': 'تاريخ الإضافة',
+    'candidates.cvColumn': 'السيرة الذاتية',
+    'candidates.actions': 'إجراءات',
+    'candidates.notes': 'ملاحظات',
+    'interviews.title': 'المقابلات',
+    'interviews.interview': 'مقابلة',
+    'interviews.candidate': 'المرشح',
+    'interviews.job': 'الوظيفة',
+    'interviews.date': 'التاريخ',
+    'interviews.time': 'الوقت',
+    'interviews.none': 'لا توجد مقابلات',
+    'archive.title': '📁 أرشيف السير الذاتية',
+    'archive.file': 'ملف',
+    'archive.unassigned': 'غير مصنف',
+    'archive.search': '🔍 بحث...',
+    'archive.none': 'لا توجد ملفات',
+    'archive.noPermission': 'ليس لديك صلاحية عرض السير الذاتية',
+    'cvrequest.title': '📤 طلب ملفات السير الذاتية',
+    'cvrequest.select': '-- اختر الشاغر --',
+    'cvrequest.none': 'لا توجد ملفات',
+    'cvrequest.viewAll': '👁️ عرض الكل',
+    'cvrequest.zip': '⬇️ ZIP',
+    'settings.title': '👥 إدارة المستخدمين والصلاحيات',
+    'settings.subtitle': 'إضافة مستخدمين جدد وتحديد صلاحياتهم بدقة',
+    'settings.managers': 'المستخدمون',
+    'settings.addManager': '➕ إضافة مستخدم جديد',
+    'settings.name': 'الاسم',
+    'settings.role': 'الدور',
+    'settings.username': 'المستخدم',
+    'settings.password': 'كلمة المرور',
+    'settings.allowedVacancies': 'الشواغر المسموحة',
+    'settings.actions': 'إجراءات',
+    'settings.admin': 'مدير نظام',
+    'settings.manager': 'مدير',
+    'settings.you': '(أنت)',
+    'settings.editPermissions': '✏️ تعديل الصلاحيات',
+    'settings.all': 'الكل',
+    'settings.vacancy': 'شاغر',
+    'settings.backup': '💾 النسخ الاحتياطي',
+    'settings.export': ' تصدير البيانات',
+    'settings.import': '📥 استيراد',
+    'settings.clear': '🗑️ حذف الكل',
+    'settings.adminOnly': 'هذه الصفحة متاحة لمدير النظام (admin) فقط',
+    'settings.protected': 'هذا الحساب محمي ولا يمكن تعديله',
+    'settings.storage': '💾 التخزين: IndexedDB (غير محدود)',
+    'settings.autoSave': 'الحفظ التلقائي',
+    'settings.autoSaveEnabled': 'مفعّل',
+    'settings.lastSaved': 'آخر حفظ ناجح',
+    'settings.freeSpace': '🗑️ تحرير المساحة',
+    'settings.freeSpaceDesc': 'حذف ملفات CV القديمة لتحرير مساحة التخزين',
+    'form.jobTitle': 'اسم الوظيفة',
+    'form.department': 'القسم',
+    'form.management': 'اسم الإدارة',
+    'form.openDate': 'تاريخ فتح الشاغر',
+    'form.status': 'حالة الشاغر',
+    'form.owner': 'المسؤول عن الشاغر',
+    'form.name': 'اسم المرشح',
+    'form.phone': 'رقم الجوال',
+    'form.email': 'البريد الإلكتروني',
+    'form.vacancy': 'الشاغر الوظيفي',
+    'form.candidateStatus': 'حالة المرشح',
+    'form.cv': 'السيرة الذاتية (PDF / Word)',
+    'form.cvClick': 'اضغط لاختيار ملف',
+    'form.remove': 'إزالة',
+    'form.notes': 'ملاحظات',
+    'form.select': '-- اختر --',
+    'form.required': '*',
+    'form.fullName': 'الاسم الكامل',
+    'form.loginUsername': 'اسم المستخدم (للدخول)',
+    'form.loginPassword': 'كلمة المرور',
+    'form.role': 'الدور / المنصب',
+    'form.roleManager': 'مدير عادي',
+    'form.roleAdmin': 'مدير النظام (صلاحيات كاملة)',
+    'form.permissions': '⚙️ الصلاحيات المحددة',
+    'form.viewAllVacancies': 'السماح برؤية كل الشواغر',
+    'form.addVacancy': 'السماح بإضافة شواغر جديدة',
+    'form.viewCV': 'السماح بعرض السير الذاتية (CV)',
+    'form.addCV': 'السماح بإضافة مرشحين وسير ذاتية',
+    'form.allowedVacancies': 'تحديد الشواغر المسموح له برؤيتها:',
+    'form.allowedVacanciesHint': '* اضغط Ctrl (أو Cmd في Mac) لتحديد أكثر من شاغر.',
+    'btn.save': '💾 حفظ',
+    'btn.savePermissions': '💾 حفظ الصلاحيات',
+    'btn.cancel': 'إلغاء',
+    'btn.edit': '✏️ تعديل',
+    'btn.delete': '🗑️ حذف',
+    'btn.view': '👁️ عرض',
+    'btn.download': '⬇️ تحميل',
+    'btn.back': '→ رجوع',
+    'btn.addCandidate': '➕ إضافة مرشح',
+    'msg.saved': 'تم الحفظ',
+    'msg.updated': 'تم التحديث',
+    'msg.deleted': 'تم الحذف',
+    'msg.added': 'تمت الإضافة',
+    'msg.required': 'البيانات الأساسية مطلوبة',
+    'msg.jobTitleRequired': 'اسم الوظيفة مطلوب',
+    'msg.nameVacancyRequired': 'الاسم والشاغر مطلوبان',
+    'msg.confirmDelete': 'حذف هذا العنصر؟',
+    'msg.confirmDeleteManager': 'حذف هذا المستخدم؟',
+    'msg.confirmImport': 'سيتم استبدال جميع البيانات الحالية. متابعة؟',
+    'msg.confirmClear1': '️ حذف جميع البيانات؟',
+    'msg.confirmClear2': 'تأكيد أخير؟',
+    'msg.noPermissionVacancy': 'ليس لديك صلاحية إضافة شواغر',
+    'msg.noPermissionCV': 'ليس لديك صلاحية عرض السير الذاتية',
+    'msg.noPermissionAddCV': 'ليس لديك صلاحية إضافة مرشحين',
+    'msg.noPermissionSettings': 'ليس لديك صلاحية الوصول لهذه الصفحة',
+    'msg.noVacanciesAvailable': 'لا توجد شواغر متاحة لصلاحياتك',
+    'msg.fileTooLarge': 'حجم الملف كبير (الحد 10MB)',
+    'msg.noFile': 'لا يوجد ملف',
+    'msg.preparing': 'جاري التجهيز...',
+    'msg.downloaded': 'تم التحميل',
+    'msg.exported': 'تم التصدير',
+    'msg.imported': 'تم الاستيراد',
+    'msg.invalidFile': 'ملف غير صالح',
+    'msg.langChanged': 'تم تغيير اللغة',
+    'msg.cannotDeleteAdmin': 'لا يمكن حذف حساب admin الرئيسي',
+    'msg.cannotEditAdmin': 'لا يمكن تعديل حساب admin الرئيسي',
+    'msg.vacancyDeleted': 'تم حذف الشاغر ونقل المرشحين للأرشيف',
+    'msg.vacancyClosed': 'تم إغلاق الشاغر',
+    'msg.vacancyReopened': 'تم إعادة فتح الشاغر',
+    'msg.saveFailed': 'فشل الحفظ! مساحة التخزين ممتلئة',
+    'msg.saveFailedDetail': 'يرجى تصدير البيانات أو حذف ملفات CV قديمة',
+    'msg.storageWarning': '️ مساحة التخزين تقترب من الامتلاء!',
+    'msg.autoSaveOn': 'تم تفعيل الحفظ التلقائي',
+    'status.open': 'مفتوح',
+    'status.hiring': 'قيد التوظيف',
+    'status.filled': 'تم التوظيف',
+    'status.stopped': 'متوقف',
+    'cStatus.new': 'مرشح جديد',
+    'cStatus.contacted': 'تم التواصل',
+    'cStatus.interview_scheduled': 'تم تحديد مقابلة',
+    'cStatus.interviewed': 'تمت المقابلة',
+    'cStatus.evaluating': 'تحت المراجعة',
+    'cStatus.final': 'مرشح نهائي',
+    'cStatus.accepted': 'مقبول',
+    'cStatus.rejected': 'مرفوض',
+    'cStatus.withdrawn': 'انسحب',
+    'user.myAccount': '👤 حسابي والصلاحيات',
+    'user.adminRole': 'مدير النظام (صلاحيات كاملة)',
+    'user.myPermissions': 'صلاحياتك الحالية:',
+    'user.allowedVacancies': '📋 الشواغر المسموحة:',
+    'user.allowedCandidates': '👥 المرشحون المسموحون:',
+    'user.viewCV': '👁️ عرض السير الذاتية:',
+    'user.addCV': '➕ إضافة سير ذاتية:',
+    'user.allowed': '✅ مسموح',
+    'user.notAllowed': '❌ غير مسموح',
+    'user.close': 'إغلاق'
+  },
+  en: {
+    'app.name': 'Avnzor | أقنزور',
+    'app.subtitle': 'Recruitment Management System',
+    'login.title': 'System Login',
+    'login.error': 'Invalid username or password',
+    'login.username': 'Username',
+    'login.usernamePh': 'Enter username',
+    'login.password': 'Password',
+    'login.passwordPh': 'Enter password',
+    'login.submit': 'Login',
+    'logout': 'Logout',
+    'logout.confirm': 'Logout?',
+    'nav.dashboard': 'Dashboard',
+    'nav.vacancies': 'Job Vacancies',
+    'nav.candidates': 'Candidates',
+    'nav.interviews': 'Interviews',
+    'nav.archive': 'CV Archive',
+    'nav.cvrequest': 'CV Request',
+    'nav.settings': 'User Management',
+    'sidebar.footer': 'Avnzor v6.1 © 2026',
+    'dashboard.welcome': 'Welcome,',
+    'dashboard.subtitle': 'Recruitment system overview',
+    'dashboard.myStats': 'Your Stats (based on permissions)',
+    'dashboard.openVacancies': 'Your Open Vacancies',
+    'dashboard.myCandidates': 'Your Candidates',
+    'dashboard.accepted': 'Accepted',
+    'dashboard.rejected': 'Rejected',
+    'dashboard.availableVacancies': 'Available Job Vacancies for You',
+    'dashboard.noVacancies': 'No vacancies available for your current permissions',
+    'dashboard.contactAdmin': 'Please contact the system admin to modify permissions',
+    'vacancies.title': 'Job Vacancies',
+    'vacancies.available': 'vacancies available for you',
+    'vacancies.search': '🔍 Search vacancies...',
+    'vacancies.none': 'No vacancies available',
+    'vacancies.new': '➕ New Vacancy',
+    'vacancies.owner': 'Owner',
+    'vacancies.candidate': 'Candidate',
+    'vacancies.accepted': 'Accepted',
+    'vacancies.back': '← Back',
+    'vacancies.totalCandidates': 'Total Candidates',
+    'vacancies.noCandidates': 'No candidates',
+    'vacancies.notAllowed': 'You are not allowed to view this vacancy or it does not exist',
+    'vacancies.edit': '✏️ Edit Vacancy',
+    'vacancies.close': '🔒 Close Vacancy',
+    'vacancies.delete': '🗑️ Delete Vacancy',
+    'vacancies.reopen': '🔓 Reopen Vacancy',
+    'vacancies.confirmDelete': 'Permanently delete this vacancy? Candidates will be moved to archive.',
+    'vacancies.confirmClose': 'Change vacancy status to "Closed"?',
+    'vacancies.confirmReopen': 'Reopen this vacancy?',
+    'candidates.title': 'Candidates',
+    'candidates.candidate': 'candidate',
+    'candidates.search': '🔍 Search by name or phone...',
+    'candidates.allVacancies': 'All available vacancies',
+    'candidates.allStatuses': 'All statuses',
+    'candidates.noResults': 'No results',
+    'candidates.new': '➕ New Candidate',
+    'candidates.name': 'Name',
+    'candidates.job': 'Job',
+    'candidates.phone': 'Phone',
+    'candidates.email': 'Email',
+    'candidates.status': 'Status',
+    'candidates.cv': 'CV',
+    'candidates.date': 'Date Added',
+    'candidates.cvColumn': 'CV',
+    'candidates.actions': 'Actions',
+    'candidates.notes': 'Notes',
+    'interviews.title': 'Interviews',
+    'interviews.interview': 'interview',
+    'interviews.candidate': 'Candidate',
+    'interviews.job': 'Job',
+    'interviews.date': 'Date',
+    'interviews.time': 'Time',
+    'interviews.none': 'No interviews',
+    'archive.title': '📁 CV Archive',
+    'archive.file': 'file',
+    'archive.unassigned': 'Unassigned',
+    'archive.search': '🔍 Search...',
+    'archive.none': 'No files',
+    'archive.noPermission': 'You do not have permission to view CVs',
+    'cvrequest.title': '📤 CV Files Request',
+    'cvrequest.select': '-- Select Vacancy --',
+    'cvrequest.none': 'No files',
+    'cvrequest.viewAll': '👁️ View All',
+    'cvrequest.zip': '⬇️ ZIP',
+    'settings.title': '👥 User & Permissions Management',
+    'settings.subtitle': 'Add new users and define their permissions precisely',
+    'settings.managers': 'Users',
+    'settings.addManager': '➕ Add New User',
+    'settings.name': 'Name',
+    'settings.role': 'Role',
+    'settings.username': 'Username',
+    'settings.password': 'Password',
+    'settings.allowedVacancies': 'Allowed Vacancies',
+    'settings.actions': 'Actions',
+    'settings.admin': 'System Admin',
+    'settings.manager': 'Manager',
+    'settings.you': '(You)',
+    'settings.editPermissions': '✏️ Edit Permissions',
+    'settings.all': 'All',
+    'settings.vacancy': 'vacancy',
+    'settings.backup': ' Backup',
+    'settings.export': ' Export Data',
+    'settings.import': ' Import',
+    'settings.clear': '️ Clear All',
+    'settings.adminOnly': 'This page is available for admin account only',
+    'settings.protected': 'This account is protected and cannot be modified',
+    'settings.storage': ' Storage: IndexedDB (Unlimited)',
+    'settings.autoSave': 'Auto Save',
+    'settings.autoSaveEnabled': 'Enabled',
+    'settings.lastSaved': 'Last successful save',
+    'settings.freeSpace': '🗑️ Free Up Space',
+    'settings.freeSpaceDesc': 'Delete old CV files to free up storage space',
+    'form.jobTitle': 'Job Title',
+    'form.department': 'Department',
+    'form.management': 'Management',
+    'form.openDate': 'Opening Date',
+    'form.status': 'Vacancy Status',
+    'form.owner': 'Vacancy Owner',
+    'form.name': 'Candidate Name',
+    'form.phone': 'Phone Number',
+    'form.email': 'Email',
+    'form.vacancy': 'Job Vacancy',
+    'form.candidateStatus': 'Candidate Status',
+    'form.cv': 'CV (PDF / Word)',
+    'form.cvClick': 'Click to choose file',
+    'form.remove': 'Remove',
+    'form.notes': 'Notes',
+    'form.select': '-- Select --',
+    'form.required': '*',
+    'form.fullName': 'Full Name',
+    'form.loginUsername': 'Username (for login)',
+    'form.loginPassword': 'Password',
+    'form.role': 'Role / Position',
+    'form.roleManager': 'Regular Manager',
+    'form.roleAdmin': 'System Admin (Full Permissions)',
+    'form.permissions': '️ Specific Permissions',
+    'form.viewAllVacancies': 'Allow viewing ALL vacancies',
+    'form.addVacancy': 'Allow adding new vacancies',
+    'form.viewCV': 'Allow viewing CVs',
+    'form.addCV': 'Allow adding candidates and CVs',
+    'form.allowedVacancies': 'Select allowed vacancies to view:',
+    'form.allowedVacanciesHint': '* Press Ctrl (or Cmd on Mac) to select multiple vacancies.',
+    'btn.save': ' Save',
+    'btn.savePermissions': ' Save Permissions',
+    'btn.cancel': 'Cancel',
+    'btn.edit': '✏️ Edit',
+    'btn.delete': '🗑️ Delete',
+    'btn.view': '👁️ View',
+    'btn.download': '️ Download',
+    'btn.back': '← Back',
+    'btn.addCandidate': '➕ Add Candidate',
+    'msg.saved': 'Saved',
+    'msg.updated': 'Updated',
+    'msg.deleted': 'Deleted',
+    'msg.added': 'Added',
+    'msg.required': 'Required fields missing',
+    'msg.jobTitleRequired': 'Job title is required',
+    'msg.nameVacancyRequired': 'Name and vacancy are required',
+    'msg.confirmDelete': 'Delete this item?',
+    'msg.confirmDeleteManager': 'Delete this user?',
+    'msg.confirmImport': 'All current data will be replaced. Continue?',
+    'msg.confirmClear1': '⚠️ Delete all data?',
+    'msg.confirmClear2': 'Final confirmation?',
+    'msg.noPermissionVacancy': 'You do not have permission to add vacancies',
+    'msg.noPermissionCV': 'You do not have permission to view CVs',
+    'msg.noPermissionAddCV': 'You do not have permission to add candidates',
+    'msg.noPermissionSettings': 'You do not have permission to access this page',
+    'msg.noVacanciesAvailable': 'No vacancies available for your permissions',
+    'msg.fileTooLarge': 'File too large (max 10MB)',
+    'msg.noFile': 'No file',
+    'msg.preparing': 'Preparing...',
+    'msg.downloaded': 'Downloaded',
+    'msg.exported': 'Exported',
+    'msg.imported': 'Imported',
+    'msg.invalidFile': 'Invalid file',
+    'msg.langChanged': 'Language changed',
+    'msg.cannotDeleteAdmin': 'Cannot delete the main admin account',
+    'msg.cannotEditAdmin': 'Cannot edit the main admin account',
+    'msg.vacancyDeleted': 'Vacancy deleted and candidates moved to archive',
+    'msg.vacancyClosed': 'Vacancy closed',
+    'msg.vacancyReopened': 'Vacancy reopened',
+    'msg.saveFailed': 'Save failed! Storage is full',
+    'msg.saveFailedDetail': 'Please export data or delete old CV files',
+    'msg.storageWarning': '⚠️ Storage space is running low!',
+    'msg.autoSaveOn': 'Auto save enabled',
+    'status.open': 'Open',
+    'status.hiring': 'Hiring',
+    'status.filled': 'Filled',
+    'status.stopped': 'Stopped',
+    'cStatus.new': 'New Candidate',
+    'cStatus.contacted': 'Contacted',
+    'cStatus.interview_scheduled': 'Interview Scheduled',
+    'cStatus.interviewed': 'Interviewed',
+    'cStatus.evaluating': 'Under Review',
+    'cStatus.final': 'Final Candidate',
+    'cStatus.accepted': 'Accepted',
+    'cStatus.rejected': 'Rejected',
+    'cStatus.withdrawn': 'Withdrawn',
+    'user.myAccount': '👤 My Account & Permissions',
+    'user.adminRole': 'System Admin (Full Permissions)',
+    'user.myPermissions': 'Your Current Permissions:',
+    'user.allowedVacancies': '📋 Allowed Vacancies:',
+    'user.allowedCandidates': '👥 Allowed Candidates:',
+    'user.viewCV': '👁️ View CVs:',
+    'user.addCV': '➕ Add CVs:',
+    'user.allowed': '✅ Allowed',
+    'user.notAllowed': '❌ Not Allowed',
+    'user.close': 'Close'
+  }
+};
+
+// ==================== I18N SYSTEM ====================
+function t(key) {
+  return (TRANSLATIONS[state.language] && TRANSLATIONS[state.language][key]) || TRANSLATIONS['ar'][key] || key;
+}
+
+function setLanguage(lang) {
+  state.language = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  
+  // Update all lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  
+  // Update static text elements by ID
+  const textMap = {
+    'loginTitle': 'login.title',
+    'loginUsernameLabel': 'login.username',
+    'loginPasswordLabel': 'login.password',
+    'loginSubmitBtn': 'login.submit',
+    'sidebarSubtitle': 'app.subtitle',
+    'navDashboard': 'nav.dashboard',
+    'navVacancies': 'nav.vacancies',
+    'navCandidates': 'nav.candidates',
+    'navInterviews': 'nav.interviews',
+    'navArchive': 'nav.archive',
+    'navCvrequest': 'nav.cvrequest'
+  };
+  
+  for (const [id, key] of Object.entries(textMap)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  }
+  
+  // Update placeholders
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  if (usernameInput) usernameInput.placeholder = t('login.usernamePh');
+  if (passwordInput) passwordInput.placeholder = t('login.passwordPh');
+  
+  // Update login error
+  const loginError = document.getElementById('loginError');
+  if (loginError && loginError.style.display === 'block') {
+    loginError.textContent = t('login.error');
+  }
+  
+  // Save and re-render if logged in
+  saveState(true);
+  if (state.currentManagerId && getCurrentManager()) {
+    render();
+  }
+  
+  showToast(t('msg.langChanged'));
+}
+
+// ==================== INDEXEDDB STORAGE ====================
+const DB_NAME = 'AvnzorDB';
+const DB_VERSION = 1;
+const STORE_DATA = 'appData';
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => { db = request.result; resolve(db); };
+    request.onupgradeneeded = (event) => {
+      const database = event.target.result;
+      if (!database.objectStoreNames.contains(STORE_DATA)) {
+        database.createObjectStore(STORE_DATA, { keyPath: 'key' });
+      }
     };
+  });
+}
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const jobsRef = collection(db, "jobs");
+function dbPut(storeName, data) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const request = store.put(data);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
 
-    window.addJob = async function() {
-      const title = document.getElementById('jobTitle').value.trim();
-      const desc = document.getElementById('jobDesc').value.trim();
+function dbGet(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const request = store.get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
-      if (!title) {
-        alert("يرجى كتابة المسمى الوظيفي");
-        return;
-      }
+// ==================== STATE ====================
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = '123456';
+let state = {
+  managers: [],
+  vacancies: [],
+  candidates: [],
+  currentManagerId: null,
+  currentPage: 'dashboard',
+  currentVacancyId: null,
+  language: 'ar',
+  filters: { status: 'all', vacancyId: 'all', search: '' },
+  lastSaved: null,
+  autoSaveEnabled: true
+};
 
-      try {
-        await addDoc(jobsRef, {
-          title: title,
-          description: desc,
-          createdAt: serverTimestamp()
-        });
-        document.getElementById('jobTitle').value = '';
-        document.getElementById('jobDesc').value = '';
-      } catch (e) {
-        console.error("خطأ في الإضافة: ", e);
-        alert("حدث خطأ أثناء الإضافة");
+const CANDIDATE_STATUSES = [
+  { key: 'new', class: 'b-new' },
+  { key: 'contacted', class: 'b-contacted' },
+  { key: 'interview_scheduled', class: 'b-interview-scheduled' },
+  { key: 'interviewed', class: 'b-interviewed' },
+  { key: 'evaluating', class: 'b-evaluating' },
+  { key: 'final', class: 'b-final' },
+  { key: 'accepted', class: 'b-accepted' },
+  { key: 'rejected', class: 'b-rejected' },
+  { key: 'withdrawn', class: 'b-withdrawn' }
+];
+
+const VACANCY_STATUSES = [
+  { key: 'open', class: 'b-open' },
+  { key: 'hiring', class: 'b-hiring' },
+  { key: 'filled', class: 'b-filled' },
+  { key: 'stopped', class: 'b-stopped' }
+];
+
+// ==================== UTILS ====================
+async function loadState() {
+  try {
+    await openDB();
+    const data = await dbGet(STORE_DATA, 'main');
+    if (data && data.value) {
+      state = { ...state, ...data.value };
+    }
+  } catch (e) {
+    console.error('Load error:', e);
+  }
+}
+
+async function saveState(silent = false) {
+  try {
+    const data = {
+      key: 'main',
+      value: {
+        managers: state.managers,
+        vacancies: state.vacancies,
+        candidates: state.candidates,
+        currentManagerId: state.currentManagerId,
+        language: state.language,
+        lastSaved: Date.now(),
+        autoSaveEnabled: state.autoSaveEnabled
       }
     };
+    await dbPut(STORE_DATA, data);
+    state.lastSaved = Date.now();
+    return true;
+  } catch (e) {
+    console.error('Save error:', e);
+    if (!silent) showToast(t('msg.saveFailed'), 'error');
+    return false;
+  }
+}
 
-    onSnapshot(jobsRef, (snapshot) => {
-      const jobsList = document.getElementById('jobsList');
-      jobsList.innerHTML = '';
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
-      if (snapshot.empty) {
-        jobsList.innerHTML = '<p>لا توجد شواغر مضافة حالياً.</p>';
-        return;
-      }
+function showToast(msg, type = 'success') {
+  const tEl = document.getElementById('toast');
+  tEl.textContent = msg;
+  tEl.className = 'toast show ' + type;
+  setTimeout(() => tEl.classList.remove('show'), 3000);
+}
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const item = document.createElement('div');
-        item.className = 'job-item';
-        item.innerHTML = `<h3>${data.title}</h3><p>${data.description || ''}</p>`;
-        jobsList.appendChild(item);
-      });
+function getStatus(key, list) { return list.find(s => s.key === key) || list[0]; }
+
+// ✅ FIXED: statusLabel now uses translation properly
+function statusLabel(key, list) {
+  const prefix = (list === CANDIDATE_STATUSES) ? 'cStatus.' : 'status.';
+  return t(prefix + key);
+}
+
+function badge(key, list) {
+  const s = getStatus(key, list);
+  return `<span class="badge ${s.class}">${statusLabel(key, list)}</span>`;
+}
+
+function esc(s) { if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return d; } }
+function fmtDateTime(d) { if (!d) return '—'; try { return new Date(d).toLocaleString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return d; } }
+function initials(name) { if (!name) return '?'; return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase(); }
+function getManager(id) { return state.managers.find(m => m.id === id); }
+function getCurrentManager() { return getManager(state.currentManagerId); }
+function isAdminAccount(manager) { return manager && manager.username === ADMIN_USERNAME; }
+
+function canViewVacancy(manager, vacancyId) {
+  if (!manager) return false;
+  if (isAdminAccount(manager) || manager.permissions.canViewAllVacancies) return true;
+  return manager.permissions.allowedVacancyIds && manager.permissions.allowedVacancyIds.includes(vacancyId);
+}
+function canAddVacancy(manager) { return manager && (isAdminAccount(manager) || manager.permissions.canAddVacancy); }
+function canViewCV(manager) { return manager && (isAdminAccount(manager) || manager.permissions.canViewCV); }
+function canAddCV(manager) { return manager && (isAdminAccount(manager) || manager.permissions.canAddCV); }
+
+function getVisibleVacancies(manager) {
+  if (!manager) return [];
+  let list = state.vacancies.filter(v => !v.isDeleted);
+  if (isAdminAccount(manager) || manager.permissions.canViewAllVacancies) return list;
+  return list.filter(v => manager.permissions.allowedVacancyIds && manager.permissions.allowedVacancyIds.includes(v.id));
+}
+
+function getVisibleCandidates(manager) {
+  if (!manager) return [];
+  const visibleVIds = getVisibleVacancies(manager).map(v => v.id);
+  return state.candidates.filter(c => {
+    if (visibleVIds.includes(c.vacancyId)) return true;
+    const v = state.vacancies.find(x => x.id === c.vacancyId);
+    return v && v.isDeleted && (isAdminAccount(manager) || v.ownerId === manager.id);
+  });
+}
+
+// ==================== AUTH ====================
+function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  const manager = state.managers.find(m => m.username && m.username.toLowerCase() === username);
+  if (manager && manager.password === password) {
+    state.currentManagerId = manager.id;
+    saveState(true);
+    err.style.display = 'none';
+    showApp();
+  } else {
+    err.textContent = t('login.error');
+    err.style.display = 'block';
+  }
+}
+
+function logout() {
+  if (!confirm(t('logout.confirm'))) return;
+  state.currentManagerId = null;
+  saveState(true);
+  document.getElementById('appContainer').classList.remove('active');
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginForm').reset();
+}
+
+function showApp() {
+  if (!state.currentManagerId) {
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('appContainer').classList.remove('active');
+    return;
+  }
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appContainer').classList.add('active');
+  const m = getCurrentManager();
+  if (m) {
+    document.getElementById('currentUserName').textContent = m.name;
+    document.getElementById('currentUserRole').textContent = isAdminAccount(m) ? t('settings.admin') : (m.role || t('settings.manager'));
+    document.getElementById('currentUserAvatar').textContent = initials(m.name);
+  }
+  const settingsNavContainer = document.getElementById('navMenu');
+  const existingSettings = settingsNavContainer.querySelector('a[data-page="settings"]');
+  if (existingSettings) existingSettings.parentElement.remove();
+
+  if (isAdminAccount(m)) {
+    const settingsLi = document.createElement('li');
+    settingsLi.className = 'nav-item';
+    settingsLi.innerHTML = `<a class="nav-link" data-page="settings"><span class="nav-icon">⚙️</span><span>${t('nav.settings')}</span></a>`;
+    settingsNavContainer.appendChild(settingsLi);
+    settingsLi.querySelector('a').addEventListener('click', () => {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      settingsLi.querySelector('a').classList.add('active');
+      state.currentPage = 'settings';
+      state.currentVacancyId = null;
+      render();
+      if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
     });
-  </script>
+  }
+
+  render();
+}
+
+function showUserMenu() {
+  const m = getCurrentManager(); if (!m) return;
+  const visibleV = getVisibleVacancies(m);
+  const visibleC = getVisibleCandidates(m);
+  const body = `
+    <div style="text-align:center;padding:20px">
+      <div class="user-avatar" style="width:70px;height:70px;font-size:24px;margin:0 auto 14px">${initials(m.name)}</div>
+      <div style="font-size:18px;font-weight:700;color:var(--primary)">${esc(m.name)}</div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:4px">${isAdminAccount(m) ? t('user.adminRole') : (esc(m.role || t('settings.manager')))}</div>
+      <div style="font-size:11px;color:var(--text-lighter);margin-top:2px">@${esc(m.username)}</div>
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+      <div style="text-align:${state.language === 'ar' ? 'right' : 'left'};font-size:13px">
+        <div style="margin-bottom:8px"><strong>${t('user.myPermissions')}</strong></div>
+        <div>${t('user.allowedVacancies')} <strong>${visibleV.length}</strong></div>
+        <div>${t('user.allowedCandidates')} <strong>${visibleC.length}</strong></div>
+        <div>${t('user.viewCV')} <strong>${canViewCV(m) ? t('user.allowed') : t('user.notAllowed')}</strong></div>
+        <div>${t('user.addCV')} <strong>${canAddCV(m) ? t('user.allowed') : t('user.notAllowed')}</strong></div>
+      </div>
+    </div>
+  `;
+  const footer = `<button class="btn btn-danger btn-sm" onclick="closeModal();logout()">🚪 ${t('logout')}</button><button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`;
+  openModal(t('user.myAccount'), body, footer);
+}
+
+function openModal(title, body, footer = '', large = false) {
+  document.getElementById('modalTitle').innerHTML = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalFooter').innerHTML = footer;
+  document.getElementById('modalBox').classList.toggle('lg', large);
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    state.currentPage = link.dataset.page;
+    state.currentVacancyId = null;
+    render();
+    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+  });
+});
+
+function navTo(page) {
+  state.currentPage = page;
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === page));
+  render();
+}
+
+function openVacancy(id) {
+  state.currentPage = 'vacancy-detail'; state.currentVacancyId = id;
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === 'vacancies'));
+  render();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  window.scrollTo(0, 0);
+  const m = getCurrentManager();
+  if (!m) return;
+  switch (state.currentPage) {
+    case 'dashboard': app.innerHTML = renderDashboard(m); break;
+    case 'vacancies': app.innerHTML = renderVacancies(m); break;
+    case 'vacancy-detail': app.innerHTML = renderVacancyDetail(m); break;
+    case 'candidates': app.innerHTML = renderCandidates(m); break;
+    case 'interviews': app.innerHTML = renderInterviews(m); break;
+    case 'archive': app.innerHTML = renderArchive(m); break;
+    case 'cvrequest': app.innerHTML = renderCVRequest(m); break;
+    case 'settings': app.innerHTML = renderSettings(m); break;
+  }
+  attachPageEvents();
+}
+
+function renderDashboard(m) {
+  const visibleV = getVisibleVacancies(m);
+  const visibleC = getVisibleCandidates(m);
+  const openV = visibleV.filter(v => v.status === 'open').length;
+  const accepted = visibleC.filter(c => c.status === 'accepted').length;
+  const rejected = visibleC.filter(c => c.status === 'rejected').length;
+  return `
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">${t('dashboard.welcome')} ${esc(m.name)} 👋</h1>
+        <p class="page-subtitle">${t('dashboard.subtitle')} • ${new Date().toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </div>
+      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">${t('vacancies.new')}</button>` : ''}
+    </div>
+    <div class="card" style="background:var(--gradient);color:#fff;margin-bottom:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+        <div>
+          <div style="font-size:13px;opacity:.9;margin-bottom:4px">${t('dashboard.myStats')}</div>
+          <div style="font-size:22px;font-weight:700">${visibleV.length} ${t('nav.vacancies')} • ${visibleC.length} ${t('nav.candidates')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon"></div></div>
+      <div class="stat-card info"><div><div class="stat-label">${t('dashboard.myCandidates')}</div><div class="stat-value">${visibleC.length}</div></div><div class="stat-icon">👥</div></div>
+      <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${accepted}</div></div><div class="stat-icon">✅</div></div>
+      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"> ${t('dashboard.availableVacancies')}</div></div>
+      ${visibleV.length === 0 ? `<div class="empty-state" style="padding:30px"><div class="empty-state-title">${t('dashboard.noVacancies')}</div><p>${t('dashboard.contactAdmin')}</p></div>` : `
+        <div class="vacancies-grid">
+          ${visibleV.slice(0, 6).map(v => {
+            const cs = state.candidates.filter(c => c.vacancyId === v.id);
+            return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
+              <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
+              <div class="vacancy-meta-row"><span>🏢 ${esc(v.department || '—')}</span></div>
+              <div class="vacancy-stats"><div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function renderVacancies(m) {
+  let visibleV = getVisibleVacancies(m);
+  if (state.filters.search) {
+    const q = state.filters.search.toLowerCase();
+    visibleV = visibleV.filter(v => (v.title || '').toLowerCase().includes(q) || (v.department || '').toLowerCase().includes(q));
+  }
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">${t('vacancies.title')}</h1><p class="page-subtitle">${visibleV.length} ${t('vacancies.available')}</p></div>
+      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">${t('vacancies.new')}</button>` : ''}
+    </div>
+    <div class="card">
+      <div style="margin-bottom:16px"><input type="text" class="form-control" id="vacancySearch" placeholder="${t('vacancies.search')}" value="${esc(state.filters.search)}" style="max-width:400px"></div>
+      ${visibleV.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('vacancies.none')}</div></div>` : `
+        <div class="vacancies-grid">
+          ${visibleV.map(v => {
+            const cs = state.candidates.filter(c => c.vacancyId === v.id);
+            const owner = getManager(v.ownerId);
+            return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
+              <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
+              <div class="vacancy-meta-row"><span>👤 ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')}</span><span>🏢 ${esc(v.department || '—')}</span></div>
+              <div class="vacancy-stats">
+                <div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div>
+                <div class="vacancy-stat"><div class="vacancy-stat-num" style="color:var(--success)">${cs.filter(c => c.status === 'accepted').length}</div><div class="vacancy-stat-label">${t('vacancies.accepted')}</div></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function openVacancyForm(id = null) {
+  const m = getCurrentManager();
+  if (!canAddVacancy(m)) { showToast(t('msg.noPermissionVacancy'), 'error'); return; }
+  const v = id ? state.vacancies.find(x => x.id === id) : { title: '', department: '', management: '', openDate: new Date().toISOString().slice(0, 10), status: 'open', ownerId: m.id };
+  const body = `
+    <form id="vacancyForm">
+      <div class="form-grid">
+        <div class="form-group"><label>${t('form.jobTitle')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="title" value="${esc(v.title)}" required></div>
+        <div class="form-group"><label>${t('form.department')}</label><input type="text" class="form-control" name="department" value="${esc(v.department || '')}"></div>
+        <div class="form-group"><label>${t('form.management')}</label><input type="text" class="form-control" name="management" value="${esc(v.management || '')}"></div>
+        <div class="form-group"><label>${t('form.openDate')}</label><input type="date" class="form-control" name="openDate" value="${v.openDate || ''}"></div>
+        <div class="form-group"><label>${t('form.status')}</label>
+          <select class="form-control" name="status">${VACANCY_STATUSES.map(s => `<option value="${s.key}" ${v.status === s.key ? 'selected' : ''}>${statusLabel(s.key, VACANCY_STATUSES)}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label>${t('form.owner')}</label>
+          <select class="form-control" name="ownerId" required>
+            ${state.managers.map(mgr => `<option value="${mgr.id}" ${v.ownerId === mgr.id ? 'selected' : ''}>${esc(mgr.name)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </form>`;
+  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveVacancy('${id || ''}')">${t('btn.save')}</button>`;
+  openModal(id ? t('btn.edit') : t('vacancies.new'), body, footer);
+}
+
+function saveVacancy(id) {
+  const form = document.getElementById('vacancyForm');
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.title.trim()) { showToast(t('msg.jobTitleRequired'), 'error'); return; }
+  if (id) {
+    const v = state.vacancies.find(x => x.id === id);
+    if (v) Object.assign(v, data);
+    showToast(t('msg.updated'));
+  } else {
+    state.vacancies.push({ id: uid(), ...data, createdAt: Date.now() });
+    showToast(t('msg.added'));
+  }
+  saveState();
+  closeModal();
+  render();
+}
+
+function deleteVacancy(id) {
+  if (!confirm(t('vacancies.confirmDelete'))) return;
+  const v = state.vacancies.find(x => x.id === id);
+  if (v) { v.isDeleted = true; v.deletedAt = Date.now(); }
+  saveState();
+  showToast(t('msg.vacancyDeleted'));
+  navTo('vacancies');
+}
+
+function closeVacancy(id) {
+  if (!confirm(t('vacancies.confirmClose'))) return;
+  const v = state.vacancies.find(x => x.id === id);
+  if (v) { v.status = 'stopped'; }
+  saveState();
+  showToast(t('msg.vacancyClosed'));
+  render();
+}
+
+function reopenVacancy(id) {
+  if (!confirm(t('vacancies.confirmReopen'))) return;
+  const v = state.vacancies.find(x => x.id === id);
+  if (v) { v.status = 'open'; }
+  saveState();
+  showToast(t('msg.vacancyReopened'));
+  render();
+}
+
+function renderVacancyDetail(m) {
+  const v = state.vacancies.find(x => x.id === state.currentVacancyId);
+  if (!v || !canViewVacancy(m, v.id)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('vacancies.notAllowed')}</div></div></div>`;
+  const cs = state.candidates.filter(c => c.vacancyId === v.id);
+  const owner = getManager(v.ownerId);
+  const isClosed = v.status === 'stopped' || v.status === 'filled';
+
+  return `
+    <div class="page-header">
+      <div>
+        <button class="btn btn-secondary btn-sm mb-2" onclick="navTo('vacancies')">${t('btn.back')}</button>
+        <h1 class="page-title">${esc(v.title)}</h1>
+        <p class="page-subtitle">👤 ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')} • ${badge(v.status, VACANCY_STATUSES)}</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary" onclick="openVacancyForm('${v.id}')">${t('vacancies.edit')}</button>
+        ${isClosed ?
+      `<button class="btn btn-success" onclick="reopenVacancy('${v.id}')">${t('vacancies.reopen')}</button>` :
+      `<button class="btn btn-warning" onclick="closeVacancy('${v.id}')">${t('vacancies.close')}</button>`
+    }
+        <button class="btn btn-danger" onclick="deleteVacancy('${v.id}')">${t('vacancies.delete')}</button>
+        ${canAddCV(m) && !isClosed ? `<button class="btn btn-primary" onclick="openCandidateForm(null,'${v.id}')">${t('btn.addCandidate')}</button>` : ''}
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div><div class="stat-label">${t('vacancies.totalCandidates')}</div><div class="stat-value">${cs.length}</div></div><div class="stat-icon">👥</div></div>
+      <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${cs.filter(c => c.status === 'accepted').length}</div></div><div class="stat-icon">✅</div></div>
+      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${cs.filter(c => c.status === 'rejected').length}</div></div><div class="stat-icon">❌</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">${t('nav.candidates')} (${cs.length})</div></div>
+      ${cs.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('vacancies.noCandidates')}</div></div>` : `
+        <div class="table-wrapper"><table>
+          <thead><tr><th>${t('candidates.name')}</th><th>${t('candidates.phone')}</th><th>${t('candidates.email')}</th><th>${t('candidates.date')}</th><th>${t('candidates.status')}</th>${canViewCV(m) ? `<th>${t('candidates.cvColumn')}</th>` : ''}<th>${t('candidates.actions')}</th></tr></thead>
+          <tbody>${cs.map(c => `
+            <tr>
+              <td><strong>${esc(c.name)}</strong></td>
+              <td>${esc(c.phone || '—')}</td>
+              <td>${esc(c.email || '—')}</td>
+              <td>${fmtDate(c.createdAt)}</td>
+              <td>${badge(c.status, CANDIDATE_STATUSES)}</td>
+              ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')">${t('btn.view')}</button>` : '—'}</td>` : ''}
+              <td><button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">${t('btn.delete')}</button></td>
+            </tr>`).join('')}</tbody>
+        </table></div>
+      `}
+    </div>
+  `;
+}
+
+function renderCandidates(m) {
+  const visibleC = getVisibleCandidates(m);
+  const filtered = visibleC.filter(c => {
+    if (state.filters.status !== 'all' && c.status !== state.filters.status) return false;
+    if (state.filters.vacancyId !== 'all' && c.vacancyId !== state.filters.vacancyId) return false;
+    if (state.filters.search) {
+      const q = state.filters.search.toLowerCase();
+      return (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q);
+    }
+    return true;
+  });
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">${t('candidates.title')}</h1><p class="page-subtitle">${filtered.length} ${t('candidates.candidate')}</p></div>
+      ${canAddCV(m) ? `<button class="btn btn-primary" onclick="openCandidateForm()">${t('candidates.new')}</button>` : ''}
+    </div>
+    <div class="card">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <input type="text" class="form-control" id="candSearch" placeholder="${t('candidates.search')}" value="${esc(state.filters.search)}" style="flex:1;min-width:200px">
+        <select class="form-control" id="vacancyFilter" style="max-width:250px">
+          <option value="all">${t('candidates.allVacancies')}</option>
+          ${getVisibleVacancies(m).map(v => `<option value="${v.id}" ${state.filters.vacancyId === v.id ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
+        </select>
+        <select class="form-control" id="statusFilter" style="max-width:200px">
+          <option value="all">${t('candidates.allStatuses')}</option>
+          ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${state.filters.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}
+        </select>
+      </div>
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('candidates.noResults')}</div></div>` : `
+        <div class="table-wrapper"><table>
+          <thead><tr><th>${t('candidates.name')}</th><th>${t('candidates.job')}</th><th>${t('candidates.phone')}</th><th>${t('candidates.status')}</th>${canViewCV(m) ? `<th>${t('candidates.cv')}</th>` : ''}<th>${t('candidates.actions')}</th></tr></thead>
+          <tbody>${filtered.map(c => {
+    const v = state.vacancies.find(v => v.id === c.vacancyId);
+    return `<tr>
+              <td><strong>${esc(c.name)}</strong></td>
+              <td>${v ? esc(v.title) : '—'}</td>
+              <td>${esc(c.phone || '—')}</td>
+              <td>
+                <select class="form-control" style="padding:4px 8px;font-size:12px;min-width:130px" onchange="updateCandidateStatus('${c.id}', this.value)">
+                  ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}
+                </select>
+              </td>
+              ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')">📄</button>` : '—'}</td>` : ''}
+              <td>
+                <div style="display:flex;gap:5px">
+                  <button class="btn btn-warning btn-sm" onclick="openQuickNotes('${c.id}')" title="${t('candidates.notes')}">📝</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">${t('btn.delete')}</button>
+                </div>
+              </td>
+            </tr>`;
+  }).join('')}</tbody>
+        </table></div>
+      `}
+    </div>
+  `;
+}
+
+function openQuickNotes(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (!c) return;
+  const body = `
+    <div class="form-group">
+      <label style="font-size:14px;margin-bottom:8px">${t('candidates.notes')}: <strong style="color:var(--primary)">${esc(c.name)}</strong></label>
+      <textarea class="form-control" id="quickNoteText" rows="6" placeholder="${state.language === 'ar' ? 'اكتب ملاحظاتك هنا' : 'Write your notes here'}">${esc(c.notes || '')}</textarea>
+    </div>
+  `;
+  const footer = `
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button>
+    <button class="btn btn-primary" onclick="saveQuickNote('${id}')"> ${t('btn.save')}</button>
+  `;
+  openModal('📝 ' + t('candidates.notes'), body, footer);
+}
+
+function saveQuickNote(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (c) {
+    c.notes = document.getElementById('quickNoteText').value;
+    saveState();
+    closeModal();
+    render();
+    showToast(t('msg.saved'));
+  }
+}
+
+function updateCandidateStatus(id, newStatus) {
+  const c = state.candidates.find(x => x.id === id);
+  if (c) {
+    c.status = newStatus;
+    saveState();
+    showToast(t('msg.updated'));
+  }
+}
+
+let pendingCV = null;
+function openCandidateForm(id = null, defaultVacancyId = null) {
+  const m = getCurrentManager();
+  if (!canAddCV(m)) { showToast(t('msg.noPermissionAddCV'), 'error'); return; }
+  const c = id ? state.candidates.find(x => x.id === id) : { name: '', phone: '', email: '', vacancyId: defaultVacancyId || '', status: 'new', notes: '', cvData: null, cvName: null };
+  pendingCV = c.cvData ? { data: c.cvData, name: c.cvName, type: c.cvType } : null;
+  const visibleV = getVisibleVacancies(m);
+  if (visibleV.length === 0) { showToast(t('msg.noVacanciesAvailable'), 'error'); return; }
+  const body = `
+    <form id="candidateForm">
+      <div class="form-grid">
+        <div class="form-group"><label>${t('form.name')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="name" value="${esc(c.name)}" required></div>
+        <div class="form-group"><label>${t('form.phone')}</label><input type="tel" class="form-control" name="phone" value="${esc(c.phone || '')}"></div>
+        <div class="form-group"><label>${t('form.email')}</label><input type="email" class="form-control" name="email" value="${esc(c.email || '')}"></div>
+        <div class="form-group"><label>${t('form.vacancy')} <span style="color:var(--danger)">${t('form.required')}</span></label>
+          <select class="form-control" name="vacancyId" required>
+            <option value="">${t('form.select')}</option>
+            ${visibleV.map(v => `<option value="${v.id}" ${c.vacancyId === v.id ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>${t('form.candidateStatus')}</label>
+          <select class="form-control" name="status">${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>${t('form.cv')}</label>
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafbfc" onclick="document.getElementById('cvFile').click()">
+          <div style="font-size:32px;opacity:.6">📄</div>
+          <div style="color:var(--text-light);font-size:13px">${t('form.cvClick')}</div>
+          <input type="file" id="cvFile" accept=".pdf,.doc,.docx" style="display:none">
+        </div>
+        <div id="fileInfo" style="display:${pendingCV ? 'flex' : 'none'};margin-top:8px;padding:8px;background:var(--primary-50);border-radius:6px;font-size:12px;align-items:center;gap:8px">
+          📎 <span id="fileName">${esc(pendingCV?.name || '')}</span>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="removeCV()" style="padding:2px 8px">${t('form.remove')}</button>
+        </div>
+      </div>
+      <div class="form-group"><label>${t('form.notes')}</label><textarea class="form-control" name="notes" rows="2">${esc(c.notes || '')}</textarea></div>
+    </form>`;
+  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveCandidate('${id || ''}')">${t('btn.save')}</button>`;
+  openModal(id ? t('btn.edit') : t('candidates.new'), body, footer);
+  document.getElementById('cvFile').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > 10 * 1024 * 1024) { showToast(t('msg.fileTooLarge'), 'error'); return; }
+    const r = new FileReader();
+    r.onload = ev => {
+      pendingCV = { data: ev.target.result, name: f.name, type: f.type };
+      document.getElementById('fileInfo').style.display = 'flex';
+      document.getElementById('fileName').textContent = f.name;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function removeCV() { pendingCV = null; document.getElementById('cvFile').value = ''; document.getElementById('fileInfo').style.display = 'none'; }
+
+function saveCandidate(id) {
+  const form = document.getElementById('candidateForm');
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.name.trim() || !data.vacancyId) { showToast(t('msg.nameVacancyRequired'), 'error'); return; }
+  const v = state.vacancies.find(x => x.id === data.vacancyId);
+  if (id) {
+    const c = state.candidates.find(x => x.id === id);
+    Object.assign(c, data);
+    if (v) c.vacancyTitle = v.title;
+    if (pendingCV) { c.cvData = pendingCV.data; c.cvName = pendingCV.name; c.cvType = pendingCV.type; }
+    showToast(t('msg.updated'));
+  } else {
+    state.candidates.push({
+      id: uid(), ...data,
+      vacancyTitle: v ? v.title : 'Unknown',
+      cvData: pendingCV?.data || null, cvName: pendingCV?.name || null, cvType: pendingCV?.type || null,
+      createdAt: Date.now()
+    });
+    showToast(t('msg.added'));
+  }
+  pendingCV = null;
+  saveState();
+  closeModal();
+  render();
+}
+
+function deleteCandidate(id) {
+  if (!confirm(t('msg.confirmDelete'))) return;
+  state.candidates = state.candidates.filter(x => x.id !== id);
+  saveState();
+  showToast(t('msg.deleted'));
+  render();
+}
+
+function renderInterviews(m) {
+  const list = getVisibleCandidates(m).filter(c => c.interviewDate).sort((a, b) => new Date(a.interviewDate) - new Date(b.interviewDate));
+  return `<div class="page-header"><div><h1 class="page-title">${t('interviews.title')}</h1><p class="page-subtitle">${list.length} ${t('interviews.interview')}</p></div></div>
+    <div class="card">${list.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('interviews.none')}</div></div>` : `
+      <div class="table-wrapper"><table><thead><tr><th>${t('interviews.candidate')}</th><th>${t('interviews.job')}</th><th>${t('interviews.date')}</th><th>${t('interviews.time')}</th><th>${t('candidates.status')}</th></tr></thead>
+      <tbody>${list.map(c => { const v = state.vacancies.find(v => v.id === c.vacancyId); return `<tr><td><strong>${esc(c.name)}</strong></td><td>${v ? esc(v.title) : '—'}</td><td>${fmtDate(c.interviewDate)}</td><td>${c.interviewTime || '—'}</td><td>${badge(c.status, CANDIDATE_STATUSES)}</td></tr>` }).join('')}</tbody></table></div>`}</div>`;
+}
+
+function renderArchive(m) {
+  if (!canViewCV(m)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('archive.noPermission')}</div></div></div>`;
+  const q = (state.filters.search || '').toLowerCase();
+  const list = state.candidates.filter(c => {
+    if (!c.cvData) return false;
+    if (q && !(c.name || '').toLowerCase().includes(q) && !(c.vacancyTitle || '').toLowerCase().includes(q)) return false;
+    const v = state.vacancies.find(x => x.id === c.vacancyId);
+    const isVisibleNormal = getVisibleVacancies(m).some(vac => vac.id === c.vacancyId);
+    const isDeletedAllowed = v && v.isDeleted && (isAdminAccount(m) || v.ownerId === m.id);
+    return isVisibleNormal || isDeletedAllowed;
+  });
+
+  const folders = {};
+  list.forEach(c => {
+    const folderName = c.vacancyTitle || t('archive.unassigned');
+    if (!folders[folderName]) folders[folderName] = [];
+    folders[folderName].push(c);
+  });
+
+  return `
+    <div class="page-header"><div><h1 class="page-title">${t('archive.title')}</h1><p class="page-subtitle">${list.length} ${t('archive.file')}</p></div></div>
+    <div class="card">
+      <div style="margin-bottom:16px"><input type="text" class="form-control" id="archiveSearch" placeholder="${t('archive.search')}" value="${esc(state.filters.search)}" style="max-width:400px"></div>
+      ${Object.keys(folders).length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('archive.none')}</div></div>` :
+      Object.entries(folders).map(([folderName, candidates]) => `
+          <div style="margin-bottom:24px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 14px;background:var(--primary-50);border-radius:8px;border-right:4px solid var(--accent)">
+              <span style="font-size:20px">📁</span>
+              <strong style="color:var(--primary);font-size:15px">${esc(folderName)}</strong>
+              <span class="badge b-hiring" style="margin-${state.language === 'ar' ? 'right' : 'left'}:auto">${candidates.length} CV</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding-${state.language === 'ar' ? 'right' : 'left'}:10px">
+              ${candidates.map(c => `
+                <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px">
+                  <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                    <div style="width:44px;height:44px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${initials(c.name)}</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-weight:700;font-size:14px;color:var(--primary)">${esc(c.name)}</div>
+                      <div style="font-size:11px;color:var(--text-light)">${esc(c.cvName || '')} • ${fmtDate(c.createdAt)}</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">${t('btn.view')}</button>
+                    <button class="btn btn-secondary btn-sm" style="flex:1" onclick="downloadCV('${c.id}')">${t('btn.download')}</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')
+    }
+    </div>`;
+}
+
+function renderCVRequest(m) {
+  const visibleV = getVisibleVacancies(m);
+  return `<div class="page-header"><div><h1 class="page-title">${t('cvrequest.title')}</h1></div></div>
+    <div style="background:var(--gradient);color:#fff;padding:22px;border-radius:14px;margin-bottom:20px">
+      <select id="cvRequestSelect" onchange="updateCVRequest()" style="width:100%;padding:12px;border-radius:8px;border:none;font-size:14px;font-weight:600;background:rgba(255,255,255,.95);color:var(--primary);cursor:pointer">
+        <option value="">${t('cvrequest.select')}</option>
+        ${visibleV.map(v => { const count = state.candidates.filter(c => c.vacancyId === v.id && c.cvData).length; return `<option value="${v.id}">${esc(v.title)} (${count} CV)</option>` }).join('')}
+      </select>
+    </div><div id="cvRequestResult"></div>`;
+}
+
+function updateCVRequest() {
+  const vid = document.getElementById('cvRequestSelect').value;
+  const container = document.getElementById('cvRequestResult');
+  if (!vid) { container.innerHTML = ''; return; }
+  const v = state.vacancies.find(x => x.id === vid);
+  const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
+  if (cs.length === 0) { container.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('cvrequest.none')}</div></div></div>`; return; }
+  container.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">${esc(v.title)}</div>
+    <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="viewAllCVs('${vid}')">${t('cvrequest.viewAll')}</button><button class="btn btn-accent btn-sm" onclick="downloadAllCVs('${vid}')">${t('cvrequest.zip')}</button></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+      ${cs.map(c => `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+          <div style="width:38px;height:38px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">${initials(c.name)}</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--primary)">${esc(c.name)}</div></div>
+        </div>
+        <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">${t('btn.view')}</button><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">${t('btn.download')}</button></div>
+      </div>`).join('')}</div></div>`;
+}
+
+function renderSettings(m) {
+  if (!isAdminAccount(m)) {
+    return `<div class="card"><div class="empty-state"><div class="empty-state-icon"></div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
+  }
+
+  return `
+    <div class="page-header"><div><h1 class="page-title">${t('settings.title')}</h1><p class="page-subtitle">${t('settings.subtitle')}</p></div></div>
+    
+    <div class="storage-indicator">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong style="color:var(--primary)">${t('settings.storage')}</strong>
+        <span style="font-size:12px;color:var(--text-light)">${t('settings.autoSave')}: <strong style="color:var(--success)">${t('settings.autoSaveEnabled')}</strong></span>
+      </div>
+      <div style="padding:12px;background:#d1fae5;border-radius:8px;font-size:13px;color:#065f46">
+        ✅ IndexedDB - ${state.language === 'ar' ? 'مساحة تخزين غير محدودة' : 'Unlimited storage space'}
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-light)">
+        ${t('settings.lastSaved')}: <strong>${state.lastSaved ? fmtDateTime(state.lastSaved) : '—'}</strong>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header"><div class="card-title">👥 ${t('settings.managers')} (${state.managers.length})</div><button class="btn btn-primary btn-sm" onclick="openManagerForm()">${t('settings.addManager')}</button></div>
+      <div class="table-wrapper"><table><thead><tr><th>${t('settings.name')}</th><th>${t('settings.username')}</th><th>${t('settings.role')}</th><th>${t('settings.password')}</th><th>${t('settings.allowedVacancies')}</th><th>${t('settings.actions')}</th></tr></thead>
+      <tbody>${state.managers.map(mgr => {
+    const vCount = isAdminAccount(mgr) ? '∞' : (mgr.permissions.canViewAllVacancies ? state.vacancies.filter(v => !v.isDeleted).length : (mgr.permissions.allowedVacancyIds?.length || 0));
+    const isProtected = isAdminAccount(mgr);
+    return `<tr style="${isProtected ? 'background:var(--primary-50)' : ''}">
+          <td><strong>${esc(mgr.name)} ${mgr.id === m.id ? `<span style="font-size:10px;color:var(--accent)">${t('settings.you')}</span>` : ''} ${isProtected ? '<span class="badge b-hiring" style="margin-right:6px">🔒 ' + (state.language === 'ar' ? 'محمي' : 'Protected') + '</span>' : ''}</strong></td>
+          <td><code style="background:var(--primary-50);padding:2px 8px;border-radius:4px;font-size:12px">@${esc(mgr.username)}</code></td>
+          <td>${isAdminAccount(mgr) ? `<span class="badge b-hiring">${t('settings.admin')}</span>` : esc(mgr.role || t('settings.manager'))}</td>
+          <td>****</td>
+          <td>${isAdminAccount(mgr) ? t('settings.all') : (vCount + ' ' + t('settings.vacancy'))}</td>
+          <td><div style="display:flex;gap:5px">
+            ${isProtected ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="${t('settings.protected')}">🔒 ${t('settings.protected')}</button>` : `
+              <button class="btn btn-secondary btn-sm" onclick="openManagerForm('${mgr.id}')">${t('settings.editPermissions')}</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteManager('${mgr.id}')">${t('btn.delete')}</button>
+            `}
+          </div></td>
+        </tr>`;
+  }).join('')}</tbody></table></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title mb-3">${t('settings.freeSpace')}</div>
+      <p style="font-size:13px;color:var(--text-light);margin-bottom:12px">${t('settings.freeSpaceDesc')}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-warning" onclick="freeUpSpace()">🗑️ ${t('settings.freeSpace')}</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title mb-3">${t('settings.backup')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="exportBackup()">${t('settings.export')}</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">${t('settings.import')}</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+        <button class="btn btn-danger" onclick="clearAllData()">${t('settings.clear')}</button>
+      </div>
+    </div>`;
+}
+
+function freeUpSpace() {
+  const candidatesWithCV = state.candidates.filter(c => c.cvData);
+  if (candidatesWithCV.length === 0) {
+    showToast(state.language === 'ar' ? 'لا توجد ملفات CV لحذفها' : 'No CV files to delete', 'warning');
+    return;
+  }
+
+  const body = `
+    <div style="margin-bottom:16px">
+      <p style="font-size:14px;margin-bottom:12px">⚠️ ${state.language === 'ar' ? 'سيتم حذف ملفات CV من المرشحين التاليين (لن يتم حذف المرشحين أنفسهم):' : 'CV files will be deleted from the following candidates (candidates themselves will not be deleted):'}</p>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:12px">
+        ${candidatesWithCV.map(c => {
+    const v = state.vacancies.find(x => x.id === c.vacancyId);
+    return `<div style="padding:8px;border-bottom:1px solid var(--border-light);font-size:13px">
+            <strong>${esc(c.name)}</strong> - ${esc(v ? v.title : '—')}
+            <div style="font-size:11px;color:var(--text-light)">${esc(c.cvName || '')} • ${fmtDate(c.createdAt)}</div>
+          </div>`;
+  }).join('')}
+      </div>
+    </div>
+    <div style="padding:12px;background:#fef3c7;border-radius:8px;font-size:13px">
+      ⚠️ ${state.language === 'ar' ? 'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف ملفات CV فقط، وليس بيانات المرشحين.' : 'This action cannot be undone. Only CV files will be deleted, not candidate data.'}
+    </div>
+  `;
+  const footer = `
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button>
+    <button class="btn btn-danger" onclick="confirmFreeSpace()">🗑️ ${state.language === 'ar' ? 'حذف جميع ملفات CV' : 'Delete All CV Files'}</button>
+  `;
+  openModal('🗑️ ' + t('settings.freeSpace'), body, footer);
+}
+
+function confirmFreeSpace() {
+  state.candidates.forEach(c => {
+    if (c.cvData) {
+      c.cvData = null;
+      c.cvName = null;
+      c.cvType = null;
+    }
+  });
+  saveState();
+  closeModal();
+  render();
+  showToast(state.language === 'ar' ? 'تم حذف جميع ملفات CV وتحرير المساحة' : 'All CV files deleted and space freed', 'success');
+}
+
+function openManagerForm(id = null) {
+  const currentM = getCurrentManager();
+  if (!isAdminAccount(currentM)) {
+    showToast(t('msg.noPermissionSettings'), 'error');
+    return;
+  }
+  const mgr = id ? state.managers.find(x => x.id === id) : { name: '', role: 'manager', username: '', password: '', permissions: { canViewAllVacancies: false, canAddVacancy: false, canViewCV: false, canAddCV: false, allowedVacancyIds: [] } };
+
+  if (id && isAdminAccount(mgr)) {
+    showToast(t('msg.cannotEditAdmin'), 'error');
+    return;
+  }
+
+  const body = `
+    <form id="managerForm">
+      <div class="form-grid">
+        <div class="form-group"><label>${t('form.fullName')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="name" value="${esc(mgr.name)}" required></div>
+        <div class="form-group"><label>${t('form.loginUsername')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="username" value="${esc(mgr.username || '')}" required ${id ? 'readonly style="background:#f0f2f7"' : ''}></div>
+        <div class="form-group"><label>${t('form.loginPassword')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="password" value="${esc(mgr.password || '123456')}" required></div>
+        <div class="form-group"><label>${t('form.role')}</label>
+          <select class="form-control" name="role">
+            <option value="manager" ${mgr.role === 'manager' ? 'selected' : ''}>${t('form.roleManager')}</option>
+            <option value="admin" ${mgr.role === 'admin' ? 'selected' : ''}>${t('form.roleAdmin')}</option>
+          </select>
+        </div>
+      </div>
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+      <h4 style="margin-bottom:12px;color:var(--primary)">${t('form.permissions')}</h4>
+      <div class="permissions-grid">
+        <label class="permission-item"><input type="checkbox" name="canViewAllVacancies" ${mgr.permissions.canViewAllVacancies ? 'checked' : ''}> ${t('form.viewAllVacancies')}</label>
+        <label class="permission-item"><input type="checkbox" name="canAddVacancy" ${mgr.permissions.canAddVacancy ? 'checked' : ''}> ${t('form.addVacancy')}</label>
+        <label class="permission-item"><input type="checkbox" name="canViewCV" ${mgr.permissions.canViewCV ? 'checked' : ''}> ${t('form.viewCV')}</label>
+        <label class="permission-item"><input type="checkbox" name="canAddCV" ${mgr.permissions.canAddCV ? 'checked' : ''}> ${t('form.addCV')}</label>
+      </div>
+      <div class="form-group mt-3" id="allowedVacanciesGroup" style="display:${mgr.permissions.canViewAllVacancies ? 'none' : 'block'}">
+        <label>${t('form.allowedVacancies')}</label>
+        <select class="form-control" name="allowedVacancyIds" multiple size="6" style="height:auto">
+          ${state.vacancies.filter(v => !v.isDeleted).map(v => `<option value="${v.id}" ${(mgr.permissions.allowedVacancyIds || []).includes(v.id) ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
+        </select>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px">${t('form.allowedVacanciesHint')}</div>
+      </div>
+    </form>`;
+  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveManager('${id || ''}')">${t('btn.savePermissions')}</button>`;
+  openModal(id ? t('btn.edit') : t('settings.addManager'), body, footer);
+  const viewAllCb = document.querySelector('input[name="canViewAllVacancies"]');
+  const allowedGroup = document.getElementById('allowedVacanciesGroup');
+  viewAllCb.addEventListener('change', () => {
+    allowedGroup.style.display = viewAllCb.checked ? 'none' : 'block';
+  });
+}
+
+function saveManager(id) {
+  const currentM = getCurrentManager();
+  if (!isAdminAccount(currentM)) {
+    showToast(t('msg.noPermissionSettings'), 'error');
+    return;
+  }
+  const form = document.getElementById('managerForm');
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.name.trim() || !data.username.trim() || !data.password.trim()) { showToast(t('msg.required'), 'error'); return; }
+
+  if (data.username.toLowerCase() === ADMIN_USERNAME && (!id || id !== state.managers.find(m => m.username === ADMIN_USERNAME)?.id)) {
+    showToast(state.language === 'ar' ? 'اسم المستخدم admin محجوز ولا يمكن استخدامه' : 'Username admin is reserved and cannot be used', 'error');
+    return;
+  }
+
+  const allowedSelect = form.querySelector('select[name="allowedVacancyIds"]');
+  const allowedIds = Array.from(allowedSelect.selectedOptions).map(opt => opt.value);
+  const newPerms = {
+    canViewAllVacancies: data.canViewAllVacancies === 'on',
+    canAddVacancy: data.canAddVacancy === 'on',
+    canViewCV: data.canViewCV === 'on',
+    canAddCV: data.canAddCV === 'on',
+    allowedVacancyIds: allowedIds
+  };
+  if (id) {
+    const mgr = state.managers.find(x => x.id === id);
+    if (isAdminAccount(mgr)) {
+      showToast(t('msg.cannotEditAdmin'), 'error');
+      return;
+    }
+    mgr.name = data.name; mgr.username = data.username; mgr.password = data.password; mgr.role = data.role; mgr.permissions = newPerms;
+    showToast(t('msg.updated'));
+  } else {
+    if (state.managers.some(m => m.username.toLowerCase() === data.username.toLowerCase())) {
+      showToast(state.language === 'ar' ? 'اسم المستخدم موجود مسبقاً' : 'Username already exists', 'error');
+      return;
+    }
+    state.managers.push({ id: uid(), name: data.name, username: data.username, password: data.password, role: data.role, permissions: newPerms });
+    showToast(t('msg.added'));
+  }
+  saveState(); closeModal(); render();
+}
+
+function deleteManager(id) {
+  const currentM = getCurrentManager();
+  if (!isAdminAccount(currentM)) {
+    showToast(t('msg.noPermissionSettings'), 'error');
+    return;
+  }
+  const mgr = state.managers.find(x => x.id === id);
+  if (!mgr) return;
+  if (isAdminAccount(mgr)) {
+    showToast(t('msg.cannotDeleteAdmin'), 'error');
+    return;
+  }
+  if (!confirm(t('msg.confirmDeleteManager'))) return;
+  state.managers = state.managers.filter(x => x.id !== id);
+  saveState(); showToast(t('msg.deleted')); render();
+}
+
+function exportBackup() {
+  const data = { managers: state.managers, vacancies: state.vacancies, candidates: state.candidates, language: state.language, exportDate: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `avnzor_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
+  showToast(t('msg.exported'));
+}
+
+function importBackup(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!confirm(t('msg.confirmImport'))) return;
+      state.managers = data.managers || []; state.vacancies = data.vacancies || []; state.candidates = data.candidates || [];
+      if (data.language) state.language = data.language;
+      if (!state.managers.some(m => m.username === ADMIN_USERNAME)) {
+        state.managers.unshift({
+          id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
+          permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
+        });
+      }
+      saveState(); render(); showToast(t('msg.imported'));
+    } catch (err) { showToast(t('msg.invalidFile'), 'error'); }
+  };
+  r.readAsText(f);
+}
+
+function clearAllData() {
+  if (!confirm(t('msg.confirmClear1'))) return;
+  if (!confirm(t('msg.confirmClear2'))) return;
+  state.vacancies = []; state.candidates = [];
+  state.managers = [{
+    id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
+    permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
+  }];
+  state.currentManagerId = state.managers[0].id;
+  saveState(); render(); showToast(t('msg.deleted'));
+}
+
+function viewCV(id) {
+  const m = getCurrentManager();
+  if (!canViewCV(m)) { showToast(t('msg.noPermissionCV'), 'error'); return; }
+  const c = state.candidates.find(x => x.id === id);
+  if (!c || !c.cvData) { showToast(t('msg.noFile'), 'error'); return; }
+  const isPdf = (c.cvType || '').includes('pdf') || (c.cvName || '').toLowerCase().endsWith('.pdf');
+  const body = isPdf ? `<iframe src="${c.cvData}" style="width:100%;height:70vh;border:none;border-radius:8px"></iframe>` : `<div style="text-align:center;padding:40px"><button class="btn btn-primary" onclick="downloadCV('${id}')">${t('btn.download')}</button></div>`;
+  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button><button class="btn btn-primary" onclick="downloadCV('${id}')">${t('btn.download')}</button>`;
+  openModal(`📄 ${esc(c.cvName || 'CV')}`, body, footer, true);
+}
+
+function downloadCV(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (!c || !c.cvData) return;
+  const a = document.createElement('a'); a.href = c.cvData; a.download = c.cvName || 'cv.pdf'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+async function downloadAllCVs(vid) {
+  const v = state.vacancies.find(x => x.id === vid);
+  const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
+  if (cs.length === 0 || typeof JSZip === 'undefined') return;
+  showToast(t('msg.preparing'));
+  const zip = new JSZip();
+  const folder = zip.folder((v.title || 'CVs').replace(/[^\w\u0600-\u06FF]/g, '_'));
+  cs.forEach((c, i) => {
+    const ext = (c.cvName || 'cv.pdf').split('.').pop();
+    folder.file(`${i + 1}_${c.name.replace(/[^\w\u0600-\u06FF]/g, '_')}.${ext}`, c.cvData.split(',')[1], { base64: true });
+  });
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${v.title}_CVs.zip`; a.click();
+  showToast(t('msg.downloaded'));
+}
+
+function viewAllCVs(vid) {
+  const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
+  if (cs.length === 0) return;
+  const body = cs.map((c, i) => `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${i + 1}. ${esc(c.name)}</strong><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">${t('btn.download')}</button></div>
+    <iframe src="${c.cvData}" style="width:100%;height:400px;border:1px solid var(--border);border-radius:8px"></iframe>
+  </div>`).join('');
+  openModal(`📄 (${cs.length})`, body, `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`, true);
+}
+
+function attachPageEvents() {
+  const vs = document.getElementById('vacancySearch'); if (vs) vs.addEventListener('input', e => { state.filters.search = e.target.value; render(); });
+  const cs = document.getElementById('candSearch'); if (cs) cs.addEventListener('input', e => { state.filters.search = e.target.value; render(); });
+  const vf = document.getElementById('vacancyFilter'); if (vf) vf.addEventListener('change', e => { state.filters.vacancyId = e.target.value; render(); });
+  const sf = document.getElementById('statusFilter'); if (sf) sf.addEventListener('change', e => { state.filters.status = e.target.value; render(); });
+  const as = document.getElementById('archiveSearch'); if (as) as.addEventListener('input', e => { state.filters.search = e.target.value; render(); });
+}
+
+// Auto-save every 30 seconds
+setInterval(() => {
+  if (state.currentManagerId && state.autoSaveEnabled) {
+    saveState(true);
+  }
+}, 30000);
+
+// Initialize
+(async () => {
+  await loadState();
+  if (!state.managers.some(m => m.username === ADMIN_USERNAME)) {
+    state.managers.unshift({
+      id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
+      permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
+    });
+    await saveState(true);
+  }
+  if (state.currentManagerId && !getManager(state.currentManagerId)) {
+    state.currentManagerId = null;
+    await saveState(true);
+  }
+  
+  // Apply language on load
+  setLanguage(state.language || 'ar');
+  
+  if (state.currentManagerId && getManager(state.currentManagerId)) {
+    showApp();
+  } else {
+    document.getElementById('loginPage').style.display = 'flex';
+  }
+  if (window.innerWidth <= 900) { document.getElementById('menuToggle').style.display = 'inline-flex'; }
+  window.addEventListener('resize', () => { document.getElementById('menuToggle').style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none'; });
+})();
+</script>
 </body>
 </html>
