@@ -5,6 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>أقنزور - نظام إدارة التوظيف</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQQdBJN84KiOw_k4XuTrw1xo9a-n0l9PY",
+    authDomain: "avnzorjoop.firebaseapp.com",
+    databaseURL: "https://avnzorjoop-default-rtdb.firebaseio.com",
+    projectId: "avnzorjoop",
+    storageBucket: "avnzorjoop.firebasestorage.app",
+    messagingSenderId: "150006513307",
+    appId: "1:150006513307:web:ae976b601f0d76eff9903e",
+    measurementId: "G-XXHR0DVYRH"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  // Make Firebase available globally
+  window.firebaseDB = db;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebasePush = push;
+  window.firebaseOnValue = onValue;
+  window.firebaseRemove = remove;
+  window.firebaseUpdate = update;
+  window.firebaseGet = get;
+  
+  console.log('Firebase initialized successfully!');
+</script>
 <style>
 :root{
   --primary:#0d1b4c;--primary-dark:#081038;--primary-light:#1a2d6d;
@@ -34,11 +65,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 [dir="ltr"] .modal-footer { justify-content: flex-start; }
 [dir="ltr"] .toast { left: auto; right: 20px; transform: translateX(120%); }
 [dir="ltr"] .toast.show { transform: translateX(0); }
-[dir="ltr"] .timeline-item::before { right: auto; left: -21px; }
-[dir="ltr"] .timeline { padding-right: 0; padding-left: 24px; }
-[dir="ltr"] .timeline::before { right: auto; left: 7px; }
-[dir="ltr"] .info-item { border-right: none; border-left: 3px solid var(--accent); }
-[dir="ltr"] .vacancy-owner { flex-direction: row-reverse; }
 
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--gradient);padding:20px}
 .login-box{background:#fff;border-radius:16px;padding:40px;max-width:420px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);position:relative}
@@ -166,6 +192,10 @@ tr:hover td{background:var(--primary-50)}
 
 .storage-indicator{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
 
+.firebase-status{background:#d1fae5;border:1px solid #10b981;color:#065f46;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:16px}
+.firebase-status .dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
 @media(max-width:900px){
   .sidebar{transform:translateX(100%)}
   .sidebar.open{transform:translateX(0)}
@@ -186,7 +216,7 @@ tr:hover td{background:var(--primary-50)}
     <div style="position:absolute;top:14px;left:14px">
       <div class="lang-switch" id="loginLangSwitch">
         <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
-        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇧 EN</button>
       </div>
     </div>
     <div class="login-logo">
@@ -230,13 +260,13 @@ tr:hover td{background:var(--primary-50)}
     </div>
     <ul class="nav-menu" id="navMenu">
       <li class="nav-item"><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span><span id="navDashboard">لوحة التحكم</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="vacancies"><span class="nav-icon"></span><span id="navVacancies">الشواغر الوظيفية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="vacancies"><span class="nav-icon">📋</span><span id="navVacancies">الشواغر الوظيفية</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="candidates"><span class="nav-icon">👥</span><span id="navCandidates">المرشحون</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="interviews"><span class="nav-icon">📅</span><span id="navInterviews">المقابلات</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="archive"><span class="nav-icon">📁</span><span id="navArchive">أرشيف السير الذاتية</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon">📤</span><span id="navCvrequest">طلب السير الذاتية</span></a></li>
     </ul>
-    <div class="sidebar-footer">أقنزور v6.1 © 2026</div>
+    <div class="sidebar-footer">أقنزور v7.0 © 2026 | Firebase Cloud</div>
   </aside>
 
   <main class="main">
@@ -254,10 +284,14 @@ tr:hover td{background:var(--primary-50)}
       </div>
       <div class="topbar-left">
         <div class="lang-switch" id="appLangSwitch">
-          <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
-          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬 EN</button>
+          <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸 عربي</button>
+          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
         </div>
       </div>
+    </div>
+    <div id="firebaseStatus" class="firebase-status" style="display:none">
+      <span class="dot"></span>
+      <span>متصل بـ Firebase Cloud - البيانات مشتركة بين جميع المدراء</span>
     </div>
     <div id="app"></div>
   </main>
@@ -279,426 +313,227 @@ tr:hover td{background:var(--primary-50)}
 // ==================== TRANSLATIONS ====================
 const TRANSLATIONS = {
   ar: {
-    'app.name': 'أقنزور | avnzor',
-    'app.subtitle': 'نظام إدارة التوظيف',
-    'login.title': 'تسجيل الدخول للنظام',
-    'login.error': 'اسم المستخدم أو كلمة المرور غير صحيحة',
-    'login.username': 'اسم المستخدم',
-    'login.usernamePh': 'أدخل اسم المستخدم',
-    'login.password': 'كلمة المرور',
-    'login.passwordPh': 'أدخل كلمة المرور',
+    'app.name': 'أقنزور | avnzor', 'app.subtitle': 'نظام إدارة التوظيف',
+    'login.title': 'تسجيل الدخول للنظام', 'login.error': 'اسم المستخدم أو كلمة المرور غير صحيحة',
+    'login.username': 'اسم المستخدم', 'login.usernamePh': 'أدخل اسم المستخدم',
+    'login.password': 'كلمة المرور', 'login.passwordPh': 'أدخل كلمة المرور',
     'login.submit': 'تسجيل الدخول',
-    'logout': 'تسجيل خروج',
-    'logout.confirm': 'تسجيل الخروج؟',
-    'nav.dashboard': 'لوحة التحكم',
-    'nav.vacancies': 'الشواغر الوظيفية',
-    'nav.candidates': 'المرشحون',
-    'nav.interviews': 'المقابلات',
-    'nav.archive': 'أرشيف السير الذاتية',
-    'nav.cvrequest': 'طلب السير الذاتية',
+    'logout': 'تسجيل خروج', 'logout.confirm': 'تسجيل الخروج؟',
+    'nav.dashboard': 'لوحة التحكم', 'nav.vacancies': 'الشواغر الوظيفية',
+    'nav.candidates': 'المرشحون', 'nav.interviews': 'المقابلات',
+    'nav.archive': 'أرشيف السير الذاتية', 'nav.cvrequest': 'طلب السير الذاتية',
     'nav.settings': 'إدارة المستخدمين',
-    'sidebar.footer': 'أقنزور v6.1 © 2026',
-    'dashboard.welcome': 'مرحباً،',
-    'dashboard.subtitle': 'نظرة عامة على نظام التوظيف',
-    'dashboard.myStats': 'إحصائياتك (حسب صلاحياتك)',
-    'dashboard.openVacancies': 'شواغرك المفتوحة',
-    'dashboard.myCandidates': 'مرشحوك',
-    'dashboard.accepted': 'المقبولون',
-    'dashboard.rejected': 'المرفوضون',
+    'sidebar.footer': 'أقنزور v7.0 © 2026 | Firebase Cloud',
+    'dashboard.welcome': 'مرحباً،', 'dashboard.subtitle': 'نظرة عامة على نظام التوظيف',
+    'dashboard.myStats': 'إحصائياتك (حسب صلاحياتك)', 'dashboard.openVacancies': 'شواغرك المفتوحة',
+    'dashboard.myCandidates': 'مرشحوك', 'dashboard.accepted': 'المقبولون', 'dashboard.rejected': 'المرفوضون',
     'dashboard.availableVacancies': 'الشواغر الوظيفية المتاحة لك',
     'dashboard.noVacancies': 'لا توجد شواغر متاحة لصلاحياتك الحالية',
     'dashboard.contactAdmin': 'يرجى التواصل مع مدير النظام لتعديل الصلاحيات',
-    'vacancies.title': 'الشواغر الوظيفية',
-    'vacancies.available': 'شاغر متاح لك',
-    'vacancies.search': ' بحث في الشواغر...',
-    'vacancies.none': 'لا توجد شواغر متاحة',
-    'vacancies.new': '➕ شاغر جديد',
-    'vacancies.owner': 'المسؤول',
-    'vacancies.candidate': 'مرشح',
-    'vacancies.accepted': 'مقبول',
-    'vacancies.back': '→ رجوع',
-    'vacancies.totalCandidates': 'إجمالي المرشحين',
-    'vacancies.noCandidates': 'لا يوجد مرشحون',
+    'vacancies.title': 'الشواغر الوظيفية', 'vacancies.available': 'شاغر متاح لك',
+    'vacancies.search': '🔍 بحث في الشواغر...', 'vacancies.none': 'لا توجد شواغر متاحة',
+    'vacancies.new': '➕ شاغر جديد', 'vacancies.owner': 'المسؤول',
+    'vacancies.candidate': 'مرشح', 'vacancies.accepted': 'مقبول', 'vacancies.back': '→ رجوع',
+    'vacancies.totalCandidates': 'إجمالي المرشحين', 'vacancies.noCandidates': 'لا يوجد مرشحون',
     'vacancies.notAllowed': 'غير مسموح لك بعرض هذا الشاغر أو أنه غير موجود',
-    'vacancies.edit': '✏️ تعديل الشاغر',
-    'vacancies.close': '🔒 إغلاق الشاغر',
-    'vacancies.delete': '🗑️ حذف الشاغر',
-    'vacancies.reopen': '🔓 إعادة فتح الشاغر',
+    'vacancies.edit': '✏️ تعديل الشاغر', 'vacancies.close': '🔒 إغلاق الشاغر',
+    'vacancies.delete': '️ حذف الشاغر', 'vacancies.reopen': '🔓 إعادة فتح الشاغر',
     'vacancies.confirmDelete': 'حذف هذا الشاغر نهائياً؟ سيتم نقل المرشحين للأرشيف.',
     'vacancies.confirmClose': 'تغيير حالة الشاغر إلى "مغلق"؟',
     'vacancies.confirmReopen': 'إعادة فتح هذا الشاغر؟',
-    'candidates.title': 'المرشحون',
-    'candidates.candidate': 'مرشح',
-    'candidates.search': '🔍 بحث بالاسم أو الجوال...',
-    'candidates.allVacancies': 'كل الشواغر المتاحة',
-    'candidates.allStatuses': 'كل الحالات',
-    'candidates.noResults': 'لا توجد نتائج',
-    'candidates.new': '➕ مرشح جديد',
-    'candidates.name': 'الاسم',
-    'candidates.job': 'الوظيفة',
-    'candidates.phone': 'الجوال',
-    'candidates.email': 'البريد',
-    'candidates.status': 'الحالة',
-    'candidates.cv': 'CV',
-    'candidates.date': 'تاريخ الإضافة',
-    'candidates.cvColumn': 'السيرة الذاتية',
-    'candidates.actions': 'إجراءات',
-    'candidates.notes': 'ملاحظات',
-    'interviews.title': 'المقابلات',
-    'interviews.interview': 'مقابلة',
-    'interviews.candidate': 'المرشح',
-    'interviews.job': 'الوظيفة',
-    'interviews.date': 'التاريخ',
-    'interviews.time': 'الوقت',
-    'interviews.none': 'لا توجد مقابلات',
-    'archive.title': '📁 أرشيف السير الذاتية',
-    'archive.file': 'ملف',
-    'archive.unassigned': 'غير مصنف',
-    'archive.search': '🔍 بحث...',
-    'archive.none': 'لا توجد ملفات',
+    'candidates.title': 'المرشحون', 'candidates.candidate': 'مرشح',
+    'candidates.search': '🔍 بحث بالاسم أو الجوال...', 'candidates.allVacancies': 'كل الشواغر المتاحة',
+    'candidates.allStatuses': 'كل الحالات', 'candidates.noResults': 'لا توجد نتائج',
+    'candidates.new': '➕ مرشح جديد', 'candidates.name': 'الاسم', 'candidates.job': 'الوظيفة',
+    'candidates.phone': 'الجوال', 'candidates.email': 'البريد', 'candidates.status': 'الحالة',
+    'candidates.cv': 'CV', 'candidates.date': 'تاريخ الإضافة', 'candidates.cvColumn': 'السيرة الذاتية',
+    'candidates.actions': 'إجراءات', 'candidates.notes': 'ملاحظات',
+    'interviews.title': 'المقابلات', 'interviews.interview': 'مقابلة',
+    'interviews.candidate': 'المرشح', 'interviews.job': 'الوظيفة',
+    'interviews.date': 'التاريخ', 'interviews.time': 'الوقت', 'interviews.none': 'لا توجد مقابلات',
+    'archive.title': '📁 أرشيف السير الذاتية', 'archive.file': 'ملف', 'archive.unassigned': 'غير مصنف',
+    'archive.search': '🔍 بحث...', 'archive.none': 'لا توجد ملفات',
     'archive.noPermission': 'ليس لديك صلاحية عرض السير الذاتية',
-    'cvrequest.title': '📤 طلب ملفات السير الذاتية',
-    'cvrequest.select': '-- اختر الشاغر --',
-    'cvrequest.none': 'لا توجد ملفات',
-    'cvrequest.viewAll': '👁️ عرض الكل',
-    'cvrequest.zip': '⬇️ ZIP',
+    'cvrequest.title': '📤 طلب ملفات السير الذاتية', 'cvrequest.select': '-- اختر الشاغر --',
+    'cvrequest.none': 'لا توجد ملفات', 'cvrequest.viewAll': '️ عرض الكل', 'cvrequest.zip': '⬇️ ZIP',
     'settings.title': '👥 إدارة المستخدمين والصلاحيات',
     'settings.subtitle': 'إضافة مستخدمين جدد وتحديد صلاحياتهم بدقة',
-    'settings.managers': 'المستخدمون',
-    'settings.addManager': '➕ إضافة مستخدم جديد',
-    'settings.name': 'الاسم',
-    'settings.role': 'الدور',
-    'settings.username': 'المستخدم',
-    'settings.password': 'كلمة المرور',
-    'settings.allowedVacancies': 'الشواغر المسموحة',
-    'settings.actions': 'إجراءات',
-    'settings.admin': 'مدير نظام',
-    'settings.manager': 'مدير',
-    'settings.you': '(أنت)',
-    'settings.editPermissions': '✏️ تعديل الصلاحيات',
-    'settings.all': 'الكل',
-    'settings.vacancy': 'شاغر',
-    'settings.backup': '💾 النسخ الاحتياطي',
-    'settings.export': ' تصدير البيانات',
-    'settings.import': '📥 استيراد',
-    'settings.clear': '🗑️ حذف الكل',
-    'settings.adminOnly': 'هذه الصفحة متاحة لمدير النظام (admin) فقط',
+    'settings.managers': 'المستخدمون', 'settings.addManager': '➕ إضافة مستخدم جديد',
+    'settings.name': 'الاسم', 'settings.role': 'الدور', 'settings.username': 'المستخدم',
+    'settings.password': 'كلمة المرور', 'settings.allowedVacancies': 'الشواغر المسموحة',
+    'settings.actions': 'إجراءات', 'settings.admin': 'مدير نظام', 'settings.manager': 'مدير',
+    'settings.you': '(أنت)', 'settings.editPermissions': '✏️ تعديل الصلاحيات',
+    'settings.all': 'الكل', 'settings.vacancy': 'شاغر', 'settings.backup': '💾 النسخ الاحتياطي',
+    'settings.export': '📤 تصدير البيانات', 'settings.import': '📥 استيراد',
+    'settings.clear': '🗑️ حذف الكل', 'settings.adminOnly': 'هذه الصفحة متاحة لمدير النظام (admin) فقط',
     'settings.protected': 'هذا الحساب محمي ولا يمكن تعديله',
-    'settings.storage': '💾 التخزين: IndexedDB (غير محدود)',
-    'settings.autoSave': 'الحفظ التلقائي',
-    'settings.autoSaveEnabled': 'مفعّل',
-    'settings.lastSaved': 'آخر حفظ ناجح',
-    'settings.freeSpace': '🗑️ تحرير المساحة',
+    'settings.storage': '💾 التخزين: Firebase Cloud (غير محدود)',
+    'settings.autoSave': 'الحفظ التلقائي', 'settings.autoSaveEnabled': 'مفعّل (مباشر)',
+    'settings.lastSaved': 'آخر تحديث',
+    'settings.freeSpace': '️ تحرير المساحة',
     'settings.freeSpaceDesc': 'حذف ملفات CV القديمة لتحرير مساحة التخزين',
-    'form.jobTitle': 'اسم الوظيفة',
-    'form.department': 'القسم',
-    'form.management': 'اسم الإدارة',
-    'form.openDate': 'تاريخ فتح الشاغر',
-    'form.status': 'حالة الشاغر',
-    'form.owner': 'المسؤول عن الشاغر',
-    'form.name': 'اسم المرشح',
-    'form.phone': 'رقم الجوال',
-    'form.email': 'البريد الإلكتروني',
-    'form.vacancy': 'الشاغر الوظيفي',
-    'form.candidateStatus': 'حالة المرشح',
-    'form.cv': 'السيرة الذاتية (PDF / Word)',
-    'form.cvClick': 'اضغط لاختيار ملف',
-    'form.remove': 'إزالة',
-    'form.notes': 'ملاحظات',
-    'form.select': '-- اختر --',
-    'form.required': '*',
-    'form.fullName': 'الاسم الكامل',
-    'form.loginUsername': 'اسم المستخدم (للدخول)',
-    'form.loginPassword': 'كلمة المرور',
-    'form.role': 'الدور / المنصب',
-    'form.roleManager': 'مدير عادي',
-    'form.roleAdmin': 'مدير النظام (صلاحيات كاملة)',
-    'form.permissions': '⚙️ الصلاحيات المحددة',
-    'form.viewAllVacancies': 'السماح برؤية كل الشواغر',
-    'form.addVacancy': 'السماح بإضافة شواغر جديدة',
-    'form.viewCV': 'السماح بعرض السير الذاتية (CV)',
+    'firebase.connected': 'متصل بـ Firebase Cloud - البيانات مشتركة بين جميع المدراء',
+    'firebase.syncing': 'جاري المزامنة...',
+    'form.jobTitle': 'اسم الوظيفة', 'form.department': 'القسم', 'form.management': 'اسم الإدارة',
+    'form.openDate': 'تاريخ فتح الشاغر', 'form.status': 'حالة الشاغر', 'form.owner': 'المسؤول عن الشاغر',
+    'form.name': 'اسم المرشح', 'form.phone': 'رقم الجوال', 'form.email': 'البريد الإلكتروني',
+    'form.vacancy': 'الشاغر الوظيفي', 'form.candidateStatus': 'حالة المرشح',
+    'form.cv': 'السيرة الذاتية (PDF / Word)', 'form.cvClick': 'اضغط لاختيار ملف',
+    'form.remove': 'إزالة', 'form.notes': 'ملاحظات', 'form.select': '-- اختر --',
+    'form.required': '*', 'form.fullName': 'الاسم الكامل', 'form.loginUsername': 'اسم المستخدم (للدخول)',
+    'form.loginPassword': 'كلمة المرور', 'form.role': 'الدور / المنصب',
+    'form.roleManager': 'مدير عادي', 'form.roleAdmin': 'مدير النظام (صلاحيات كاملة)',
+    'form.permissions': '⚙️ الصلاحيات المحددة', 'form.viewAllVacancies': 'السماح برؤية كل الشواغر',
+    'form.addVacancy': 'السماح بإضافة شواغر جديدة', 'form.viewCV': 'السماح بعرض السير الذاتية (CV)',
     'form.addCV': 'السماح بإضافة مرشحين وسير ذاتية',
     'form.allowedVacancies': 'تحديد الشواغر المسموح له برؤيتها:',
     'form.allowedVacanciesHint': '* اضغط Ctrl (أو Cmd في Mac) لتحديد أكثر من شاغر.',
-    'btn.save': '💾 حفظ',
-    'btn.savePermissions': '💾 حفظ الصلاحيات',
-    'btn.cancel': 'إلغاء',
-    'btn.edit': '✏️ تعديل',
-    'btn.delete': '🗑️ حذف',
-    'btn.view': '👁️ عرض',
-    'btn.download': '⬇️ تحميل',
-    'btn.back': '→ رجوع',
-    'btn.addCandidate': '➕ إضافة مرشح',
-    'msg.saved': 'تم الحفظ',
-    'msg.updated': 'تم التحديث',
-    'msg.deleted': 'تم الحذف',
-    'msg.added': 'تمت الإضافة',
-    'msg.required': 'البيانات الأساسية مطلوبة',
-    'msg.jobTitleRequired': 'اسم الوظيفة مطلوب',
-    'msg.nameVacancyRequired': 'الاسم والشاغر مطلوبان',
-    'msg.confirmDelete': 'حذف هذا العنصر؟',
-    'msg.confirmDeleteManager': 'حذف هذا المستخدم؟',
+    'btn.save': '💾 حفظ', 'btn.savePermissions': '💾 حفظ الصلاحيات', 'btn.cancel': 'إلغاء',
+    'btn.edit': '✏️ تعديل', 'btn.delete': '🗑️ حذف', 'btn.view': '👁️ عرض', 'btn.download': '⬇️ تحميل',
+    'btn.back': '→ رجوع', 'btn.addCandidate': ' إضافة مرشح',
+    'msg.saved': 'تم الحفظ', 'msg.updated': 'تم التحديث', 'msg.deleted': 'تم الحذف',
+    'msg.added': 'تمت الإضافة', 'msg.required': 'البيانات الأساسية مطلوبة',
+    'msg.jobTitleRequired': 'اسم الوظيفة مطلوب', 'msg.nameVacancyRequired': 'الاسم والشاغر مطلوبان',
+    'msg.confirmDelete': 'حذف هذا العنصر؟', 'msg.confirmDeleteManager': 'حذف هذا المستخدم؟',
     'msg.confirmImport': 'سيتم استبدال جميع البيانات الحالية. متابعة؟',
-    'msg.confirmClear1': '️ حذف جميع البيانات؟',
-    'msg.confirmClear2': 'تأكيد أخير؟',
+    'msg.confirmClear1': '⚠️ حذف جميع البيانات؟', 'msg.confirmClear2': 'تأكيد أخير؟',
     'msg.noPermissionVacancy': 'ليس لديك صلاحية إضافة شواغر',
     'msg.noPermissionCV': 'ليس لديك صلاحية عرض السير الذاتية',
     'msg.noPermissionAddCV': 'ليس لديك صلاحية إضافة مرشحين',
     'msg.noPermissionSettings': 'ليس لديك صلاحية الوصول لهذه الصفحة',
     'msg.noVacanciesAvailable': 'لا توجد شواغر متاحة لصلاحياتك',
-    'msg.fileTooLarge': 'حجم الملف كبير (الحد 10MB)',
-    'msg.noFile': 'لا يوجد ملف',
-    'msg.preparing': 'جاري التجهيز...',
-    'msg.downloaded': 'تم التحميل',
-    'msg.exported': 'تم التصدير',
-    'msg.imported': 'تم الاستيراد',
-    'msg.invalidFile': 'ملف غير صالح',
-    'msg.langChanged': 'تم تغيير اللغة',
+    'msg.fileTooLarge': 'حجم الملف كبير (الحد 10MB)', 'msg.noFile': 'لا يوجد ملف',
+    'msg.preparing': 'جاري التجهيز...', 'msg.downloaded': 'تم التحميل',
+    'msg.exported': 'تم التصدير', 'msg.imported': 'تم الاستيراد',
+    'msg.invalidFile': 'ملف غير صالح', 'msg.langChanged': 'تم تغيير اللغة',
     'msg.cannotDeleteAdmin': 'لا يمكن حذف حساب admin الرئيسي',
     'msg.cannotEditAdmin': 'لا يمكن تعديل حساب admin الرئيسي',
     'msg.vacancyDeleted': 'تم حذف الشاغر ونقل المرشحين للأرشيف',
-    'msg.vacancyClosed': 'تم إغلاق الشاغر',
-    'msg.vacancyReopened': 'تم إعادة فتح الشاغر',
-    'msg.saveFailed': 'فشل الحفظ! مساحة التخزين ممتلئة',
-    'msg.saveFailedDetail': 'يرجى تصدير البيانات أو حذف ملفات CV قديمة',
-    'msg.storageWarning': '️ مساحة التخزين تقترب من الامتلاء!',
-    'msg.autoSaveOn': 'تم تفعيل الحفظ التلقائي',
-    'status.open': 'مفتوح',
-    'status.hiring': 'قيد التوظيف',
-    'status.filled': 'تم التوظيف',
-    'status.stopped': 'متوقف',
-    'cStatus.new': 'مرشح جديد',
-    'cStatus.contacted': 'تم التواصل',
-    'cStatus.interview_scheduled': 'تم تحديد مقابلة',
-    'cStatus.interviewed': 'تمت المقابلة',
-    'cStatus.evaluating': 'تحت المراجعة',
-    'cStatus.final': 'مرشح نهائي',
-    'cStatus.accepted': 'مقبول',
-    'cStatus.rejected': 'مرفوض',
-    'cStatus.withdrawn': 'انسحب',
-    'user.myAccount': '👤 حسابي والصلاحيات',
-    'user.adminRole': 'مدير النظام (صلاحيات كاملة)',
-    'user.myPermissions': 'صلاحياتك الحالية:',
-    'user.allowedVacancies': '📋 الشواغر المسموحة:',
-    'user.allowedCandidates': '👥 المرشحون المسموحون:',
-    'user.viewCV': '👁️ عرض السير الذاتية:',
-    'user.addCV': '➕ إضافة سير ذاتية:',
-    'user.allowed': '✅ مسموح',
-    'user.notAllowed': '❌ غير مسموح',
+    'msg.vacancyClosed': 'تم إغلاق الشاغر', 'msg.vacancyReopened': 'تم إعادة فتح الشاغر',
+    'msg.synced': 'تمت المزامنة مع السحابة',
+    'status.open': 'مفتوح', 'status.hiring': 'قيد التوظيف', 'status.filled': 'تم التوظيف', 'status.stopped': 'متوقف',
+    'cStatus.new': 'مرشح جديد', 'cStatus.contacted': 'تم التواصل',
+    'cStatus.interview_scheduled': 'تم تحديد مقابلة', 'cStatus.interviewed': 'تمت المقابلة',
+    'cStatus.evaluating': 'تحت المراجعة', 'cStatus.final': 'مرشح نهائي',
+    'cStatus.accepted': 'مقبول', 'cStatus.rejected': 'مرفوض', 'cStatus.withdrawn': 'انسحب',
+    'user.myAccount': '👤 حسابي والصلاحيات', 'user.adminRole': 'مدير النظام (صلاحيات كاملة)',
+    'user.myPermissions': 'صلاحياتك الحالية:', 'user.allowedVacancies': '📋 الشواغر المسموحة:',
+    'user.allowedCandidates': '👥 المرشحون المسموحون:', 'user.viewCV': '👁️ عرض السير الذاتية:',
+    'user.addCV': '➕ إضافة سير ذاتية:', 'user.allowed': '✅ مسموح', 'user.notAllowed': '❌ غير مسموح',
     'user.close': 'إغلاق'
   },
   en: {
-    'app.name': 'Avnzor | أقنزور',
-    'app.subtitle': 'Recruitment Management System',
-    'login.title': 'System Login',
-    'login.error': 'Invalid username or password',
-    'login.username': 'Username',
-    'login.usernamePh': 'Enter username',
-    'login.password': 'Password',
-    'login.passwordPh': 'Enter password',
+    'app.name': 'Avnzor | أقنزور', 'app.subtitle': 'Recruitment Management System',
+    'login.title': 'System Login', 'login.error': 'Invalid username or password',
+    'login.username': 'Username', 'login.usernamePh': 'Enter username',
+    'login.password': 'Password', 'login.passwordPh': 'Enter password',
     'login.submit': 'Login',
-    'logout': 'Logout',
-    'logout.confirm': 'Logout?',
-    'nav.dashboard': 'Dashboard',
-    'nav.vacancies': 'Job Vacancies',
-    'nav.candidates': 'Candidates',
-    'nav.interviews': 'Interviews',
-    'nav.archive': 'CV Archive',
-    'nav.cvrequest': 'CV Request',
+    'logout': 'Logout', 'logout.confirm': 'Logout?',
+    'nav.dashboard': 'Dashboard', 'nav.vacancies': 'Job Vacancies',
+    'nav.candidates': 'Candidates', 'nav.interviews': 'Interviews',
+    'nav.archive': 'CV Archive', 'nav.cvrequest': 'CV Request',
     'nav.settings': 'User Management',
-    'sidebar.footer': 'Avnzor v6.1 © 2026',
-    'dashboard.welcome': 'Welcome,',
-    'dashboard.subtitle': 'Recruitment system overview',
-    'dashboard.myStats': 'Your Stats (based on permissions)',
-    'dashboard.openVacancies': 'Your Open Vacancies',
-    'dashboard.myCandidates': 'Your Candidates',
-    'dashboard.accepted': 'Accepted',
-    'dashboard.rejected': 'Rejected',
+    'sidebar.footer': 'Avnzor v7.0 © 2026 | Firebase Cloud',
+    'dashboard.welcome': 'Welcome,', 'dashboard.subtitle': 'Recruitment system overview',
+    'dashboard.myStats': 'Your Stats (based on permissions)', 'dashboard.openVacancies': 'Your Open Vacancies',
+    'dashboard.myCandidates': 'Your Candidates', 'dashboard.accepted': 'Accepted', 'dashboard.rejected': 'Rejected',
     'dashboard.availableVacancies': 'Available Job Vacancies for You',
     'dashboard.noVacancies': 'No vacancies available for your current permissions',
     'dashboard.contactAdmin': 'Please contact the system admin to modify permissions',
-    'vacancies.title': 'Job Vacancies',
-    'vacancies.available': 'vacancies available for you',
-    'vacancies.search': '🔍 Search vacancies...',
-    'vacancies.none': 'No vacancies available',
-    'vacancies.new': '➕ New Vacancy',
-    'vacancies.owner': 'Owner',
-    'vacancies.candidate': 'Candidate',
-    'vacancies.accepted': 'Accepted',
-    'vacancies.back': '← Back',
-    'vacancies.totalCandidates': 'Total Candidates',
-    'vacancies.noCandidates': 'No candidates',
+    'vacancies.title': 'Job Vacancies', 'vacancies.available': 'vacancies available for you',
+    'vacancies.search': ' Search vacancies...', 'vacancies.none': 'No vacancies available',
+    'vacancies.new': '➕ New Vacancy', 'vacancies.owner': 'Owner',
+    'vacancies.candidate': 'Candidate', 'vacancies.accepted': 'Accepted', 'vacancies.back': '← Back',
+    'vacancies.totalCandidates': 'Total Candidates', 'vacancies.noCandidates': 'No candidates',
     'vacancies.notAllowed': 'You are not allowed to view this vacancy or it does not exist',
-    'vacancies.edit': '✏️ Edit Vacancy',
-    'vacancies.close': '🔒 Close Vacancy',
-    'vacancies.delete': '🗑️ Delete Vacancy',
-    'vacancies.reopen': '🔓 Reopen Vacancy',
+    'vacancies.edit': '✏️ Edit Vacancy', 'vacancies.close': '🔒 Close Vacancy',
+    'vacancies.delete': '🗑️ Delete Vacancy', 'vacancies.reopen': ' Reopen Vacancy',
     'vacancies.confirmDelete': 'Permanently delete this vacancy? Candidates will be moved to archive.',
     'vacancies.confirmClose': 'Change vacancy status to "Closed"?',
     'vacancies.confirmReopen': 'Reopen this vacancy?',
-    'candidates.title': 'Candidates',
-    'candidates.candidate': 'candidate',
-    'candidates.search': '🔍 Search by name or phone...',
-    'candidates.allVacancies': 'All available vacancies',
-    'candidates.allStatuses': 'All statuses',
-    'candidates.noResults': 'No results',
-    'candidates.new': '➕ New Candidate',
-    'candidates.name': 'Name',
-    'candidates.job': 'Job',
-    'candidates.phone': 'Phone',
-    'candidates.email': 'Email',
-    'candidates.status': 'Status',
-    'candidates.cv': 'CV',
-    'candidates.date': 'Date Added',
-    'candidates.cvColumn': 'CV',
-    'candidates.actions': 'Actions',
-    'candidates.notes': 'Notes',
-    'interviews.title': 'Interviews',
-    'interviews.interview': 'interview',
-    'interviews.candidate': 'Candidate',
-    'interviews.job': 'Job',
-    'interviews.date': 'Date',
-    'interviews.time': 'Time',
-    'interviews.none': 'No interviews',
-    'archive.title': '📁 CV Archive',
-    'archive.file': 'file',
-    'archive.unassigned': 'Unassigned',
-    'archive.search': '🔍 Search...',
-    'archive.none': 'No files',
+    'candidates.title': 'Candidates', 'candidates.candidate': 'candidate',
+    'candidates.search': '🔍 Search by name or phone...', 'candidates.allVacancies': 'All available vacancies',
+    'candidates.allStatuses': 'All statuses', 'candidates.noResults': 'No results',
+    'candidates.new': '➕ New Candidate', 'candidates.name': 'Name', 'candidates.job': 'Job',
+    'candidates.phone': 'Phone', 'candidates.email': 'Email', 'candidates.status': 'Status',
+    'candidates.cv': 'CV', 'candidates.date': 'Date Added', 'candidates.cvColumn': 'CV',
+    'candidates.actions': 'Actions', 'candidates.notes': 'Notes',
+    'interviews.title': 'Interviews', 'interviews.interview': 'interview',
+    'interviews.candidate': 'Candidate', 'interviews.job': 'Job',
+    'interviews.date': 'Date', 'interviews.time': 'Time', 'interviews.none': 'No interviews',
+    'archive.title': '📁 CV Archive', 'archive.file': 'file', 'archive.unassigned': 'Unassigned',
+    'archive.search': '🔍 Search...', 'archive.none': 'No files',
     'archive.noPermission': 'You do not have permission to view CVs',
-    'cvrequest.title': '📤 CV Files Request',
-    'cvrequest.select': '-- Select Vacancy --',
-    'cvrequest.none': 'No files',
-    'cvrequest.viewAll': '👁️ View All',
-    'cvrequest.zip': '⬇️ ZIP',
+    'cvrequest.title': ' CV Files Request', 'cvrequest.select': '-- Select Vacancy --',
+    'cvrequest.none': 'No files', 'cvrequest.viewAll': '️ View All', 'cvrequest.zip': '⬇️ ZIP',
     'settings.title': '👥 User & Permissions Management',
     'settings.subtitle': 'Add new users and define their permissions precisely',
-    'settings.managers': 'Users',
-    'settings.addManager': '➕ Add New User',
-    'settings.name': 'Name',
-    'settings.role': 'Role',
-    'settings.username': 'Username',
-    'settings.password': 'Password',
-    'settings.allowedVacancies': 'Allowed Vacancies',
-    'settings.actions': 'Actions',
-    'settings.admin': 'System Admin',
-    'settings.manager': 'Manager',
-    'settings.you': '(You)',
-    'settings.editPermissions': '✏️ Edit Permissions',
-    'settings.all': 'All',
-    'settings.vacancy': 'vacancy',
-    'settings.backup': ' Backup',
-    'settings.export': ' Export Data',
-    'settings.import': ' Import',
-    'settings.clear': '️ Clear All',
-    'settings.adminOnly': 'This page is available for admin account only',
+    'settings.managers': 'Users', 'settings.addManager': '➕ Add New User',
+    'settings.name': 'Name', 'settings.role': 'Role', 'settings.username': 'Username',
+    'settings.password': 'Password', 'settings.allowedVacancies': 'Allowed Vacancies',
+    'settings.actions': 'Actions', 'settings.admin': 'System Admin', 'settings.manager': 'Manager',
+    'settings.you': '(You)', 'settings.editPermissions': '✏️ Edit Permissions',
+    'settings.all': 'All', 'settings.vacancy': 'vacancy', 'settings.backup': '💾 Backup',
+    'settings.export': '📤 Export Data', 'settings.import': '📥 Import',
+    'settings.clear': '🗑️ Clear All', 'settings.adminOnly': 'This page is available for admin account only',
     'settings.protected': 'This account is protected and cannot be modified',
-    'settings.storage': ' Storage: IndexedDB (Unlimited)',
-    'settings.autoSave': 'Auto Save',
-    'settings.autoSaveEnabled': 'Enabled',
-    'settings.lastSaved': 'Last successful save',
+    'settings.storage': '💾 Storage: Firebase Cloud (Unlimited)',
+    'settings.autoSave': 'Auto Save', 'settings.autoSaveEnabled': 'Enabled (Real-time)',
+    'settings.lastSaved': 'Last update',
     'settings.freeSpace': '🗑️ Free Up Space',
     'settings.freeSpaceDesc': 'Delete old CV files to free up storage space',
-    'form.jobTitle': 'Job Title',
-    'form.department': 'Department',
-    'form.management': 'Management',
-    'form.openDate': 'Opening Date',
-    'form.status': 'Vacancy Status',
-    'form.owner': 'Vacancy Owner',
-    'form.name': 'Candidate Name',
-    'form.phone': 'Phone Number',
-    'form.email': 'Email',
-    'form.vacancy': 'Job Vacancy',
-    'form.candidateStatus': 'Candidate Status',
-    'form.cv': 'CV (PDF / Word)',
-    'form.cvClick': 'Click to choose file',
-    'form.remove': 'Remove',
-    'form.notes': 'Notes',
-    'form.select': '-- Select --',
-    'form.required': '*',
-    'form.fullName': 'Full Name',
-    'form.loginUsername': 'Username (for login)',
-    'form.loginPassword': 'Password',
-    'form.role': 'Role / Position',
-    'form.roleManager': 'Regular Manager',
-    'form.roleAdmin': 'System Admin (Full Permissions)',
-    'form.permissions': '️ Specific Permissions',
-    'form.viewAllVacancies': 'Allow viewing ALL vacancies',
-    'form.addVacancy': 'Allow adding new vacancies',
-    'form.viewCV': 'Allow viewing CVs',
+    'firebase.connected': 'Connected to Firebase Cloud - Data shared between all managers',
+    'firebase.syncing': 'Syncing...',
+    'form.jobTitle': 'Job Title', 'form.department': 'Department', 'form.management': 'Management',
+    'form.openDate': 'Opening Date', 'form.status': 'Vacancy Status', 'form.owner': 'Vacancy Owner',
+    'form.name': 'Candidate Name', 'form.phone': 'Phone Number', 'form.email': 'Email',
+    'form.vacancy': 'Job Vacancy', 'form.candidateStatus': 'Candidate Status',
+    'form.cv': 'CV (PDF / Word)', 'form.cvClick': 'Click to choose file',
+    'form.remove': 'Remove', 'form.notes': 'Notes', 'form.select': '-- Select --',
+    'form.required': '*', 'form.fullName': 'Full Name', 'form.loginUsername': 'Username (for login)',
+    'form.loginPassword': 'Password', 'form.role': 'Role / Position',
+    'form.roleManager': 'Regular Manager', 'form.roleAdmin': 'System Admin (Full Permissions)',
+    'form.permissions': '️ Specific Permissions', 'form.viewAllVacancies': 'Allow viewing ALL vacancies',
+    'form.addVacancy': 'Allow adding new vacancies', 'form.viewCV': 'Allow viewing CVs',
     'form.addCV': 'Allow adding candidates and CVs',
     'form.allowedVacancies': 'Select allowed vacancies to view:',
     'form.allowedVacanciesHint': '* Press Ctrl (or Cmd on Mac) to select multiple vacancies.',
-    'btn.save': ' Save',
-    'btn.savePermissions': ' Save Permissions',
-    'btn.cancel': 'Cancel',
-    'btn.edit': '✏️ Edit',
-    'btn.delete': '🗑️ Delete',
-    'btn.view': '👁️ View',
-    'btn.download': '️ Download',
-    'btn.back': '← Back',
-    'btn.addCandidate': '➕ Add Candidate',
-    'msg.saved': 'Saved',
-    'msg.updated': 'Updated',
-    'msg.deleted': 'Deleted',
-    'msg.added': 'Added',
-    'msg.required': 'Required fields missing',
-    'msg.jobTitleRequired': 'Job title is required',
-    'msg.nameVacancyRequired': 'Name and vacancy are required',
-    'msg.confirmDelete': 'Delete this item?',
-    'msg.confirmDeleteManager': 'Delete this user?',
+    'btn.save': ' Save', 'btn.savePermissions': '💾 Save Permissions', 'btn.cancel': 'Cancel',
+    'btn.edit': '✏️ Edit', 'btn.delete': '🗑️ Delete', 'btn.view': '👁️ View', 'btn.download': '⬇️ Download',
+    'btn.back': '← Back', 'btn.addCandidate': '➕ Add Candidate',
+    'msg.saved': 'Saved', 'msg.updated': 'Updated', 'msg.deleted': 'Deleted',
+    'msg.added': 'Added', 'msg.required': 'Required fields missing',
+    'msg.jobTitleRequired': 'Job title is required', 'msg.nameVacancyRequired': 'Name and vacancy are required',
+    'msg.confirmDelete': 'Delete this item?', 'msg.confirmDeleteManager': 'Delete this user?',
     'msg.confirmImport': 'All current data will be replaced. Continue?',
-    'msg.confirmClear1': '⚠️ Delete all data?',
-    'msg.confirmClear2': 'Final confirmation?',
+    'msg.confirmClear1': '⚠️ Delete all data?', 'msg.confirmClear2': 'Final confirmation?',
     'msg.noPermissionVacancy': 'You do not have permission to add vacancies',
     'msg.noPermissionCV': 'You do not have permission to view CVs',
     'msg.noPermissionAddCV': 'You do not have permission to add candidates',
     'msg.noPermissionSettings': 'You do not have permission to access this page',
     'msg.noVacanciesAvailable': 'No vacancies available for your permissions',
-    'msg.fileTooLarge': 'File too large (max 10MB)',
-    'msg.noFile': 'No file',
-    'msg.preparing': 'Preparing...',
-    'msg.downloaded': 'Downloaded',
-    'msg.exported': 'Exported',
-    'msg.imported': 'Imported',
-    'msg.invalidFile': 'Invalid file',
-    'msg.langChanged': 'Language changed',
+    'msg.fileTooLarge': 'File too large (max 10MB)', 'msg.noFile': 'No file',
+    'msg.preparing': 'Preparing...', 'msg.downloaded': 'Downloaded',
+    'msg.exported': 'Exported', 'msg.imported': 'Imported',
+    'msg.invalidFile': 'Invalid file', 'msg.langChanged': 'Language changed',
     'msg.cannotDeleteAdmin': 'Cannot delete the main admin account',
     'msg.cannotEditAdmin': 'Cannot edit the main admin account',
     'msg.vacancyDeleted': 'Vacancy deleted and candidates moved to archive',
-    'msg.vacancyClosed': 'Vacancy closed',
-    'msg.vacancyReopened': 'Vacancy reopened',
-    'msg.saveFailed': 'Save failed! Storage is full',
-    'msg.saveFailedDetail': 'Please export data or delete old CV files',
-    'msg.storageWarning': '⚠️ Storage space is running low!',
-    'msg.autoSaveOn': 'Auto save enabled',
-    'status.open': 'Open',
-    'status.hiring': 'Hiring',
-    'status.filled': 'Filled',
-    'status.stopped': 'Stopped',
-    'cStatus.new': 'New Candidate',
-    'cStatus.contacted': 'Contacted',
-    'cStatus.interview_scheduled': 'Interview Scheduled',
-    'cStatus.interviewed': 'Interviewed',
-    'cStatus.evaluating': 'Under Review',
-    'cStatus.final': 'Final Candidate',
-    'cStatus.accepted': 'Accepted',
-    'cStatus.rejected': 'Rejected',
-    'cStatus.withdrawn': 'Withdrawn',
-    'user.myAccount': '👤 My Account & Permissions',
-    'user.adminRole': 'System Admin (Full Permissions)',
-    'user.myPermissions': 'Your Current Permissions:',
-    'user.allowedVacancies': '📋 Allowed Vacancies:',
-    'user.allowedCandidates': '👥 Allowed Candidates:',
-    'user.viewCV': '👁️ View CVs:',
-    'user.addCV': '➕ Add CVs:',
-    'user.allowed': '✅ Allowed',
-    'user.notAllowed': '❌ Not Allowed',
+    'msg.vacancyClosed': 'Vacancy closed', 'msg.vacancyReopened': 'Vacancy reopened',
+    'msg.synced': 'Synced with cloud',
+    'status.open': 'Open', 'status.hiring': 'Hiring', 'status.filled': 'Filled', 'status.stopped': 'Stopped',
+    'cStatus.new': 'New Candidate', 'cStatus.contacted': 'Contacted',
+    'cStatus.interview_scheduled': 'Interview Scheduled', 'cStatus.interviewed': 'Interviewed',
+    'cStatus.evaluating': 'Under Review', 'cStatus.final': 'Final Candidate',
+    'cStatus.accepted': 'Accepted', 'cStatus.rejected': 'Rejected', 'cStatus.withdrawn': 'Withdrawn',
+    'user.myAccount': '👤 My Account & Permissions', 'user.adminRole': 'System Admin (Full Permissions)',
+    'user.myPermissions': 'Your Current Permissions:', 'user.allowedVacancies': '📋 Allowed Vacancies:',
+    'user.allowedCandidates': ' Allowed Candidates:', 'user.viewCV': '️ View CVs:',
+    'user.addCV': '➕ Add CVs:', 'user.allowed': '✅ Allowed', 'user.notAllowed': '❌ Not Allowed',
     'user.close': 'Close'
   }
 };
 
-// ==================== I18N SYSTEM ====================
 function t(key) {
   return (TRANSLATIONS[state.language] && TRANSLATIONS[state.language][key]) || TRANSLATIONS['ar'][key] || key;
 }
@@ -707,165 +542,155 @@ function setLanguage(lang) {
   state.language = lang;
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  
-  // Update all lang buttons
-  document.querySelectorAll('.lang-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.lang === lang);
-  });
-  
-  // Update static text elements by ID
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   const textMap = {
-    'loginTitle': 'login.title',
-    'loginUsernameLabel': 'login.username',
-    'loginPasswordLabel': 'login.password',
-    'loginSubmitBtn': 'login.submit',
-    'sidebarSubtitle': 'app.subtitle',
-    'navDashboard': 'nav.dashboard',
-    'navVacancies': 'nav.vacancies',
-    'navCandidates': 'nav.candidates',
-    'navInterviews': 'nav.interviews',
-    'navArchive': 'nav.archive',
+    'loginTitle': 'login.title', 'loginUsernameLabel': 'login.username',
+    'loginPasswordLabel': 'login.password', 'loginSubmitBtn': 'login.submit',
+    'sidebarSubtitle': 'app.subtitle', 'navDashboard': 'nav.dashboard',
+    'navVacancies': 'nav.vacancies', 'navCandidates': 'nav.candidates',
+    'navInterviews': 'nav.interviews', 'navArchive': 'nav.archive',
     'navCvrequest': 'nav.cvrequest'
   };
-  
   for (const [id, key] of Object.entries(textMap)) {
     const el = document.getElementById(id);
     if (el) el.textContent = t(key);
   }
-  
-  // Update placeholders
   const usernameInput = document.getElementById('loginUsername');
   const passwordInput = document.getElementById('loginPassword');
   if (usernameInput) usernameInput.placeholder = t('login.usernamePh');
   if (passwordInput) passwordInput.placeholder = t('login.passwordPh');
-  
-  // Update login error
   const loginError = document.getElementById('loginError');
-  if (loginError && loginError.style.display === 'block') {
-    loginError.textContent = t('login.error');
-  }
-  
-  // Save and re-render if logged in
-  saveState(true);
-  if (state.currentManagerId && getCurrentManager()) {
-    render();
-  }
-  
+  if (loginError && loginError.style.display === 'block') loginError.textContent = t('login.error');
+  saveToFirebase();
+  if (state.currentManagerId && getCurrentManager()) render();
   showToast(t('msg.langChanged'));
-}
-
-// ==================== INDEXEDDB STORAGE ====================
-const DB_NAME = 'AvnzorDB';
-const DB_VERSION = 1;
-const STORE_DATA = 'appData';
-let db = null;
-
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => { db = request.result; resolve(db); };
-    request.onupgradeneeded = (event) => {
-      const database = event.target.result;
-      if (!database.objectStoreNames.contains(STORE_DATA)) {
-        database.createObjectStore(STORE_DATA, { keyPath: 'key' });
-      }
-    };
-  });
-}
-
-function dbPut(storeName, data) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.put(data);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-function dbGet(storeName, key) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readonly');
-    const store = tx.objectStore(storeName);
-    const request = store.get(key);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
 }
 
 // ==================== STATE ====================
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = '123456';
 let state = {
-  managers: [],
-  vacancies: [],
-  candidates: [],
-  currentManagerId: null,
-  currentPage: 'dashboard',
-  currentVacancyId: null,
-  language: 'ar',
-  filters: { status: 'all', vacancyId: 'all', search: '' },
-  lastSaved: null,
-  autoSaveEnabled: true
+  managers: [], vacancies: [], candidates: [],
+  currentManagerId: null, currentPage: 'dashboard', currentVacancyId: null,
+  language: 'ar', filters: { status: 'all', vacancyId: 'all', search: '' },
+  lastSaved: null, autoSaveEnabled: true
 };
 
 const CANDIDATE_STATUSES = [
-  { key: 'new', class: 'b-new' },
-  { key: 'contacted', class: 'b-contacted' },
-  { key: 'interview_scheduled', class: 'b-interview-scheduled' },
-  { key: 'interviewed', class: 'b-interviewed' },
-  { key: 'evaluating', class: 'b-evaluating' },
-  { key: 'final', class: 'b-final' },
-  { key: 'accepted', class: 'b-accepted' },
-  { key: 'rejected', class: 'b-rejected' },
-  { key: 'withdrawn', class: 'b-withdrawn' }
+  { key: 'new', class: 'b-new' }, { key: 'contacted', class: 'b-contacted' },
+  { key: 'interview_scheduled', class: 'b-interview-scheduled' }, { key: 'interviewed', class: 'b-interviewed' },
+  { key: 'evaluating', class: 'b-evaluating' }, { key: 'final', class: 'b-final' },
+  { key: 'accepted', class: 'b-accepted' }, { key: 'rejected', class: 'b-rejected' }, { key: 'withdrawn', class: 'b-withdrawn' }
 ];
-
 const VACANCY_STATUSES = [
-  { key: 'open', class: 'b-open' },
-  { key: 'hiring', class: 'b-hiring' },
-  { key: 'filled', class: 'b-filled' },
-  { key: 'stopped', class: 'b-stopped' }
+  { key: 'open', class: 'b-open' }, { key: 'hiring', class: 'b-hiring' },
+  { key: 'filled', class: 'b-filled' }, { key: 'stopped', class: 'b-stopped' }
 ];
 
-// ==================== UTILS ====================
-async function loadState() {
+// ==================== FIREBASE SYNC ====================
+let firebaseReady = false;
+let dataListener = null;
+
+async function initFirebase() {
+  // Wait for Firebase to be available
+  let attempts = 0;
+  while (!window.firebaseDB && attempts < 50) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+  
+  if (!window.firebaseDB) {
+    console.error('Firebase not loaded');
+    showToast('Firebase loading error', 'error');
+    return;
+  }
+  
+  firebaseReady = true;
+  console.log('Firebase ready!');
+  
+  // Show connected status
+  const statusEl = document.getElementById('firebaseStatus');
+  if (statusEl) {
+    statusEl.style.display = 'flex';
+    statusEl.innerHTML = `<span class="dot"></span><span>${t('firebase.connected')}</span>`;
+  }
+  
+  // Listen for real-time updates
+  setupRealtimeListener();
+  
+  // Load initial data
+  await loadFromFirebase();
+}
+
+function setupRealtimeListener() {
+  if (dataListener) return;
+  
+  const db = window.firebaseDB;
+  const dataRef = window.firebaseRef(db, 'avnzor_data');
+  
+  dataListener = window.firebaseOnValue(dataRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      // Update state with cloud data
+      if (data.managers) state.managers = data.managers;
+      if (data.vacancies) state.vacancies = data.vacancies;
+      if (data.candidates) state.candidates = data.candidates;
+      if (data.language) state.language = data.language;
+      
+      // Re-render if logged in
+      if (state.currentManagerId && getCurrentManager()) {
+        render();
+      }
+    }
+  });
+}
+
+async function loadFromFirebase() {
   try {
-    await openDB();
-    const data = await dbGet(STORE_DATA, 'main');
-    if (data && data.value) {
-      state = { ...state, ...data.value };
+    const db = window.firebaseDB;
+    const dataRef = window.firebaseRef(db, 'avnzor_data');
+    const snapshot = await window.firebaseGet(dataRef);
+    const data = snapshot.val();
+    
+    if (data) {
+      if (data.managers) state.managers = data.managers;
+      if (data.vacancies) state.vacancies = data.vacancies;
+      if (data.candidates) state.candidates = data.candidates;
+      if (data.language) state.language = data.language;
+    } else {
+      // Initialize with default admin
+      state.managers = [{
+        id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin',
+        username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
+        permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
+      }];
+      await saveToFirebase();
     }
   } catch (e) {
     console.error('Load error:', e);
   }
 }
 
-async function saveState(silent = false) {
+async function saveToFirebase() {
+  if (!firebaseReady) return;
   try {
+    const db = window.firebaseDB;
+    const dataRef = window.firebaseRef(db, 'avnzor_data');
     const data = {
-      key: 'main',
-      value: {
-        managers: state.managers,
-        vacancies: state.vacancies,
-        candidates: state.candidates,
-        currentManagerId: state.currentManagerId,
-        language: state.language,
-        lastSaved: Date.now(),
-        autoSaveEnabled: state.autoSaveEnabled
-      }
+      managers: state.managers,
+      vacancies: state.vacancies,
+      candidates: state.candidates,
+      language: state.language,
+      lastSaved: Date.now()
     };
-    await dbPut(STORE_DATA, data);
+    await window.firebaseSet(dataRef, data);
     state.lastSaved = Date.now();
-    return true;
   } catch (e) {
     console.error('Save error:', e);
-    if (!silent) showToast(t('msg.saveFailed'), 'error');
-    return false;
   }
 }
 
+// ==================== UTILS ====================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
 function showToast(msg, type = 'success') {
@@ -876,18 +701,11 @@ function showToast(msg, type = 'success') {
 }
 
 function getStatus(key, list) { return list.find(s => s.key === key) || list[0]; }
-
-// ✅ FIXED: statusLabel now uses translation properly
 function statusLabel(key, list) {
   const prefix = (list === CANDIDATE_STATUSES) ? 'cStatus.' : 'status.';
   return t(prefix + key);
 }
-
-function badge(key, list) {
-  const s = getStatus(key, list);
-  return `<span class="badge ${s.class}">${statusLabel(key, list)}</span>`;
-}
-
+function badge(key, list) { const s = getStatus(key, list); return `<span class="badge ${s.class}">${statusLabel(key, list)}</span>`; }
 function esc(s) { if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return d; } }
 function fmtDateTime(d) { if (!d) return '—'; try { return new Date(d).toLocaleString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return d; } }
@@ -931,7 +749,6 @@ function handleLogin(e) {
   const manager = state.managers.find(m => m.username && m.username.toLowerCase() === username);
   if (manager && manager.password === password) {
     state.currentManagerId = manager.id;
-    saveState(true);
     err.style.display = 'none';
     showApp();
   } else {
@@ -943,7 +760,6 @@ function handleLogin(e) {
 function logout() {
   if (!confirm(t('logout.confirm'))) return;
   state.currentManagerId = null;
-  saveState(true);
   document.getElementById('appContainer').classList.remove('active');
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('loginForm').reset();
@@ -1005,7 +821,7 @@ function showUserMenu() {
       </div>
     </div>
   `;
-  const footer = `<button class="btn btn-danger btn-sm" onclick="closeModal();logout()">🚪 ${t('logout')}</button><button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`;
+  const footer = `<button class="btn btn-danger btn-sm" onclick="closeModal();logout()"> ${t('logout')}</button><button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`;
   openModal(t('user.myAccount'), body, footer);
 }
 
@@ -1069,7 +885,7 @@ function renderDashboard(m) {
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-title">${t('dashboard.welcome')} ${esc(m.name)} 👋</h1>
+        <h1 class="page-title">${t('dashboard.welcome')} ${esc(m.name)} </h1>
         <p class="page-subtitle">${t('dashboard.subtitle')} • ${new Date().toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
       ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">${t('vacancies.new')}</button>` : ''}
@@ -1083,13 +899,13 @@ function renderDashboard(m) {
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon"></div></div>
+      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon">📋</div></div>
       <div class="stat-card info"><div><div class="stat-label">${t('dashboard.myCandidates')}</div><div class="stat-value">${visibleC.length}</div></div><div class="stat-icon">👥</div></div>
       <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${accepted}</div></div><div class="stat-icon">✅</div></div>
-      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon"></div></div>
+      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon">❌</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title"> ${t('dashboard.availableVacancies')}</div></div>
+      <div class="card-header"><div class="card-title">📋 ${t('dashboard.availableVacancies')}</div></div>
       ${visibleV.length === 0 ? `<div class="empty-state" style="padding:30px"><div class="empty-state-title">${t('dashboard.noVacancies')}</div><p>${t('dashboard.contactAdmin')}</p></div>` : `
         <div class="vacancies-grid">
           ${visibleV.slice(0, 6).map(v => {
@@ -1126,7 +942,7 @@ function renderVacancies(m) {
             const owner = getManager(v.ownerId);
             return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
               <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
-              <div class="vacancy-meta-row"><span>👤 ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')}</span><span>🏢 ${esc(v.department || '—')}</span></div>
+              <div class="vacancy-meta-row"><span> ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')}</span><span> ${esc(v.department || '—')}</span></div>
               <div class="vacancy-stats">
                 <div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div>
                 <div class="vacancy-stat"><div class="vacancy-stat-num" style="color:var(--success)">${cs.filter(c => c.status === 'accepted').length}</div><div class="vacancy-stat-label">${t('vacancies.accepted')}</div></div>
@@ -1164,7 +980,7 @@ function openVacancyForm(id = null) {
   openModal(id ? t('btn.edit') : t('vacancies.new'), body, footer);
 }
 
-function saveVacancy(id) {
+async function saveVacancy(id) {
   const form = document.getElementById('vacancyForm');
   const data = Object.fromEntries(new FormData(form));
   if (!data.title.trim()) { showToast(t('msg.jobTitleRequired'), 'error'); return; }
@@ -1176,34 +992,34 @@ function saveVacancy(id) {
     state.vacancies.push({ id: uid(), ...data, createdAt: Date.now() });
     showToast(t('msg.added'));
   }
-  saveState();
+  await saveToFirebase();
   closeModal();
   render();
 }
 
-function deleteVacancy(id) {
+async function deleteVacancy(id) {
   if (!confirm(t('vacancies.confirmDelete'))) return;
   const v = state.vacancies.find(x => x.id === id);
   if (v) { v.isDeleted = true; v.deletedAt = Date.now(); }
-  saveState();
+  await saveToFirebase();
   showToast(t('msg.vacancyDeleted'));
   navTo('vacancies');
 }
 
-function closeVacancy(id) {
+async function closeVacancy(id) {
   if (!confirm(t('vacancies.confirmClose'))) return;
   const v = state.vacancies.find(x => x.id === id);
   if (v) { v.status = 'stopped'; }
-  saveState();
+  await saveToFirebase();
   showToast(t('msg.vacancyClosed'));
   render();
 }
 
-function reopenVacancy(id) {
+async function reopenVacancy(id) {
   if (!confirm(t('vacancies.confirmReopen'))) return;
   const v = state.vacancies.find(x => x.id === id);
   if (v) { v.status = 'open'; }
-  saveState();
+  await saveToFirebase();
   showToast(t('msg.vacancyReopened'));
   render();
 }
@@ -1224,10 +1040,7 @@ function renderVacancyDetail(m) {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-secondary" onclick="openVacancyForm('${v.id}')">${t('vacancies.edit')}</button>
-        ${isClosed ?
-      `<button class="btn btn-success" onclick="reopenVacancy('${v.id}')">${t('vacancies.reopen')}</button>` :
-      `<button class="btn btn-warning" onclick="closeVacancy('${v.id}')">${t('vacancies.close')}</button>`
-    }
+        ${isClosed ? `<button class="btn btn-success" onclick="reopenVacancy('${v.id}')">${t('vacancies.reopen')}</button>` : `<button class="btn btn-warning" onclick="closeVacancy('${v.id}')">${t('vacancies.close')}</button>`}
         <button class="btn btn-danger" onclick="deleteVacancy('${v.id}')">${t('vacancies.delete')}</button>
         ${canAddCV(m) && !isClosed ? `<button class="btn btn-primary" onclick="openCandidateForm(null,'${v.id}')">${t('btn.addCandidate')}</button>` : ''}
       </div>
@@ -1331,22 +1144,22 @@ function openQuickNotes(id) {
   openModal('📝 ' + t('candidates.notes'), body, footer);
 }
 
-function saveQuickNote(id) {
+async function saveQuickNote(id) {
   const c = state.candidates.find(x => x.id === id);
   if (c) {
     c.notes = document.getElementById('quickNoteText').value;
-    saveState();
+    await saveToFirebase();
     closeModal();
     render();
     showToast(t('msg.saved'));
   }
 }
 
-function updateCandidateStatus(id, newStatus) {
+async function updateCandidateStatus(id, newStatus) {
   const c = state.candidates.find(x => x.id === id);
   if (c) {
     c.status = newStatus;
-    saveState();
+    await saveToFirebase();
     showToast(t('msg.updated'));
   }
 }
@@ -1406,7 +1219,7 @@ function openCandidateForm(id = null, defaultVacancyId = null) {
 
 function removeCV() { pendingCV = null; document.getElementById('cvFile').value = ''; document.getElementById('fileInfo').style.display = 'none'; }
 
-function saveCandidate(id) {
+async function saveCandidate(id) {
   const form = document.getElementById('candidateForm');
   const data = Object.fromEntries(new FormData(form));
   if (!data.name.trim() || !data.vacancyId) { showToast(t('msg.nameVacancyRequired'), 'error'); return; }
@@ -1427,15 +1240,15 @@ function saveCandidate(id) {
     showToast(t('msg.added'));
   }
   pendingCV = null;
-  saveState();
+  await saveToFirebase();
   closeModal();
   render();
 }
 
-function deleteCandidate(id) {
+async function deleteCandidate(id) {
   if (!confirm(t('msg.confirmDelete'))) return;
   state.candidates = state.candidates.filter(x => x.id !== id);
-  saveState();
+  await saveToFirebase();
   showToast(t('msg.deleted'));
   render();
 }
@@ -1534,7 +1347,7 @@ function updateCVRequest() {
 
 function renderSettings(m) {
   if (!isAdminAccount(m)) {
-    return `<div class="card"><div class="empty-state"><div class="empty-state-icon"></div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
+    return `<div class="card"><div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
   }
 
   return `
@@ -1546,7 +1359,7 @@ function renderSettings(m) {
         <span style="font-size:12px;color:var(--text-light)">${t('settings.autoSave')}: <strong style="color:var(--success)">${t('settings.autoSaveEnabled')}</strong></span>
       </div>
       <div style="padding:12px;background:#d1fae5;border-radius:8px;font-size:13px;color:#065f46">
-        ✅ IndexedDB - ${state.language === 'ar' ? 'مساحة تخزين غير محدودة' : 'Unlimited storage space'}
+        ✅ Firebase Cloud - ${state.language === 'ar' ? 'مساحة تخزين غير محدودة + مزامنة فورية' : 'Unlimited storage + Real-time sync'}
       </div>
       <div style="margin-top:10px;font-size:12px;color:var(--text-light)">
         ${t('settings.lastSaved')}: <strong>${state.lastSaved ? fmtDateTime(state.lastSaved) : '—'}</strong>
@@ -1625,7 +1438,7 @@ function freeUpSpace() {
   openModal('🗑️ ' + t('settings.freeSpace'), body, footer);
 }
 
-function confirmFreeSpace() {
+async function confirmFreeSpace() {
   state.candidates.forEach(c => {
     if (c.cvData) {
       c.cvData = null;
@@ -1633,7 +1446,7 @@ function confirmFreeSpace() {
       c.cvType = null;
     }
   });
-  saveState();
+  await saveToFirebase();
   closeModal();
   render();
   showToast(state.language === 'ar' ? 'تم حذف جميع ملفات CV وتحرير المساحة' : 'All CV files deleted and space freed', 'success');
@@ -1690,7 +1503,7 @@ function openManagerForm(id = null) {
   });
 }
 
-function saveManager(id) {
+async function saveManager(id) {
   const currentM = getCurrentManager();
   if (!isAdminAccount(currentM)) {
     showToast(t('msg.noPermissionSettings'), 'error');
@@ -1730,10 +1543,10 @@ function saveManager(id) {
     state.managers.push({ id: uid(), name: data.name, username: data.username, password: data.password, role: data.role, permissions: newPerms });
     showToast(t('msg.added'));
   }
-  saveState(); closeModal(); render();
+  await saveToFirebase(); closeModal(); render();
 }
 
-function deleteManager(id) {
+async function deleteManager(id) {
   const currentM = getCurrentManager();
   if (!isAdminAccount(currentM)) {
     showToast(t('msg.noPermissionSettings'), 'error');
@@ -1747,7 +1560,7 @@ function deleteManager(id) {
   }
   if (!confirm(t('msg.confirmDeleteManager'))) return;
   state.managers = state.managers.filter(x => x.id !== id);
-  saveState(); showToast(t('msg.deleted')); render();
+  await saveToFirebase(); showToast(t('msg.deleted')); render();
 }
 
 function exportBackup() {
@@ -1760,7 +1573,7 @@ function exportBackup() {
 function importBackup(e) {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
-  r.onload = ev => {
+  r.onload = async ev => {
     try {
       const data = JSON.parse(ev.target.result);
       if (!confirm(t('msg.confirmImport'))) return;
@@ -1772,13 +1585,13 @@ function importBackup(e) {
           permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
         });
       }
-      saveState(); render(); showToast(t('msg.imported'));
+      await saveToFirebase(); render(); showToast(t('msg.imported'));
     } catch (err) { showToast(t('msg.invalidFile'), 'error'); }
   };
   r.readAsText(f);
 }
 
-function clearAllData() {
+async function clearAllData() {
   if (!confirm(t('msg.confirmClear1'))) return;
   if (!confirm(t('msg.confirmClear2'))) return;
   state.vacancies = []; state.candidates = [];
@@ -1787,7 +1600,7 @@ function clearAllData() {
     permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
   }];
   state.currentManagerId = state.managers[0].id;
-  saveState(); render(); showToast(t('msg.deleted'));
+  await saveToFirebase(); render(); showToast(t('msg.deleted'));
 }
 
 function viewCV(id) {
@@ -1830,7 +1643,7 @@ function viewAllCVs(vid) {
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${i + 1}. ${esc(c.name)}</strong><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">${t('btn.download')}</button></div>
     <iframe src="${c.cvData}" style="width:100%;height:400px;border:1px solid var(--border);border-radius:8px"></iframe>
   </div>`).join('');
-  openModal(`📄 (${cs.length})`, body, `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`, true);
+  openModal(` (${cs.length})`, body, `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`, true);
 }
 
 function attachPageEvents() {
@@ -1841,36 +1654,16 @@ function attachPageEvents() {
   const as = document.getElementById('archiveSearch'); if (as) as.addEventListener('input', e => { state.filters.search = e.target.value; render(); });
 }
 
-// Auto-save every 30 seconds
-setInterval(() => {
-  if (state.currentManagerId && state.autoSaveEnabled) {
-    saveState(true);
-  }
-}, 30000);
-
-// Initialize
+// Initialize Firebase and App
 (async () => {
-  await loadState();
-  if (!state.managers.some(m => m.username === ADMIN_USERNAME)) {
-    state.managers.unshift({
-      id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
-      permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
-    });
-    await saveState(true);
-  }
-  if (state.currentManagerId && !getManager(state.currentManagerId)) {
-    state.currentManagerId = null;
-    await saveState(true);
-  }
-  
-  // Apply language on load
-  setLanguage(state.language || 'ar');
+  await initFirebase();
   
   if (state.currentManagerId && getManager(state.currentManagerId)) {
     showApp();
   } else {
     document.getElementById('loginPage').style.display = 'flex';
   }
+  
   if (window.innerWidth <= 900) { document.getElementById('menuToggle').style.display = 'inline-flex'; }
   window.addEventListener('resize', () => { document.getElementById('menuToggle').style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none'; });
 })();
