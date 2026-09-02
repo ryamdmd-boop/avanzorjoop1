@@ -24,7 +24,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   
-  // Make Firebase available globally
   window.firebaseDB = db;
   window.firebaseRef = ref;
   window.firebaseSet = set;
@@ -34,7 +33,7 @@
   window.firebaseUpdate = update;
   window.firebaseGet = get;
   
-  console.log('Firebase initialized successfully!');
+  console.log('✅ Firebase initialized!');
 </script>
 <style>
 :root{
@@ -190,8 +189,6 @@ tr:hover td{background:var(--primary-50)}
 .permission-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--primary-50);border-radius:6px}
 .permission-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent)}
 
-.storage-indicator{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)}
-
 .firebase-status{background:#d1fae5;border:1px solid #10b981;color:#065f46;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:16px}
 .firebase-status .dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
@@ -202,7 +199,6 @@ tr:hover td{background:var(--primary-50)}
   [dir="ltr"] .sidebar{transform:translateX(-100%)}
   [dir="ltr"] .sidebar.open{transform:translateX(0)}
   .main{margin-right:0 !important;margin-left:0 !important;width:100%;padding:14px}
-  .permissions-grid{grid-template-columns:1fr}
 }
 .flex{display:flex}.gap-2{gap:8px}.gap-3{gap:12px}.flex-between{display:flex;justify-content:space-between;align-items:center}.flex-wrap{flex-wrap:wrap}
 .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
@@ -214,7 +210,7 @@ tr:hover td{background:var(--primary-50)}
 <div class="login-page" id="loginPage">
   <div class="login-box">
     <div style="position:absolute;top:14px;left:14px">
-      <div class="lang-switch" id="loginLangSwitch">
+      <div class="lang-switch">
         <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
         <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇧 EN</button>
       </div>
@@ -264,9 +260,9 @@ tr:hover td{background:var(--primary-50)}
       <li class="nav-item"><a class="nav-link" data-page="candidates"><span class="nav-icon">👥</span><span id="navCandidates">المرشحون</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="interviews"><span class="nav-icon">📅</span><span id="navInterviews">المقابلات</span></a></li>
       <li class="nav-item"><a class="nav-link" data-page="archive"><span class="nav-icon">📁</span><span id="navArchive">أرشيف السير الذاتية</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon">📤</span><span id="navCvrequest">طلب السير الذاتية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon"></span><span id="navCvrequest">طلب السير الذاتية</span></a></li>
     </ul>
-    <div class="sidebar-footer">أقنزور v7.0 © 2026 | Firebase Cloud</div>
+    <div class="sidebar-footer">أقنزور v7.1 © 2026 | Firebase Cloud</div>
   </aside>
 
   <main class="main">
@@ -283,7 +279,7 @@ tr:hover td{background:var(--primary-50)}
         </div>
       </div>
       <div class="topbar-left">
-        <div class="lang-switch" id="appLangSwitch">
+        <div class="lang-switch">
           <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸 عربي</button>
           <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
         </div>
@@ -291,7 +287,7 @@ tr:hover td{background:var(--primary-50)}
     </div>
     <div id="firebaseStatus" class="firebase-status" style="display:none">
       <span class="dot"></span>
-      <span>متصل بـ Firebase Cloud - البيانات مشتركة بين جميع المدراء</span>
+      <span>متصل بـ Firebase Cloud - البيانات تُحفظ تلقائياً</span>
     </div>
     <div id="app"></div>
   </main>
@@ -317,13 +313,11 @@ const TRANSLATIONS = {
     'login.title': 'تسجيل الدخول للنظام', 'login.error': 'اسم المستخدم أو كلمة المرور غير صحيحة',
     'login.username': 'اسم المستخدم', 'login.usernamePh': 'أدخل اسم المستخدم',
     'login.password': 'كلمة المرور', 'login.passwordPh': 'أدخل كلمة المرور',
-    'login.submit': 'تسجيل الدخول',
-    'logout': 'تسجيل خروج', 'logout.confirm': 'تسجيل الخروج؟',
+    'login.submit': 'تسجيل الدخول', 'logout': 'تسجيل خروج', 'logout.confirm': 'تسجيل الخروج؟',
     'nav.dashboard': 'لوحة التحكم', 'nav.vacancies': 'الشواغر الوظيفية',
     'nav.candidates': 'المرشحون', 'nav.interviews': 'المقابلات',
     'nav.archive': 'أرشيف السير الذاتية', 'nav.cvrequest': 'طلب السير الذاتية',
-    'nav.settings': 'إدارة المستخدمين',
-    'sidebar.footer': 'أقنزور v7.0 © 2026 | Firebase Cloud',
+    'nav.settings': 'إدارة المستخدمين', 'sidebar.footer': 'أقنزور v7.1 © 2026 | Firebase Cloud',
     'dashboard.welcome': 'مرحباً،', 'dashboard.subtitle': 'نظرة عامة على نظام التوظيف',
     'dashboard.myStats': 'إحصائياتك (حسب صلاحياتك)', 'dashboard.openVacancies': 'شواغرك المفتوحة',
     'dashboard.myCandidates': 'مرشحوك', 'dashboard.accepted': 'المقبولون', 'dashboard.rejected': 'المرفوضون',
@@ -342,7 +336,7 @@ const TRANSLATIONS = {
     'vacancies.confirmClose': 'تغيير حالة الشاغر إلى "مغلق"؟',
     'vacancies.confirmReopen': 'إعادة فتح هذا الشاغر؟',
     'candidates.title': 'المرشحون', 'candidates.candidate': 'مرشح',
-    'candidates.search': '🔍 بحث بالاسم أو الجوال...', 'candidates.allVacancies': 'كل الشواغر المتاحة',
+    'candidates.search': ' بحث بالاسم أو الجوال...', 'candidates.allVacancies': 'كل الشواغر المتاحة',
     'candidates.allStatuses': 'كل الحالات', 'candidates.noResults': 'لا توجد نتائج',
     'candidates.new': '➕ مرشح جديد', 'candidates.name': 'الاسم', 'candidates.job': 'الوظيفة',
     'candidates.phone': 'الجوال', 'candidates.email': 'البريد', 'candidates.status': 'الحالة',
@@ -354,7 +348,7 @@ const TRANSLATIONS = {
     'archive.title': '📁 أرشيف السير الذاتية', 'archive.file': 'ملف', 'archive.unassigned': 'غير مصنف',
     'archive.search': '🔍 بحث...', 'archive.none': 'لا توجد ملفات',
     'archive.noPermission': 'ليس لديك صلاحية عرض السير الذاتية',
-    'cvrequest.title': '📤 طلب ملفات السير الذاتية', 'cvrequest.select': '-- اختر الشاغر --',
+    'cvrequest.title': ' طلب ملفات السير الذاتية', 'cvrequest.select': '-- اختر الشاغر --',
     'cvrequest.none': 'لا توجد ملفات', 'cvrequest.viewAll': '️ عرض الكل', 'cvrequest.zip': '⬇️ ZIP',
     'settings.title': '👥 إدارة المستخدمين والصلاحيات',
     'settings.subtitle': 'إضافة مستخدمين جدد وتحديد صلاحياتهم بدقة',
@@ -372,7 +366,7 @@ const TRANSLATIONS = {
     'settings.lastSaved': 'آخر تحديث',
     'settings.freeSpace': '️ تحرير المساحة',
     'settings.freeSpaceDesc': 'حذف ملفات CV القديمة لتحرير مساحة التخزين',
-    'firebase.connected': 'متصل بـ Firebase Cloud - البيانات مشتركة بين جميع المدراء',
+    'firebase.connected': 'متصل بـ Firebase Cloud - البيانات تُحفظ تلقائياً',
     'firebase.syncing': 'جاري المزامنة...',
     'form.jobTitle': 'اسم الوظيفة', 'form.department': 'القسم', 'form.management': 'اسم الإدارة',
     'form.openDate': 'تاريخ فتح الشاغر', 'form.status': 'حالة الشاغر', 'form.owner': 'المسؤول عن الشاغر',
@@ -389,7 +383,7 @@ const TRANSLATIONS = {
     'form.allowedVacancies': 'تحديد الشواغر المسموح له برؤيتها:',
     'form.allowedVacanciesHint': '* اضغط Ctrl (أو Cmd في Mac) لتحديد أكثر من شاغر.',
     'btn.save': '💾 حفظ', 'btn.savePermissions': '💾 حفظ الصلاحيات', 'btn.cancel': 'إلغاء',
-    'btn.edit': '✏️ تعديل', 'btn.delete': '🗑️ حذف', 'btn.view': '👁️ عرض', 'btn.download': '⬇️ تحميل',
+    'btn.edit': '✏️ تعديل', 'btn.delete': '️ حذف', 'btn.view': '️ عرض', 'btn.download': '⬇️ تحميل',
     'btn.back': '→ رجوع', 'btn.addCandidate': ' إضافة مرشح',
     'msg.saved': 'تم الحفظ', 'msg.updated': 'تم التحديث', 'msg.deleted': 'تم الحذف',
     'msg.added': 'تمت الإضافة', 'msg.required': 'البيانات الأساسية مطلوبة',
@@ -417,7 +411,7 @@ const TRANSLATIONS = {
     'cStatus.evaluating': 'تحت المراجعة', 'cStatus.final': 'مرشح نهائي',
     'cStatus.accepted': 'مقبول', 'cStatus.rejected': 'مرفوض', 'cStatus.withdrawn': 'انسحب',
     'user.myAccount': '👤 حسابي والصلاحيات', 'user.adminRole': 'مدير النظام (صلاحيات كاملة)',
-    'user.myPermissions': 'صلاحياتك الحالية:', 'user.allowedVacancies': '📋 الشواغر المسموحة:',
+    'user.myPermissions': 'صلاحياتك الحالية:', 'user.allowedVacancies': ' الشواغر المسموحة:',
     'user.allowedCandidates': '👥 المرشحون المسموحون:', 'user.viewCV': '👁️ عرض السير الذاتية:',
     'user.addCV': '➕ إضافة سير ذاتية:', 'user.allowed': '✅ مسموح', 'user.notAllowed': '❌ غير مسموح',
     'user.close': 'إغلاق'
@@ -427,13 +421,11 @@ const TRANSLATIONS = {
     'login.title': 'System Login', 'login.error': 'Invalid username or password',
     'login.username': 'Username', 'login.usernamePh': 'Enter username',
     'login.password': 'Password', 'login.passwordPh': 'Enter password',
-    'login.submit': 'Login',
-    'logout': 'Logout', 'logout.confirm': 'Logout?',
+    'login.submit': 'Login', 'logout': 'Logout', 'logout.confirm': 'Logout?',
     'nav.dashboard': 'Dashboard', 'nav.vacancies': 'Job Vacancies',
     'nav.candidates': 'Candidates', 'nav.interviews': 'Interviews',
     'nav.archive': 'CV Archive', 'nav.cvrequest': 'CV Request',
-    'nav.settings': 'User Management',
-    'sidebar.footer': 'Avnzor v7.0 © 2026 | Firebase Cloud',
+    'nav.settings': 'User Management', 'sidebar.footer': 'Avnzor v7.1 © 2026 | Firebase Cloud',
     'dashboard.welcome': 'Welcome,', 'dashboard.subtitle': 'Recruitment system overview',
     'dashboard.myStats': 'Your Stats (based on permissions)', 'dashboard.openVacancies': 'Your Open Vacancies',
     'dashboard.myCandidates': 'Your Candidates', 'dashboard.accepted': 'Accepted', 'dashboard.rejected': 'Rejected',
@@ -452,9 +444,9 @@ const TRANSLATIONS = {
     'vacancies.confirmClose': 'Change vacancy status to "Closed"?',
     'vacancies.confirmReopen': 'Reopen this vacancy?',
     'candidates.title': 'Candidates', 'candidates.candidate': 'candidate',
-    'candidates.search': '🔍 Search by name or phone...', 'candidates.allVacancies': 'All available vacancies',
+    'candidates.search': ' Search by name or phone...', 'candidates.allVacancies': 'All available vacancies',
     'candidates.allStatuses': 'All statuses', 'candidates.noResults': 'No results',
-    'candidates.new': '➕ New Candidate', 'candidates.name': 'Name', 'candidates.job': 'Job',
+    'candidates.new': ' New Candidate', 'candidates.name': 'Name', 'candidates.job': 'Job',
     'candidates.phone': 'Phone', 'candidates.email': 'Email', 'candidates.status': 'Status',
     'candidates.cv': 'CV', 'candidates.date': 'Date Added', 'candidates.cvColumn': 'CV',
     'candidates.actions': 'Actions', 'candidates.notes': 'Notes',
@@ -462,7 +454,7 @@ const TRANSLATIONS = {
     'interviews.candidate': 'Candidate', 'interviews.job': 'Job',
     'interviews.date': 'Date', 'interviews.time': 'Time', 'interviews.none': 'No interviews',
     'archive.title': '📁 CV Archive', 'archive.file': 'file', 'archive.unassigned': 'Unassigned',
-    'archive.search': '🔍 Search...', 'archive.none': 'No files',
+    'archive.search': ' Search...', 'archive.none': 'No files',
     'archive.noPermission': 'You do not have permission to view CVs',
     'cvrequest.title': ' CV Files Request', 'cvrequest.select': '-- Select Vacancy --',
     'cvrequest.none': 'No files', 'cvrequest.viewAll': '️ View All', 'cvrequest.zip': '⬇️ ZIP',
@@ -473,16 +465,16 @@ const TRANSLATIONS = {
     'settings.password': 'Password', 'settings.allowedVacancies': 'Allowed Vacancies',
     'settings.actions': 'Actions', 'settings.admin': 'System Admin', 'settings.manager': 'Manager',
     'settings.you': '(You)', 'settings.editPermissions': '✏️ Edit Permissions',
-    'settings.all': 'All', 'settings.vacancy': 'vacancy', 'settings.backup': '💾 Backup',
-    'settings.export': '📤 Export Data', 'settings.import': '📥 Import',
-    'settings.clear': '🗑️ Clear All', 'settings.adminOnly': 'This page is available for admin account only',
+    'settings.all': 'All', 'settings.vacancy': 'vacancy', 'settings.backup': ' Backup',
+    'settings.export': ' Export Data', 'settings.import': ' Import',
+    'settings.clear': '️ Clear All', 'settings.adminOnly': 'This page is available for admin account only',
     'settings.protected': 'This account is protected and cannot be modified',
     'settings.storage': '💾 Storage: Firebase Cloud (Unlimited)',
     'settings.autoSave': 'Auto Save', 'settings.autoSaveEnabled': 'Enabled (Real-time)',
     'settings.lastSaved': 'Last update',
     'settings.freeSpace': '🗑️ Free Up Space',
     'settings.freeSpaceDesc': 'Delete old CV files to free up storage space',
-    'firebase.connected': 'Connected to Firebase Cloud - Data shared between all managers',
+    'firebase.connected': 'Connected to Firebase Cloud - Data auto-saved',
     'firebase.syncing': 'Syncing...',
     'form.jobTitle': 'Job Title', 'form.department': 'Department', 'form.management': 'Management',
     'form.openDate': 'Opening Date', 'form.status': 'Vacancy Status', 'form.owner': 'Vacancy Owner',
@@ -592,7 +584,6 @@ let firebaseReady = false;
 let dataListener = null;
 
 async function initFirebase() {
-  // Wait for Firebase to be available
   let attempts = 0;
   while (!window.firebaseDB && attempts < 50) {
     await new Promise(r => setTimeout(r, 100));
@@ -606,19 +597,15 @@ async function initFirebase() {
   }
   
   firebaseReady = true;
-  console.log('Firebase ready!');
+  console.log('✅ Firebase ready!');
   
-  // Show connected status
   const statusEl = document.getElementById('firebaseStatus');
   if (statusEl) {
     statusEl.style.display = 'flex';
     statusEl.innerHTML = `<span class="dot"></span><span>${t('firebase.connected')}</span>`;
   }
   
-  // Listen for real-time updates
   setupRealtimeListener();
-  
-  // Load initial data
   await loadFromFirebase();
 }
 
@@ -631,13 +618,11 @@ function setupRealtimeListener() {
   dataListener = window.firebaseOnValue(dataRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      // Update state with cloud data
       if (data.managers) state.managers = data.managers;
       if (data.vacancies) state.vacancies = data.vacancies;
       if (data.candidates) state.candidates = data.candidates;
       if (data.language) state.language = data.language;
       
-      // Re-render if logged in
       if (state.currentManagerId && getCurrentManager()) {
         render();
       }
@@ -658,7 +643,6 @@ async function loadFromFirebase() {
       if (data.candidates) state.candidates = data.candidates;
       if (data.language) state.language = data.language;
     } else {
-      // Initialize with default admin
       state.managers = [{
         id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin',
         username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
@@ -688,6 +672,24 @@ async function saveToFirebase() {
   } catch (e) {
     console.error('Save error:', e);
   }
+}
+
+// ==================== SESSION MANAGEMENT ====================
+function saveSession() {
+  if (state.currentManagerId) {
+    localStorage.setItem('avnzor_currentManagerId', state.currentManagerId);
+  }
+}
+
+function loadSession() {
+  const savedManagerId = localStorage.getItem('avnzor_currentManagerId');
+  if (savedManagerId) {
+    state.currentManagerId = savedManagerId;
+  }
+}
+
+function clearSession() {
+  localStorage.removeItem('avnzor_currentManagerId');
 }
 
 // ==================== UTILS ====================
@@ -749,6 +751,7 @@ function handleLogin(e) {
   const manager = state.managers.find(m => m.username && m.username.toLowerCase() === username);
   if (manager && manager.password === password) {
     state.currentManagerId = manager.id;
+    saveSession(); // ✅ حفظ الجلسة
     err.style.display = 'none';
     showApp();
   } else {
@@ -760,6 +763,7 @@ function handleLogin(e) {
 function logout() {
   if (!confirm(t('logout.confirm'))) return;
   state.currentManagerId = null;
+  clearSession(); // ✅ مسح الجلسة
   document.getElementById('appContainer').classList.remove('active');
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('loginForm').reset();
@@ -899,10 +903,10 @@ function renderDashboard(m) {
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon">📋</div></div>
+      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon"></div></div>
       <div class="stat-card info"><div><div class="stat-label">${t('dashboard.myCandidates')}</div><div class="stat-value">${visibleC.length}</div></div><div class="stat-icon">👥</div></div>
       <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${accepted}</div></div><div class="stat-icon">✅</div></div>
-      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon">❌</div></div>
+      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon"></div></div>
     </div>
     <div class="card">
       <div class="card-header"><div class="card-title">📋 ${t('dashboard.availableVacancies')}</div></div>
@@ -912,7 +916,7 @@ function renderDashboard(m) {
             const cs = state.candidates.filter(c => c.vacancyId === v.id);
             return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
               <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
-              <div class="vacancy-meta-row"><span>🏢 ${esc(v.department || '—')}</span></div>
+              <div class="vacancy-meta-row"><span> ${esc(v.department || '—')}</span></div>
               <div class="vacancy-stats"><div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div></div>
             </div>`;
           }).join('')}
@@ -1196,7 +1200,7 @@ function openCandidateForm(id = null, defaultVacancyId = null) {
           <input type="file" id="cvFile" accept=".pdf,.doc,.docx" style="display:none">
         </div>
         <div id="fileInfo" style="display:${pendingCV ? 'flex' : 'none'};margin-top:8px;padding:8px;background:var(--primary-50);border-radius:6px;font-size:12px;align-items:center;gap:8px">
-          📎 <span id="fileName">${esc(pendingCV?.name || '')}</span>
+           <span id="fileName">${esc(pendingCV?.name || '')}</span>
           <button type="button" class="btn btn-sm btn-secondary" onclick="removeCV()" style="padding:2px 8px">${t('form.remove')}</button>
         </div>
       </div>
@@ -1347,13 +1351,13 @@ function updateCVRequest() {
 
 function renderSettings(m) {
   if (!isAdminAccount(m)) {
-    return `<div class="card"><div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
+    return `<div class="card"><div class="empty-state"><div class="empty-state-icon"></div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
   }
 
   return `
     <div class="page-header"><div><h1 class="page-title">${t('settings.title')}</h1><p class="page-subtitle">${t('settings.subtitle')}</p></div></div>
     
-    <div class="storage-indicator">
+    <div class="storage-indicator" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <strong style="color:var(--primary)">${t('settings.storage')}</strong>
         <span style="font-size:12px;color:var(--text-light)">${t('settings.autoSave')}: <strong style="color:var(--success)">${t('settings.autoSaveEnabled')}</strong></span>
@@ -1657,6 +1661,9 @@ function attachPageEvents() {
 // Initialize Firebase and App
 (async () => {
   await initFirebase();
+  
+  // ✅ تحميل الجلسة المحفوظة
+  loadSession();
   
   if (state.currentManagerId && getManager(state.currentManagerId)) {
     showApp();
