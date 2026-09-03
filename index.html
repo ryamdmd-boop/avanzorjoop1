@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   
   const firebaseConfig = {
     apiKey: "AIzaSyBQQdBJN84KiOw_k4XuTrw1xo9a-n0l9PY",
@@ -31,7 +31,6 @@
   window.firebaseRemove = remove;
   window.firebaseUpdate = update;
   window.firebaseGet = get;
-  window.firebaseChild = child;
   
   console.log('✅ Firebase initialized!');
 </script>
@@ -85,6 +84,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .btn-accent{background:var(--accent);color:#fff}
 .btn-warning{background:var(--warning);color:#fff}
 .btn-success{background:var(--success);color:#fff}
+.btn-info{background:var(--info);color:#fff}
 
 .app-container{display:none;min-height:100vh}
 .app-container.active{display:flex}
@@ -147,7 +147,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .vacancy-title{font-size:16px;font-weight:700;margin-bottom:6px;margin-top:4px;color:var(--primary)}
 .vacancy-meta-row{display:flex;gap:12px;color:var(--text-light);font-size:12px;margin-bottom:10px;flex-wrap:wrap}
 .vacancy-meta-row span{display:flex;align-items:center;gap:4px}
-.vacancy-owner{background:var(--primary-50);padding:6px 10px;border-radius:6px;font-size:11px;color:var(--primary);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .vacancy-stats{display:flex;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light)}
 .vacancy-stat{text-align:center;flex:1}
 .vacancy-stat-num{font-size:18px;font-weight:700;color:var(--primary)}
@@ -158,6 +157,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
 .b-interviewed{background:#ddd6fe;color:#5b21b6}.b-evaluating{background:#fef3c7;color:#92400e}.b-final{background:#fce7f3;color:#9d174d}
 .b-accepted{background:#d1fae5;color:#065f46}.b-rejected{background:#fee2e2;color:#991b1b}.b-withdrawn{background:#e2e8f0;color:#475569}
 .b-open{background:#d1fae5;color:#065f46}.b-hiring{background:#dbeafe;color:#1e40af}.b-filled{background:#e0e7ff;color:#3730a3}.b-stopped{background:#fee2e2;color:#991b1b}
+.b-google{background:#e0f2fe;color:#0369a1}.b-office{background:#fef3c7;color:#92400e}
 
 .table-wrapper{overflow-x:auto;border-radius:var(--radius);background:#fff}
 table{width:100%;border-collapse:collapse}
@@ -193,10 +193,13 @@ tr:hover td{background:var(--primary-50)}
 .firebase-status .dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-.upload-progress{background:var(--primary-50);padding:12px;border-radius:8px;margin-top:10px;display:none}
-.upload-progress.active{display:block}
-.upload-progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
-.upload-progress-fill{height:100%;background:var(--accent);transition:width .3s;width:0%}
+.interview-type-selector{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.interview-type-option{border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.interview-type-option:hover{border-color:var(--accent);background:var(--primary-50)}
+.interview-type-option.selected{border-color:var(--accent);background:var(--primary-50);box-shadow:0 0 0 3px rgba(74,108,247,.2)}
+.interview-type-option .icon{font-size:32px;margin-bottom:8px}
+.interview-type-option .label{font-weight:700;color:var(--primary);font-size:14px}
+.interview-type-option .desc{font-size:11px;color:var(--text-light);margin-top:4px}
 
 @media(max-width:900px){
   .sidebar{transform:translateX(100%)}
@@ -204,6 +207,7 @@ tr:hover td{background:var(--primary-50)}
   [dir="ltr"] .sidebar{transform:translateX(-100%)}
   [dir="ltr"] .sidebar.open{transform:translateX(0)}
   .main{margin-right:0 !important;margin-left:0 !important;width:100%;padding:14px}
+  .interview-type-selector{grid-template-columns:1fr}
 }
 .flex{display:flex}.gap-2{gap:8px}.gap-3{gap:12px}.flex-between{display:flex;justify-content:space-between;align-items:center}.flex-wrap{flex-wrap:wrap}
 .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
@@ -216,7 +220,7 @@ tr:hover td{background:var(--primary-50)}
   <div class="login-box">
     <div style="position:absolute;top:14px;left:14px">
       <div class="lang-switch">
-        <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
+        <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸 عربي</button>
         <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
       </div>
     </div>
@@ -228,18 +232,18 @@ tr:hover td{background:var(--primary-50)}
       </svg>
       <h1>أقنزور | avnzor</h1>
     </div>
-    <div class="login-title" id="loginTitle">تسجيل الدخول للنظام</div>
+    <div class="login-title">تسجيل الدخول للنظام</div>
     <div class="login-error" id="loginError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
     <form id="loginForm" onsubmit="handleLogin(event)">
       <div class="form-group">
-        <label id="loginUsernameLabel">اسم المستخدم</label>
+        <label>اسم المستخدم</label>
         <input type="text" class="form-control" id="loginUsername" required placeholder="أدخل اسم المستخدم">
       </div>
       <div class="form-group">
-        <label id="loginPasswordLabel">كلمة المرور</label>
+        <label>كلمة المرور</label>
         <input type="password" class="form-control" id="loginPassword" required placeholder="أدخل كلمة المرور">
       </div>
-      <button type="submit" class="btn btn-primary" style="margin-top:10px" id="loginSubmitBtn">تسجيل الدخول</button>
+      <button type="submit" class="btn btn-primary" style="margin-top:10px">تسجيل الدخول</button>
     </form>
   </div>
 </div>
@@ -256,18 +260,18 @@ tr:hover td{background:var(--primary-50)}
       </div>
       <div class="logo-text">
         <h1>أقنزور | avnzor</h1>
-        <p id="sidebarSubtitle">نظام إدارة التوظيف</p>
+        <p>نظام إدارة التوظيف</p>
       </div>
     </div>
     <ul class="nav-menu" id="navMenu">
-      <li class="nav-item"><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span><span id="navDashboard">لوحة التحكم</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="vacancies"><span class="nav-icon">📋</span><span id="navVacancies">الشواغر الوظيفية</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="candidates"><span class="nav-icon"></span><span id="navCandidates">المرشحون</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="interviews"><span class="nav-icon">📅</span><span id="navInterviews">المقابلات</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="archive"><span class="nav-icon">📁</span><span id="navArchive">أرشيف السير الذاتية</span></a></li>
-      <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon">📤</span><span id="navCvrequest">طلب السير الذاتية</span></a></li>
+      <li class="nav-item"><a class="nav-link active" data-page="dashboard"><span class="nav-icon">📊</span><span>لوحة التحكم</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="vacancies"><span class="nav-icon">📋</span><span>الشواغر الوظيفية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="candidates"><span class="nav-icon">👥</span><span>المرشحون</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="interviews"><span class="nav-icon">📅</span><span>المقابلات</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="archive"><span class="nav-icon">📁</span><span>أرشيف السير الذاتية</span></a></li>
+      <li class="nav-item"><a class="nav-link" data-page="cvrequest"><span class="nav-icon">📤</span><span>طلب السير الذاتية</span></a></li>
     </ul>
-    <div class="sidebar-footer">أقنزور v8.0 © 2026 | Firebase Cloud (مقسّم)</div>
+    <div class="sidebar-footer">أقنزور v9.0 © 2026 | Firebase Cloud</div>
   </aside>
 
   <main class="main">
@@ -286,13 +290,13 @@ tr:hover td{background:var(--primary-50)}
       <div class="topbar-left">
         <div class="lang-switch">
           <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">🇸🇦 عربي</button>
-          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇧 EN</button>
+          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬 EN</button>
         </div>
       </div>
     </div>
     <div id="firebaseStatus" class="firebase-status" style="display:none">
       <span class="dot"></span>
-      <span>متصل بـ Firebase Cloud - البيانات مُقسّمة ومُحسّنة</span>
+      <span>متصل بـ Firebase Cloud - CVs محفوظة مع البيانات</span>
     </div>
     <div id="app"></div>
   </main>
@@ -311,288 +315,39 @@ tr:hover td{background:var(--primary-50)}
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== TRANSLATIONS ====================
-const TRANSLATIONS = {
-  ar: {
-    'app.name': 'أقنزور | avnzor', 'app.subtitle': 'نظام إدارة التوظيف',
-    'login.title': 'تسجيل الدخول للنظام', 'login.error': 'اسم المستخدم أو كلمة المرور غير صحيحة',
-    'login.username': 'اسم المستخدم', 'login.usernamePh': 'أدخل اسم المستخدم',
-    'login.password': 'كلمة المرور', 'login.passwordPh': 'أدخل كلمة المرور',
-    'login.submit': 'تسجيل الدخول', 'logout': 'تسجيل خروج', 'logout.confirm': 'تسجيل الخروج؟',
-    'nav.dashboard': 'لوحة التحكم', 'nav.vacancies': 'الشواغر الوظيفية',
-    'nav.candidates': 'المرشحون', 'nav.interviews': 'المقابلات',
-    'nav.archive': 'أرشيف السير الذاتية', 'nav.cvrequest': 'طلب السير الذاتية',
-    'nav.settings': 'إدارة المستخدمين', 'sidebar.footer': 'أقنزور v8.0 © 2026 | Firebase Cloud (مقسّم)',
-    'dashboard.welcome': 'مرحباً،', 'dashboard.subtitle': 'نظرة عامة على نظام التوظيف',
-    'dashboard.myStats': 'إحصائياتك (حسب صلاحياتك)', 'dashboard.openVacancies': 'شواغرك المفتوحة',
-    'dashboard.myCandidates': 'مرشحوك', 'dashboard.accepted': 'المقبولون', 'dashboard.rejected': 'المرفوضون',
-    'dashboard.availableVacancies': 'الشواغر الوظيفية المتاحة لك',
-    'dashboard.noVacancies': 'لا توجد شواغر متاحة لصلاحياتك الحالية',
-    'dashboard.contactAdmin': 'يرجى التواصل مع مدير النظام لتعديل الصلاحيات',
-    'vacancies.title': 'الشواغر الوظيفية', 'vacancies.available': 'شاغر متاح لك',
-    'vacancies.search': '🔍 بحث في الشواغر...', 'vacancies.none': 'لا توجد شواغر متاحة',
-    'vacancies.new': '➕ شاغر جديد', 'vacancies.owner': 'المسؤول',
-    'vacancies.candidate': 'مرشح', 'vacancies.accepted': 'مقبول', 'vacancies.back': '→ رجوع',
-    'vacancies.totalCandidates': 'إجمالي المرشحين', 'vacancies.noCandidates': 'لا يوجد مرشحون',
-    'vacancies.notAllowed': 'غير مسموح لك بعرض هذا الشاغر أو أنه غير موجود',
-    'vacancies.edit': '✏️ تعديل الشاغر', 'vacancies.close': '🔒 إغلاق الشاغر',
-    'vacancies.delete': '️ حذف الشاغر', 'vacancies.reopen': '🔓 إعادة فتح الشاغر',
-    'vacancies.confirmDelete': 'حذف هذا الشاغر نهائياً؟ سيتم نقل المرشحين للأرشيف.',
-    'vacancies.confirmClose': 'تغيير حالة الشاغر إلى "مغلق"؟',
-    'vacancies.confirmReopen': 'إعادة فتح هذا الشاغر؟',
-    'candidates.title': 'المرشحون', 'candidates.candidate': 'مرشح',
-    'candidates.search': '🔍 بحث بالاسم أو الجوال...', 'candidates.allVacancies': 'كل الشواغر المتاحة',
-    'candidates.allStatuses': 'كل الحالات', 'candidates.noResults': 'لا توجد نتائج',
-    'candidates.new': '➕ مرشح جديد', 'candidates.name': 'الاسم', 'candidates.job': 'الوظيفة',
-    'candidates.phone': 'الجوال', 'candidates.email': 'البريد', 'candidates.status': 'الحالة',
-    'candidates.cv': 'CV', 'candidates.date': 'تاريخ الإضافة', 'candidates.cvColumn': 'السيرة الذاتية',
-    'candidates.actions': 'إجراءات', 'candidates.notes': 'ملاحظات',
-    'interviews.title': 'المقابلات', 'interviews.interview': 'مقابلة',
-    'interviews.candidate': 'المرشح', 'interviews.job': 'الوظيفة',
-    'interviews.date': 'التاريخ', 'interviews.time': 'الوقت', 'interviews.none': 'لا توجد مقابلات',
-    'archive.title': '📁 أرشيف السير الذاتية', 'archive.file': 'ملف', 'archive.unassigned': 'غير مصنف',
-    'archive.search': '🔍 بحث...', 'archive.none': 'لا توجد ملفات',
-    'archive.noPermission': 'ليس لديك صلاحية عرض السير الذاتية',
-    'cvrequest.title': '📤 طلب ملفات السير الذاتية', 'cvrequest.select': '-- اختر الشاغر --',
-    'cvrequest.none': 'لا توجد ملفات', 'cvrequest.viewAll': '️ عرض الكل', 'cvrequest.zip': '⬇️ ZIP',
-    'settings.title': '👥 إدارة المستخدمين والصلاحيات',
-    'settings.subtitle': 'إضافة مستخدمين جدد وتحديد صلاحياتهم بدقة',
-    'settings.managers': 'المستخدمون', 'settings.addManager': '➕ إضافة مستخدم جديد',
-    'settings.name': 'الاسم', 'settings.role': 'الدور', 'settings.username': 'المستخدم',
-    'settings.password': 'كلمة المرور', 'settings.allowedVacancies': 'الشواغر المسموحة',
-    'settings.actions': 'إجراءات', 'settings.admin': 'مدير نظام', 'settings.manager': 'مدير',
-    'settings.you': '(أنت)', 'settings.editPermissions': '✏️ تعديل الصلاحيات',
-    'settings.all': 'الكل', 'settings.vacancy': 'شاغر', 'settings.backup': '💾 النسخ الاحتياطي',
-    'settings.export': ' تصدير البيانات', 'settings.import': ' استيراد',
-    'settings.clear': '🗑️ حذف الكل', 'settings.adminOnly': 'هذه الصفحة متاحة لمدير النظام (admin) فقط',
-    'settings.protected': 'هذا الحساب محمي ولا يمكن تعديله',
-    'settings.storage': '💾 التخزين: Firebase Cloud (مُقسّم - غير محدود)',
-    'settings.autoSave': 'الحفظ التلقائي', 'settings.autoSaveEnabled': 'مفعّل (مباشر)',
-    'settings.lastSaved': 'آخر تحديث',
-    'settings.freeSpace': '🗑️ تحرير المساحة',
-    'settings.freeSpaceDesc': 'حذف ملفات CV القديمة لتحرير مساحة التخزين',
-    'firebase.connected': 'متصل بـ Firebase Cloud - البيانات مُقسّمة ومُحسّنة',
-    'firebase.syncing': 'جاري المزامنة...',
-    'form.jobTitle': 'اسم الوظيفة', 'form.department': 'القسم', 'form.management': 'اسم الإدارة',
-    'form.openDate': 'تاريخ فتح الشاغر', 'form.status': 'حالة الشاغر', 'form.owner': 'المسؤول عن الشاغر',
-    'form.name': 'اسم المرشح', 'form.phone': 'رقم الجوال', 'form.email': 'البريد الإلكتروني',
-    'form.vacancy': 'الشاغر الوظيفي', 'form.candidateStatus': 'حالة المرشح',
-    'form.cv': 'السيرة الذاتية (PDF / Word)', 'form.cvClick': 'اضغط لاختيار ملف',
-    'form.remove': 'إزالة', 'form.notes': 'ملاحظات', 'form.select': '-- اختر --',
-    'form.required': '*', 'form.fullName': 'الاسم الكامل', 'form.loginUsername': 'اسم المستخدم (للدخول)',
-    'form.loginPassword': 'كلمة المرور', 'form.role': 'الدور / المنصب',
-    'form.roleManager': 'مدير عادي', 'form.roleAdmin': 'مدير النظام (صلاحيات كاملة)',
-    'form.permissions': '⚙️ الصلاحيات المحددة', 'form.viewAllVacancies': 'السماح برؤية كل الشواغر',
-    'form.addVacancy': 'السماح بإضافة شواغر جديدة', 'form.viewCV': 'السماح بعرض السير الذاتية (CV)',
-    'form.addCV': 'السماح بإضافة مرشحين وسير ذاتية',
-    'form.allowedVacancies': 'تحديد الشواغر المسموح له برؤيتها:',
-    'form.allowedVacanciesHint': '* اضغط Ctrl (أو Cmd في Mac) لتحديد أكثر من شاغر.',
-    'btn.save': '💾 حفظ', 'btn.savePermissions': '💾 حفظ الصلاحيات', 'btn.cancel': 'إلغاء',
-    'btn.edit': '✏️ تعديل', 'btn.delete': '🗑️ حذف', 'btn.view': '👁️ عرض', 'btn.download': '⬇️ تحميل',
-    'btn.back': '→ رجوع', 'btn.addCandidate': '➕ إضافة مرشح',
-    'msg.saved': 'تم الحفظ', 'msg.updated': 'تم التحديث', 'msg.deleted': 'تم الحذف',
-    'msg.added': 'تمت الإضافة', 'msg.required': 'البيانات الأساسية مطلوبة',
-    'msg.jobTitleRequired': 'اسم الوظيفة مطلوب', 'msg.nameVacancyRequired': 'الاسم والشاغر مطلوبان',
-    'msg.confirmDelete': 'حذف هذا العنصر؟', 'msg.confirmDeleteManager': 'حذف هذا المستخدم؟',
-    'msg.confirmImport': 'سيتم استبدال جميع البيانات الحالية. متابعة؟',
-    'msg.confirmClear1': '⚠️ حذف جميع البيانات؟', 'msg.confirmClear2': 'تأكيد أخير؟',
-    'msg.noPermissionVacancy': 'ليس لديك صلاحية إضافة شواغر',
-    'msg.noPermissionCV': 'ليس لديك صلاحية عرض السير الذاتية',
-    'msg.noPermissionAddCV': 'ليس لديك صلاحية إضافة مرشحين',
-    'msg.noPermissionSettings': 'ليس لديك صلاحية الوصول لهذه الصفحة',
-    'msg.noVacanciesAvailable': 'لا توجد شواغر متاحة لصلاحياتك',
-    'msg.fileTooLarge': 'حجم الملف كبير (الحد 10MB)', 'msg.noFile': 'لا يوجد ملف',
-    'msg.preparing': 'جاري التجهيز...', 'msg.downloaded': 'تم التحميل',
-    'msg.exported': 'تم التصدير', 'msg.imported': 'تم الاستيراد',
-    'msg.invalidFile': 'ملف غير صالح', 'msg.langChanged': 'تم تغيير اللغة',
-    'msg.cannotDeleteAdmin': 'لا يمكن حذف حساب admin الرئيسي',
-    'msg.cannotEditAdmin': 'لا يمكن تعديل حساب admin الرئيسي',
-    'msg.vacancyDeleted': 'تم حذف الشاغر ونقل المرشحين للأرشيف',
-    'msg.vacancyClosed': 'تم إغلاق الشاغر', 'msg.vacancyReopened': 'تم إعادة فتح الشاغر',
-    'msg.synced': 'تمت المزامنة مع السحابة',
-    'msg.uploading': 'جاري رفع الملف...',
-    'msg.uploadComplete': 'تم رفع الملف بنجاح',
-    'msg.uploadFailed': 'فشل رفع الملف. جرب مرة أخرى.',
-    'msg.cvSavedSeparately': 'تم حفظ CV في مكان منفصل',
-    'status.open': 'مفتوح', 'status.hiring': 'قيد التوظيف', 'status.filled': 'تم التوظيف', 'status.stopped': 'متوقف',
-    'cStatus.new': 'مرشح جديد', 'cStatus.contacted': 'تم التواصل',
-    'cStatus.interview_scheduled': 'تم تحديد مقابلة', 'cStatus.interviewed': 'تمت المقابلة',
-    'cStatus.evaluating': 'تحت المراجعة', 'cStatus.final': 'مرشح نهائي',
-    'cStatus.accepted': 'مقبول', 'cStatus.rejected': 'مرفوض', 'cStatus.withdrawn': 'انسحب',
-    'user.myAccount': '👤 حسابي والصلاحيات', 'user.adminRole': 'مدير النظام (صلاحيات كاملة)',
-    'user.myPermissions': 'صلاحياتك الحالية:', 'user.allowedVacancies': '📋 الشواغر المسموحة:',
-    'user.allowedCandidates': '👥 المرشحون المسموحون:', 'user.viewCV': '👁️ عرض السير الذاتية:',
-    'user.addCV': '➕ إضافة سير ذاتية:', 'user.allowed': '✅ مسموح', 'user.notAllowed': ' غير مسموح',
-    'user.close': 'إغلاق'
-  },
-  en: {
-    'app.name': 'Avnzor | أقنزور', 'app.subtitle': 'Recruitment Management System',
-    'login.title': 'System Login', 'login.error': 'Invalid username or password',
-    'login.username': 'Username', 'login.usernamePh': 'Enter username',
-    'login.password': 'Password', 'login.passwordPh': 'Enter password',
-    'login.submit': 'Login', 'logout': 'Logout', 'logout.confirm': 'Logout?',
-    'nav.dashboard': 'Dashboard', 'nav.vacancies': 'Job Vacancies',
-    'nav.candidates': 'Candidates', 'nav.interviews': 'Interviews',
-    'nav.archive': 'CV Archive', 'nav.cvrequest': 'CV Request',
-    'nav.settings': 'User Management', 'sidebar.footer': 'Avnzor v8.0 © 2026 | Firebase Cloud (Split)',
-    'dashboard.welcome': 'Welcome,', 'dashboard.subtitle': 'Recruitment system overview',
-    'dashboard.myStats': 'Your Stats (based on permissions)', 'dashboard.openVacancies': 'Your Open Vacancies',
-    'dashboard.myCandidates': 'Your Candidates', 'dashboard.accepted': 'Accepted', 'dashboard.rejected': 'Rejected',
-    'dashboard.availableVacancies': 'Available Job Vacancies for You',
-    'dashboard.noVacancies': 'No vacancies available for your current permissions',
-    'dashboard.contactAdmin': 'Please contact the system admin to modify permissions',
-    'vacancies.title': 'Job Vacancies', 'vacancies.available': 'vacancies available for you',
-    'vacancies.search': '🔍 Search vacancies...', 'vacancies.none': 'No vacancies available',
-    'vacancies.new': '➕ New Vacancy', 'vacancies.owner': 'Owner',
-    'vacancies.candidate': 'Candidate', 'vacancies.accepted': 'Accepted', 'vacancies.back': '← Back',
-    'vacancies.totalCandidates': 'Total Candidates', 'vacancies.noCandidates': 'No candidates',
-    'vacancies.notAllowed': 'You are not allowed to view this vacancy or it does not exist',
-    'vacancies.edit': '✏️ Edit Vacancy', 'vacancies.close': '🔒 Close Vacancy',
-    'vacancies.delete': '️ Delete Vacancy', 'vacancies.reopen': '🔓 Reopen Vacancy',
-    'vacancies.confirmDelete': 'Permanently delete this vacancy? Candidates will be moved to archive.',
-    'vacancies.confirmClose': 'Change vacancy status to "Closed"?',
-    'vacancies.confirmReopen': 'Reopen this vacancy?',
-    'candidates.title': 'Candidates', 'candidates.candidate': 'candidate',
-    'candidates.search': '🔍 Search by name or phone...', 'candidates.allVacancies': 'All available vacancies',
-    'candidates.allStatuses': 'All statuses', 'candidates.noResults': 'No results',
-    'candidates.new': '➕ New Candidate', 'candidates.name': 'Name', 'candidates.job': 'Job',
-    'candidates.phone': 'Phone', 'candidates.email': 'Email', 'candidates.status': 'Status',
-    'candidates.cv': 'CV', 'candidates.date': 'Date Added', 'candidates.cvColumn': 'CV',
-    'candidates.actions': 'Actions', 'candidates.notes': 'Notes',
-    'interviews.title': 'Interviews', 'interviews.interview': 'interview',
-    'interviews.candidate': 'Candidate', 'interviews.job': 'Job',
-    'interviews.date': 'Date', 'interviews.time': 'Time', 'interviews.none': 'No interviews',
-    'archive.title': '📁 CV Archive', 'archive.file': 'file', 'archive.unassigned': 'Unassigned',
-    'archive.search': '🔍 Search...', 'archive.none': 'No files',
-    'archive.noPermission': 'You do not have permission to view CVs',
-    'cvrequest.title': ' CV Files Request', 'cvrequest.select': '-- Select Vacancy --',
-    'cvrequest.none': 'No files', 'cvrequest.viewAll': '️ View All', 'cvrequest.zip': '⬇️ ZIP',
-    'settings.title': '👥 User & Permissions Management',
-    'settings.subtitle': 'Add new users and define their permissions precisely',
-    'settings.managers': 'Users', 'settings.addManager': '➕ Add New User',
-    'settings.name': 'Name', 'settings.role': 'Role', 'settings.username': 'Username',
-    'settings.password': 'Password', 'settings.allowedVacancies': 'Allowed Vacancies',
-    'settings.actions': 'Actions', 'settings.admin': 'System Admin', 'settings.manager': 'Manager',
-    'settings.you': '(You)', 'settings.editPermissions': '️ Edit Permissions',
-    'settings.all': 'All', 'settings.vacancy': 'vacancy', 'settings.backup': '💾 Backup',
-    'settings.export': '📤 Export Data', 'settings.import': '📥 Import',
-    'settings.clear': '🗑️ Clear All', 'settings.adminOnly': 'This page is available for admin account only',
-    'settings.protected': 'This account is protected and cannot be modified',
-    'settings.storage': '💾 Storage: Firebase Cloud (Split - Unlimited)',
-    'settings.autoSave': 'Auto Save', 'settings.autoSaveEnabled': 'Enabled (Real-time)',
-    'settings.lastSaved': 'Last update',
-    'settings.freeSpace': '🗑️ Free Up Space',
-    'settings.freeSpaceDesc': 'Delete old CV files to free up storage space',
-    'firebase.connected': 'Connected to Firebase Cloud - Data split & optimized',
-    'firebase.syncing': 'Syncing...',
-    'form.jobTitle': 'Job Title', 'form.department': 'Department', 'form.management': 'Management',
-    'form.openDate': 'Opening Date', 'form.status': 'Vacancy Status', 'form.owner': 'Vacancy Owner',
-    'form.name': 'Candidate Name', 'form.phone': 'Phone Number', 'form.email': 'Email',
-    'form.vacancy': 'Job Vacancy', 'form.candidateStatus': 'Candidate Status',
-    'form.cv': 'CV (PDF / Word)', 'form.cvClick': 'Click to choose file',
-    'form.remove': 'Remove', 'form.notes': 'Notes', 'form.select': '-- Select --',
-    'form.required': '*', 'form.fullName': 'Full Name', 'form.loginUsername': 'Username (for login)',
-    'form.loginPassword': 'Password', 'form.role': 'Role / Position',
-    'form.roleManager': 'Regular Manager', 'form.roleAdmin': 'System Admin (Full Permissions)',
-    'form.permissions': '⚙️ Specific Permissions', 'form.viewAllVacancies': 'Allow viewing ALL vacancies',
-    'form.addVacancy': 'Allow adding new vacancies', 'form.viewCV': 'Allow viewing CVs',
-    'form.addCV': 'Allow adding candidates and CVs',
-    'form.allowedVacancies': 'Select allowed vacancies to view:',
-    'form.allowedVacanciesHint': '* Press Ctrl (or Cmd on Mac) to select multiple vacancies.',
-    'btn.save': '💾 Save', 'btn.savePermissions': '💾 Save Permissions', 'btn.cancel': 'Cancel',
-    'btn.edit': '✏️ Edit', 'btn.delete': '🗑️ Delete', 'btn.view': '👁️ View', 'btn.download': '️ Download',
-    'btn.back': '← Back', 'btn.addCandidate': '➕ Add Candidate',
-    'msg.saved': 'Saved', 'msg.updated': 'Updated', 'msg.deleted': 'Deleted',
-    'msg.added': 'Added', 'msg.required': 'Required fields missing',
-    'msg.jobTitleRequired': 'Job title is required', 'msg.nameVacancyRequired': 'Name and vacancy are required',
-    'msg.confirmDelete': 'Delete this item?', 'msg.confirmDeleteManager': 'Delete this user?',
-    'msg.confirmImport': 'All current data will be replaced. Continue?',
-    'msg.confirmClear1': '⚠️ Delete all data?', 'msg.confirmClear2': 'Final confirmation?',
-    'msg.noPermissionVacancy': 'You do not have permission to add vacancies',
-    'msg.noPermissionCV': 'You do not have permission to view CVs',
-    'msg.noPermissionAddCV': 'You do not have permission to add candidates',
-    'msg.noPermissionSettings': 'You do not have permission to access this page',
-    'msg.noVacanciesAvailable': 'No vacancies available for your permissions',
-    'msg.fileTooLarge': 'File too large (max 10MB)', 'msg.noFile': 'No file',
-    'msg.preparing': 'Preparing...', 'msg.downloaded': 'Downloaded',
-    'msg.exported': 'Exported', 'msg.imported': 'Imported',
-    'msg.invalidFile': 'Invalid file', 'msg.langChanged': 'Language changed',
-    'msg.cannotDeleteAdmin': 'Cannot delete the main admin account',
-    'msg.cannotEditAdmin': 'Cannot edit the main admin account',
-    'msg.vacancyDeleted': 'Vacancy deleted and candidates moved to archive',
-    'msg.vacancyClosed': 'Vacancy closed', 'msg.vacancyReopened': 'Vacancy reopened',
-    'msg.synced': 'Synced with cloud',
-    'msg.uploading': 'Uploading file...',
-    'msg.uploadComplete': 'File uploaded successfully',
-    'msg.uploadFailed': 'Upload failed. Please try again.',
-    'msg.cvSavedSeparately': 'CV saved in separate location',
-    'status.open': 'Open', 'status.hiring': 'Hiring', 'status.filled': 'Filled', 'status.stopped': 'Stopped',
-    'cStatus.new': 'New Candidate', 'cStatus.contacted': 'Contacted',
-    'cStatus.interview_scheduled': 'Interview Scheduled', 'cStatus.interviewed': 'Interviewed',
-    'cStatus.evaluating': 'Under Review', 'cStatus.final': 'Final Candidate',
-    'cStatus.accepted': 'Accepted', 'cStatus.rejected': 'Rejected', 'cStatus.withdrawn': 'Withdrawn',
-    'user.myAccount': '👤 My Account & Permissions', 'user.adminRole': 'System Admin (Full Permissions)',
-    'user.myPermissions': 'Your Current Permissions:', 'user.allowedVacancies': '📋 Allowed Vacancies:',
-    'user.allowedCandidates': ' Allowed Candidates:', 'user.viewCV': '️ View CVs:',
-    'user.addCV': '➕ Add CVs:', 'user.allowed': '✅ Allowed', 'user.notAllowed': '❌ Not Allowed',
-    'user.close': 'Close'
-  }
-};
-
-function t(key) {
-  return (TRANSLATIONS[state.language] && TRANSLATIONS[state.language][key]) || TRANSLATIONS['ar'][key] || key;
-}
-
-function setLanguage(lang) {
-  state.language = lang;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-  const textMap = {
-    'loginTitle': 'login.title', 'loginUsernameLabel': 'login.username',
-    'loginPasswordLabel': 'login.password', 'loginSubmitBtn': 'login.submit',
-    'sidebarSubtitle': 'app.subtitle', 'navDashboard': 'nav.dashboard',
-    'navVacancies': 'nav.vacancies', 'navCandidates': 'nav.candidates',
-    'navInterviews': 'nav.interviews', 'navArchive': 'nav.archive',
-    'navCvrequest': 'nav.cvrequest'
-  };
-  for (const [id, key] of Object.entries(textMap)) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = t(key);
-  }
-  const usernameInput = document.getElementById('loginUsername');
-  const passwordInput = document.getElementById('loginPassword');
-  if (usernameInput) usernameInput.placeholder = t('login.usernamePh');
-  if (passwordInput) passwordInput.placeholder = t('login.passwordPh');
-  const loginError = document.getElementById('loginError');
-  if (loginError && loginError.style.display === 'block') loginError.textContent = t('login.error');
-  saveToFirebase();
-  if (state.currentManagerId && getCurrentManager()) render();
-  showToast(t('msg.langChanged'));
-}
-
 // ==================== STATE ====================
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = '123456';
 let state = {
-  managers: [], vacancies: [], candidates: [],
+  managers: [], vacancies: [], candidates: [], interviews: [],
   currentManagerId: null, currentPage: 'dashboard', currentVacancyId: null,
   language: 'ar', filters: { status: 'all', vacancyId: 'all', search: '' },
-  lastSaved: null, autoSaveEnabled: true
+  lastSaved: null
 };
 
 const CANDIDATE_STATUSES = [
-  { key: 'new', class: 'b-new' }, { key: 'contacted', class: 'b-contacted' },
-  { key: 'interview_scheduled', class: 'b-interview-scheduled' }, { key: 'interviewed', class: 'b-interviewed' },
-  { key: 'evaluating', class: 'b-evaluating' }, { key: 'final', class: 'b-final' },
-  { key: 'accepted', class: 'b-accepted' }, { key: 'rejected', class: 'b-rejected' }, { key: 'withdrawn', class: 'b-withdrawn' }
+  { key: 'new', label: 'مرشح جديد', class: 'b-new' },
+  { key: 'contacted', label: 'تم التواصل', class: 'b-contacted' },
+  { key: 'interview_scheduled', label: 'تم تحديد مقابلة', class: 'b-interview-scheduled' },
+  { key: 'interviewed', label: 'تمت المقابلة', class: 'b-interviewed' },
+  { key: 'evaluating', label: 'تحت المراجعة', class: 'b-evaluating' },
+  { key: 'final', label: 'مرشح نهائي', class: 'b-final' },
+  { key: 'accepted', label: 'مقبول', class: 'b-accepted' },
+  { key: 'rejected', label: 'مرفوض', class: 'b-rejected' },
+  { key: 'withdrawn', label: 'انسحب', class: 'b-withdrawn' }
 ];
 const VACANCY_STATUSES = [
-  { key: 'open', class: 'b-open' }, { key: 'hiring', class: 'b-hiring' },
-  { key: 'filled', class: 'b-filled' }, { key: 'stopped', class: 'b-stopped' }
+  { key: 'open', label: 'مفتوح', class: 'b-open' },
+  { key: 'hiring', label: 'قيد التوظيف', class: 'b-hiring' },
+  { key: 'filled', label: 'تم التوظيف', class: 'b-filled' },
+  { key: 'stopped', label: 'متوقف', class: 'b-stopped' }
+];
+const INTERVIEW_TYPES = [
+  { key: 'google', label: 'مقابلة Google Meet', icon: '📹', desc: 'مقابلة عن بُعد عبر رابط', class: 'b-google' },
+  { key: 'office', label: 'مقابلة في مقر العمل', icon: '🏢', desc: 'مقابلة حضورية', class: 'b-office' }
 ];
 
-// ==================== FIREBASE SYNC (SPLIT STORAGE) ====================
+// ==================== FIREBASE ====================
 let firebaseReady = false;
 let dataListeners = {};
 
@@ -602,68 +357,37 @@ async function initFirebase() {
     await new Promise(r => setTimeout(r, 100));
     attempts++;
   }
-  
-  if (!window.firebaseDB) {
-    console.error('Firebase not loaded');
-    showToast('Firebase loading error', 'error');
-    return;
-  }
+  if (!window.firebaseDB) { showToast('خطأ في تحميل Firebase', 'error'); return; }
   
   firebaseReady = true;
-  console.log('✅ Firebase ready!');
-  
   const statusEl = document.getElementById('firebaseStatus');
-  if (statusEl) {
-    statusEl.style.display = 'flex';
-    statusEl.innerHTML = `<span class="dot"></span><span>${t('firebase.connected')}</span>`;
-  }
+  if (statusEl) { statusEl.style.display = 'flex'; }
   
   setupRealtimeListeners();
   await loadFromFirebase();
 }
 
-// ✅ NEW: Separate listeners for each data type
 function setupRealtimeListeners() {
   const db = window.firebaseDB;
   
-  // Managers listener
   if (!dataListeners.managers) {
-    const managersRef = window.firebaseRef(db, 'avnzor_managers');
-    dataListeners.managers = window.firebaseOnValue(managersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        state.managers = Object.values(data);
-        if (state.currentManagerId && getCurrentManager()) render();
-      }
+    dataListeners.managers = window.firebaseOnValue(window.firebaseRef(db, 'avnzor_managers'), (s) => {
+      const d = s.val(); if (d) { state.managers = Object.values(d); if (state.currentManagerId && getCurrentManager()) render(); }
     });
   }
-  
-  // Vacancies listener
   if (!dataListeners.vacancies) {
-    const vacanciesRef = window.firebaseRef(db, 'avnzor_vacancies');
-    dataListeners.vacancies = window.firebaseOnValue(vacanciesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        state.vacancies = Object.values(data);
-        if (state.currentManagerId && getCurrentManager()) render();
-      }
+    dataListeners.vacancies = window.firebaseOnValue(window.firebaseRef(db, 'avnzor_vacancies'), (s) => {
+      const d = s.val(); if (d) { state.vacancies = Object.values(d); if (state.currentManagerId && getCurrentManager()) render(); }
     });
   }
-  
-  // Candidates metadata listener (without CV data)
   if (!dataListeners.candidates) {
-    const candidatesRef = window.firebaseRef(db, 'avnzor_candidates');
-    dataListeners.candidates = window.firebaseOnValue(candidatesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const candidates = Object.values(data);
-        // Merge with CV data
-        state.candidates = candidates.map(c => {
-          const existing = state.candidates.find(x => x.id === c.id);
-          return { ...c, cvData: existing?.cvData || null };
-        });
-        if (state.currentManagerId && getCurrentManager()) render();
-      }
+    dataListeners.candidates = window.firebaseOnValue(window.firebaseRef(db, 'avnzor_candidates'), (s) => {
+      const d = s.val(); if (d) { state.candidates = Object.values(d); if (state.currentManagerId && getCurrentManager()) render(); }
+    });
+  }
+  if (!dataListeners.interviews) {
+    dataListeners.interviews = window.firebaseOnValue(window.firebaseRef(db, 'avnzor_interviews'), (s) => {
+      const d = s.val(); if (d) { state.interviews = Object.values(d); if (state.currentManagerId && getCurrentManager()) render(); }
     });
   }
 }
@@ -671,150 +395,69 @@ function setupRealtimeListeners() {
 async function loadFromFirebase() {
   try {
     const db = window.firebaseDB;
+    const mSnap = await window.firebaseGet(window.firebaseRef(db, 'avnzor_managers'));
+    if (mSnap.val()) state.managers = Object.values(mSnap.val());
     
-    // Load managers
-    const managersSnapshot = await window.firebaseGet(window.firebaseRef(db, 'avnzor_managers'));
-    const managersData = managersSnapshot.val();
-    if (managersData) state.managers = Object.values(managersData);
+    const vSnap = await window.firebaseGet(window.firebaseRef(db, 'avnzor_vacancies'));
+    if (vSnap.val()) state.vacancies = Object.values(vSnap.val());
     
-    // Load vacancies
-    const vacanciesSnapshot = await window.firebaseGet(window.firebaseRef(db, 'avnzor_vacancies'));
-    const vacanciesData = vacanciesSnapshot.val();
-    if (vacanciesData) state.vacancies = Object.values(vacanciesData);
+    const cSnap = await window.firebaseGet(window.firebaseRef(db, 'avnzor_candidates'));
+    if (cSnap.val()) state.candidates = Object.values(cSnap.val());
     
-    // Load candidates metadata
-    const candidatesSnapshot = await window.firebaseGet(window.firebaseRef(db, 'avnzor_candidates'));
-    const candidatesData = candidatesSnapshot.val();
-    if (candidatesData) {
-      state.candidates = Object.values(candidatesData);
-      
-      // Load CVs separately for each candidate
-      for (const candidate of state.candidates) {
-        if (candidate.hasCV) {
-          try {
-            const cvSnapshot = await window.firebaseGet(window.firebaseRef(db, `avnzor_cvs/${candidate.id}`));
-            const cvData = cvSnapshot.val();
-            if (cvData) {
-              candidate.cvData = cvData.data;
-              candidate.cvName = cvData.name;
-              candidate.cvType = cvData.type;
-            }
-          } catch (e) {
-            console.warn(`Failed to load CV for ${candidate.name}:`, e);
-          }
-        }
-      }
-    }
+    const iSnap = await window.firebaseGet(window.firebaseRef(db, 'avnzor_interviews'));
+    if (iSnap.val()) state.interviews = Object.values(iSnap.val());
     
-    // Initialize with default admin if empty
     if (state.managers.length === 0) {
       state.managers = [{
-        id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin',
-        username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
+        id: uid(), name: 'مدير النظام', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
         permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
       }];
       await saveToFirebase();
     }
-  } catch (e) {
-    console.error('Load error:', e);
-  }
+  } catch (e) { console.error('Load error:', e); }
 }
 
-// ✅ NEW: Save data to separate paths
 async function saveToFirebase() {
   if (!firebaseReady) return;
   try {
     const db = window.firebaseDB;
+    const mObj = {}; state.managers.forEach(m => { mObj[m.id] = m; });
+    await window.firebaseSet(window.firebaseRef(db, 'avnzor_managers'), mObj);
     
-    // Save managers separately
-    const managersObj = {};
-    state.managers.forEach(m => { managersObj[m.id] = m; });
-    await window.firebaseSet(window.firebaseRef(db, 'avnzor_managers'), managersObj);
+    const vObj = {}; state.vacancies.forEach(v => { vObj[v.id] = v; });
+    await window.firebaseSet(window.firebaseRef(db, 'avnzor_vacancies'), vObj);
     
-    // Save vacancies separately
-    const vacanciesObj = {};
-    state.vacancies.forEach(v => { vacanciesObj[v.id] = v; });
-    await window.firebaseSet(window.firebaseRef(db, 'avnzor_vacancies'), vacanciesObj);
+    const cObj = {}; state.candidates.forEach(c => { cObj[c.id] = c; });
+    await window.firebaseSet(window.firebaseRef(db, 'avnzor_candidates'), cObj);
     
-    // Save candidates metadata (WITHOUT CV data)
-    const candidatesObj = {};
-    state.candidates.forEach(c => {
-      const candidateCopy = { ...c };
-      const hasCV = !!candidateCopy.cvData;
-      delete candidateCopy.cvData; // Remove CV data from metadata
-      candidateCopy.hasCV = hasCV;
-      candidatesObj[c.id] = candidateCopy;
-    });
-    await window.firebaseSet(window.firebaseRef(db, 'avnzor_candidates'), candidatesObj);
+    const iObj = {}; state.interviews.forEach(i => { iObj[i.id] = i; });
+    await window.firebaseSet(window.firebaseRef(db, 'avnzor_interviews'), iObj);
     
     state.lastSaved = Date.now();
-  } catch (e) {
-    console.error('Save error:', e);
-  }
+  } catch (e) { console.error('Save error:', e); }
 }
 
-// ✅ NEW: Save CV separately
-async function saveCVToFirebase(candidateId, cvData, cvName, cvType) {
-  if (!firebaseReady) return false;
-  try {
-    const db = window.firebaseDB;
-    const cvObj = { data: cvData, name: cvName, type: cvType, uploadedAt: Date.now() };
-    await window.firebaseSet(window.firebaseRef(db, `avnzor_cvs/${candidateId}`), cvObj);
-    return true;
-  } catch (e) {
-    console.error('CV save error:', e);
-    return false;
-  }
-}
-
-// ✅ NEW: Delete CV from Firebase
-async function deleteCVFromFirebase(candidateId) {
+// ✅ حفظ المرشح فردياً (لتجنب مشكلة الحجم عند تحديث CV فقط)
+async function updateCandidateOnly(candidate) {
   if (!firebaseReady) return;
   try {
     const db = window.firebaseDB;
-    await window.firebaseRemove(window.firebaseRef(db, `avnzor_cvs/${candidateId}`));
-  } catch (e) {
-    console.error('CV delete error:', e);
-  }
-}
-
-// ==================== SESSION MANAGEMENT ====================
-function saveSession() {
-  if (state.currentManagerId) {
-    localStorage.setItem('avnzor_currentManagerId', state.currentManagerId);
-  }
-}
-
-function loadSession() {
-  const savedManagerId = localStorage.getItem('avnzor_currentManagerId');
-  if (savedManagerId) {
-    state.currentManagerId = savedManagerId;
-  }
-}
-
-function clearSession() {
-  localStorage.removeItem('avnzor_currentManagerId');
+    await window.firebaseUpdate(window.firebaseRef(db, `avnzor_candidates/${candidate.id}`), candidate);
+  } catch (e) { console.error('Update error:', e); }
 }
 
 // ==================== UTILS ====================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-
 function showToast(msg, type = 'success') {
   const tEl = document.getElementById('toast');
-  tEl.textContent = msg;
-  tEl.className = 'toast show ' + type;
+  tEl.textContent = msg; tEl.className = 'toast show ' + type;
   setTimeout(() => tEl.classList.remove('show'), 3000);
 }
-
 function getStatus(key, list) { return list.find(s => s.key === key) || list[0]; }
-function statusLabel(key, list) {
-  const prefix = (list === CANDIDATE_STATUSES) ? 'cStatus.' : 'status.';
-  return t(prefix + key);
-}
-function badge(key, list) { const s = getStatus(key, list); return `<span class="badge ${s.class}">${statusLabel(key, list)}</span>`; }
+function badge(key, list) { const s = getStatus(key, list); return `<span class="badge ${s.class}">${s.label}</span>`; }
 function esc(s) { if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return d; } }
-function fmtDateTime(d) { if (!d) return '—'; try { return new Date(d).toLocaleString(state.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return d; } }
+function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return d; } }
+function fmtDateTime(d) { if (!d) return '—'; try { return new Date(d).toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return d; } }
 function initials(name) { if (!name) return '?'; return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase(); }
 function getManager(id) { return state.managers.find(m => m.id === id); }
 function getCurrentManager() { return getManager(state.currentManagerId); }
@@ -846,6 +489,11 @@ function getVisibleCandidates(manager) {
   });
 }
 
+// ==================== SESSION ====================
+function saveSession() { if (state.currentManagerId) localStorage.setItem('avnzor_session', state.currentManagerId); }
+function loadSession() { const s = localStorage.getItem('avnzor_session'); if (s) state.currentManagerId = s; }
+function clearSession() { localStorage.removeItem('avnzor_session'); }
+
 // ==================== AUTH ====================
 function handleLogin(e) {
   e.preventDefault();
@@ -858,14 +506,11 @@ function handleLogin(e) {
     saveSession();
     err.style.display = 'none';
     showApp();
-  } else {
-    err.textContent = t('login.error');
-    err.style.display = 'block';
-  }
+  } else { err.style.display = 'block'; }
 }
 
 function logout() {
-  if (!confirm(t('logout.confirm'))) return;
+  if (!confirm('تسجيل الخروج؟')) return;
   state.currentManagerId = null;
   clearSession();
   document.getElementById('appContainer').classList.remove('active');
@@ -884,53 +529,43 @@ function showApp() {
   const m = getCurrentManager();
   if (m) {
     document.getElementById('currentUserName').textContent = m.name;
-    document.getElementById('currentUserRole').textContent = isAdminAccount(m) ? t('settings.admin') : (m.role || t('settings.manager'));
+    document.getElementById('currentUserRole').textContent = isAdminAccount(m) ? 'مدير النظام' : (m.role || 'مدير');
     document.getElementById('currentUserAvatar').textContent = initials(m.name);
   }
-  const settingsNavContainer = document.getElementById('navMenu');
-  const existingSettings = settingsNavContainer.querySelector('a[data-page="settings"]');
+  const navMenu = document.getElementById('navMenu');
+  const existingSettings = navMenu.querySelector('a[data-page="settings"]');
   if (existingSettings) existingSettings.parentElement.remove();
 
   if (isAdminAccount(m)) {
-    const settingsLi = document.createElement('li');
-    settingsLi.className = 'nav-item';
-    settingsLi.innerHTML = `<a class="nav-link" data-page="settings"><span class="nav-icon">️</span><span>${t('nav.settings')}</span></a>`;
-    settingsNavContainer.appendChild(settingsLi);
-    settingsLi.querySelector('a').addEventListener('click', () => {
+    const li = document.createElement('li');
+    li.className = 'nav-item';
+    li.innerHTML = `<a class="nav-link" data-page="settings"><span class="nav-icon">⚙️</span><span>إدارة المستخدمين</span></a>`;
+    navMenu.appendChild(li);
+    li.querySelector('a').addEventListener('click', () => {
       document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      settingsLi.querySelector('a').classList.add('active');
+      li.querySelector('a').classList.add('active');
       state.currentPage = 'settings';
-      state.currentVacancyId = null;
       render();
-      if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
     });
   }
-
   render();
 }
 
 function showUserMenu() {
   const m = getCurrentManager(); if (!m) return;
-  const visibleV = getVisibleVacancies(m);
-  const visibleC = getVisibleCandidates(m);
   const body = `
     <div style="text-align:center;padding:20px">
       <div class="user-avatar" style="width:70px;height:70px;font-size:24px;margin:0 auto 14px">${initials(m.name)}</div>
       <div style="font-size:18px;font-weight:700;color:var(--primary)">${esc(m.name)}</div>
-      <div style="font-size:13px;color:var(--text-light);margin-top:4px">${isAdminAccount(m) ? t('user.adminRole') : (esc(m.role || t('settings.manager')))}</div>
-      <div style="font-size:11px;color:var(--text-lighter);margin-top:2px">@${esc(m.username)}</div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:4px">@${esc(m.username)}</div>
       <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-      <div style="text-align:${state.language === 'ar' ? 'right' : 'left'};font-size:13px">
-        <div style="margin-bottom:8px"><strong>${t('user.myPermissions')}</strong></div>
-        <div>${t('user.allowedVacancies')} <strong>${visibleV.length}</strong></div>
-        <div>${t('user.allowedCandidates')} <strong>${visibleC.length}</strong></div>
-        <div>${t('user.viewCV')} <strong>${canViewCV(m) ? t('user.allowed') : t('user.notAllowed')}</strong></div>
-        <div>${t('user.addCV')} <strong>${canAddCV(m) ? t('user.allowed') : t('user.notAllowed')}</strong></div>
+      <div style="text-align:right;font-size:13px">
+        <div>📋 الشواغر: <strong>${getVisibleVacancies(m).length}</strong></div>
+        <div>👥 المرشحون: <strong>${getVisibleCandidates(m).length}</strong></div>
+        <div>📅 المقابلات: <strong>${state.interviews.filter(i => i.managerId === m.id).length}</strong></div>
       </div>
-    </div>
-  `;
-  const footer = `<button class="btn btn-danger btn-sm" onclick="closeModal();logout()">🚪 ${t('logout')}</button><button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`;
-  openModal(t('user.myAccount'), body, footer);
+    </div>`;
+  openModal('👤 حسابي', body, `<button class="btn btn-danger btn-sm" onclick="closeModal();logout()">🚪 تسجيل خروج</button><button class="btn btn-secondary" onclick="closeModal()">إغلاق</button>`);
 }
 
 function openModal(title, body, footer = '', large = false) {
@@ -950,21 +585,11 @@ document.querySelectorAll('.nav-link').forEach(link => {
     state.currentPage = link.dataset.page;
     state.currentVacancyId = null;
     render();
-    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
   });
 });
 
-function navTo(page) {
-  state.currentPage = page;
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === page));
-  render();
-}
-
-function openVacancy(id) {
-  state.currentPage = 'vacancy-detail'; state.currentVacancyId = id;
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === 'vacancies'));
-  render();
-}
+function navTo(page) { state.currentPage = page; document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === page)); render(); }
+function openVacancy(id) { state.currentPage = 'vacancy-detail'; state.currentVacancyId = id; document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === 'vacancies')); render(); }
 
 function render() {
   const app = document.getElementById('app');
@@ -984,201 +609,174 @@ function render() {
   attachPageEvents();
 }
 
+// ==================== DASHBOARD ====================
 function renderDashboard(m) {
   const visibleV = getVisibleVacancies(m);
   const visibleC = getVisibleCandidates(m);
   const openV = visibleV.filter(v => v.status === 'open').length;
   const accepted = visibleC.filter(c => c.status === 'accepted').length;
   const rejected = visibleC.filter(c => c.status === 'rejected').length;
+  const upcomingInterviews = state.interviews.filter(i => new Date(i.date) >= new Date(new Date().toDateString())).length;
+  
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-title">${t('dashboard.welcome')} ${esc(m.name)} 👋</h1>
-        <p class="page-subtitle">${t('dashboard.subtitle')} • ${new Date().toLocaleDateString(state.language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <h1 class="page-title">مرحباً، ${esc(m.name)} 👋</h1>
+        <p class="page-subtitle">نظرة عامة • ${new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
-      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">${t('vacancies.new')}</button>` : ''}
-    </div>
-    <div class="card" style="background:var(--gradient);color:#fff;margin-bottom:22px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
-        <div>
-          <div style="font-size:13px;opacity:.9;margin-bottom:4px">${t('dashboard.myStats')}</div>
-          <div style="font-size:22px;font-weight:700">${visibleV.length} ${t('nav.vacancies')} • ${visibleC.length} ${t('nav.candidates')}</div>
-        </div>
-      </div>
+      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">➕ شاغر جديد</button>` : ''}
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div><div class="stat-label">${t('dashboard.openVacancies')}</div><div class="stat-value">${openV}</div></div><div class="stat-icon">📋</div></div>
-      <div class="stat-card info"><div><div class="stat-label">${t('dashboard.myCandidates')}</div><div class="stat-value">${visibleC.length}</div></div><div class="stat-icon">👥</div></div>
-      <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${accepted}</div></div><div class="stat-icon">✅</div></div>
-      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${rejected}</div></div><div class="stat-icon">❌</div></div>
+      <div class="stat-card"><div><div class="stat-label">شواغر مفتوحة</div><div class="stat-value">${openV}</div></div><div class="stat-icon">📋</div></div>
+      <div class="stat-card info"><div><div class="stat-label">مرشحون</div><div class="stat-value">${visibleC.length}</div></div><div class="stat-icon">👥</div></div>
+      <div class="stat-card accent"><div><div class="stat-label">مقابلات قادمة</div><div class="stat-value">${upcomingInterviews}</div></div><div class="stat-icon"></div></div>
+      <div class="stat-card success"><div><div class="stat-label">مقبولون</div><div class="stat-value">${accepted}</div></div><div class="stat-icon">✅</div></div>
+      <div class="stat-card danger"><div><div class="stat-label">مرفوضون</div><div class="stat-value">${rejected}</div></div><div class="stat-icon">❌</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">📋 ${t('dashboard.availableVacancies')}</div></div>
-      ${visibleV.length === 0 ? `<div class="empty-state" style="padding:30px"><div class="empty-state-title">${t('dashboard.noVacancies')}</div><p>${t('dashboard.contactAdmin')}</p></div>` : `
+      <div class="card-header"><div class="card-title">📋 الشواغر المتاحة</div></div>
+      ${visibleV.length === 0 ? `<div class="empty-state"><div class="empty-state-title">لا توجد شواغر</div></div>` : `
         <div class="vacancies-grid">
           ${visibleV.slice(0, 6).map(v => {
             const cs = state.candidates.filter(c => c.vacancyId === v.id);
             return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
               <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
               <div class="vacancy-meta-row"><span>🏢 ${esc(v.department || '—')}</span></div>
-              <div class="vacancy-stats"><div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div></div>
+              <div class="vacancy-stats"><div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">مرشح</div></div></div>
             </div>`;
           }).join('')}
-        </div>
-      `}
-    </div>
-  `;
+        </div>`}
+    </div>`;
 }
 
+// ==================== VACANCIES ====================
 function renderVacancies(m) {
   let visibleV = getVisibleVacancies(m);
   if (state.filters.search) {
     const q = state.filters.search.toLowerCase();
-    visibleV = visibleV.filter(v => (v.title || '').toLowerCase().includes(q) || (v.department || '').toLowerCase().includes(q));
+    visibleV = visibleV.filter(v => (v.title || '').toLowerCase().includes(q));
   }
   return `
     <div class="page-header">
-      <div><h1 class="page-title">${t('vacancies.title')}</h1><p class="page-subtitle">${visibleV.length} ${t('vacancies.available')}</p></div>
-      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">${t('vacancies.new')}</button>` : ''}
+      <div><h1 class="page-title">الشواغر الوظيفية</h1><p class="page-subtitle">${visibleV.length} شاغر</p></div>
+      ${canAddVacancy(m) ? `<button class="btn btn-primary" onclick="openVacancyForm()">➕ شاغر جديد</button>` : ''}
     </div>
     <div class="card">
-      <div style="margin-bottom:16px"><input type="text" class="form-control" id="vacancySearch" placeholder="${t('vacancies.search')}" value="${esc(state.filters.search)}" style="max-width:400px"></div>
-      ${visibleV.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('vacancies.none')}</div></div>` : `
+      <input type="text" class="form-control" id="vacancySearch" placeholder="🔍 بحث..." value="${esc(state.filters.search)}" style="max-width:400px;margin-bottom:16px">
+      ${visibleV.length === 0 ? `<div class="empty-state"><div class="empty-state-title">لا توجد شواغر</div></div>` : `
         <div class="vacancies-grid">
           ${visibleV.map(v => {
             const cs = state.candidates.filter(c => c.vacancyId === v.id);
             const owner = getManager(v.ownerId);
             return `<div class="vacancy-card" onclick="openVacancy('${v.id}')">
               <div class="flex-between mb-2"><div class="vacancy-title">${esc(v.title)}</div>${badge(v.status, VACANCY_STATUSES)}</div>
-              <div class="vacancy-meta-row"><span>👤 ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')}</span><span>🏢 ${esc(v.department || '—')}</span></div>
+              <div class="vacancy-meta-row"><span>👤 ${esc(owner ? owner.name : '—')}</span><span>🏢 ${esc(v.department || '—')}</span></div>
               <div class="vacancy-stats">
-                <div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">${t('vacancies.candidate')}</div></div>
-                <div class="vacancy-stat"><div class="vacancy-stat-num" style="color:var(--success)">${cs.filter(c => c.status === 'accepted').length}</div><div class="vacancy-stat-label">${t('vacancies.accepted')}</div></div>
+                <div class="vacancy-stat"><div class="vacancy-stat-num">${cs.length}</div><div class="vacancy-stat-label">مرشح</div></div>
+                <div class="vacancy-stat"><div class="vacancy-stat-num" style="color:var(--success)">${cs.filter(c => c.status === 'accepted').length}</div><div class="vacancy-stat-label">مقبول</div></div>
               </div>
             </div>`;
           }).join('')}
-        </div>
-      `}
-    </div>
-  `;
+        </div>`}
+    </div>`;
 }
 
 function openVacancyForm(id = null) {
   const m = getCurrentManager();
-  if (!canAddVacancy(m)) { showToast(t('msg.noPermissionVacancy'), 'error'); return; }
+  if (!canAddVacancy(m)) { showToast('ليس لديك صلاحية', 'error'); return; }
   const v = id ? state.vacancies.find(x => x.id === id) : { title: '', department: '', management: '', openDate: new Date().toISOString().slice(0, 10), status: 'open', ownerId: m.id };
   const body = `
     <form id="vacancyForm">
       <div class="form-grid">
-        <div class="form-group"><label>${t('form.jobTitle')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="title" value="${esc(v.title)}" required></div>
-        <div class="form-group"><label>${t('form.department')}</label><input type="text" class="form-control" name="department" value="${esc(v.department || '')}"></div>
-        <div class="form-group"><label>${t('form.management')}</label><input type="text" class="form-control" name="management" value="${esc(v.management || '')}"></div>
-        <div class="form-group"><label>${t('form.openDate')}</label><input type="date" class="form-control" name="openDate" value="${v.openDate || ''}"></div>
-        <div class="form-group"><label>${t('form.status')}</label>
-          <select class="form-control" name="status">${VACANCY_STATUSES.map(s => `<option value="${s.key}" ${v.status === s.key ? 'selected' : ''}>${statusLabel(s.key, VACANCY_STATUSES)}</option>`).join('')}</select>
+        <div class="form-group"><label>اسم الوظيفة <span style="color:var(--danger)">*</span></label><input type="text" class="form-control" name="title" value="${esc(v.title)}" required></div>
+        <div class="form-group"><label>القسم</label><input type="text" class="form-control" name="department" value="${esc(v.department || '')}"></div>
+        <div class="form-group"><label>الإدارة</label><input type="text" class="form-control" name="management" value="${esc(v.management || '')}"></div>
+        <div class="form-group"><label>تاريخ الفتح</label><input type="date" class="form-control" name="openDate" value="${v.openDate || ''}"></div>
+        <div class="form-group"><label>الحالة</label>
+          <select class="form-control" name="status">${VACANCY_STATUSES.map(s => `<option value="${s.key}" ${v.status === s.key ? 'selected' : ''}>${s.label}</option>`).join('')}</select>
         </div>
-        <div class="form-group"><label>${t('form.owner')}</label>
-          <select class="form-control" name="ownerId" required>
-            ${state.managers.map(mgr => `<option value="${mgr.id}" ${v.ownerId === mgr.id ? 'selected' : ''}>${esc(mgr.name)}</option>`).join('')}
-          </select>
+        <div class="form-group"><label>المسؤول</label>
+          <select class="form-control" name="ownerId" required>${state.managers.map(mgr => `<option value="${mgr.id}" ${v.ownerId === mgr.id ? 'selected' : ''}>${esc(mgr.name)}</option>`).join('')}</select>
         </div>
       </div>
     </form>`;
-  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveVacancy('${id || ''}')">${t('btn.save')}</button>`;
-  openModal(id ? t('btn.edit') : t('vacancies.new'), body, footer);
+  openModal(id ? 'تعديل الشاغر' : '➕ شاغر جديد', body, `<button class="btn btn-secondary" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveVacancy('${id || ''}')">💾 حفظ</button>`);
 }
 
 async function saveVacancy(id) {
   const form = document.getElementById('vacancyForm');
   const data = Object.fromEntries(new FormData(form));
-  if (!data.title.trim()) { showToast(t('msg.jobTitleRequired'), 'error'); return; }
-  if (id) {
-    const v = state.vacancies.find(x => x.id === id);
-    if (v) Object.assign(v, data);
-    showToast(t('msg.updated'));
-  } else {
-    state.vacancies.push({ id: uid(), ...data, createdAt: Date.now() });
-    showToast(t('msg.added'));
-  }
-  await saveToFirebase();
-  closeModal();
-  render();
+  if (!data.title.trim()) { showToast('اسم الوظيفة مطلوب', 'error'); return; }
+  if (id) { const v = state.vacancies.find(x => x.id === id); if (v) Object.assign(v, data); showToast('تم التحديث'); }
+  else { state.vacancies.push({ id: uid(), ...data, createdAt: Date.now() }); showToast('تمت الإضافة'); }
+  await saveToFirebase(); closeModal(); render();
 }
 
 async function deleteVacancy(id) {
-  if (!confirm(t('vacancies.confirmDelete'))) return;
+  if (!confirm('حذف الشاغر؟')) return;
   const v = state.vacancies.find(x => x.id === id);
   if (v) { v.isDeleted = true; v.deletedAt = Date.now(); }
-  await saveToFirebase();
-  showToast(t('msg.vacancyDeleted'));
-  navTo('vacancies');
+  await saveToFirebase(); showToast('تم الحذف'); navTo('vacancies');
 }
 
 async function closeVacancy(id) {
-  if (!confirm(t('vacancies.confirmClose'))) return;
+  if (!confirm('إغلاق الشاغر؟')) return;
   const v = state.vacancies.find(x => x.id === id);
-  if (v) { v.status = 'stopped'; }
-  await saveToFirebase();
-  showToast(t('msg.vacancyClosed'));
-  render();
+  if (v) v.status = 'stopped';
+  await saveToFirebase(); showToast('تم الإغلاق'); render();
 }
 
 async function reopenVacancy(id) {
-  if (!confirm(t('vacancies.confirmReopen'))) return;
+  if (!confirm('إعادة فتح الشاغر؟')) return;
   const v = state.vacancies.find(x => x.id === id);
-  if (v) { v.status = 'open'; }
-  await saveToFirebase();
-  showToast(t('msg.vacancyReopened'));
-  render();
+  if (v) v.status = 'open';
+  await saveToFirebase(); showToast('تم reopening'); render();
 }
 
 function renderVacancyDetail(m) {
   const v = state.vacancies.find(x => x.id === state.currentVacancyId);
-  if (!v || !canViewVacancy(m, v.id)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('vacancies.notAllowed')}</div></div></div>`;
+  if (!v || !canViewVacancy(m, v.id)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">غير مسموح</div></div></div>`;
   const cs = state.candidates.filter(c => c.vacancyId === v.id);
   const owner = getManager(v.ownerId);
   const isClosed = v.status === 'stopped' || v.status === 'filled';
-
   return `
     <div class="page-header">
       <div>
-        <button class="btn btn-secondary btn-sm mb-2" onclick="navTo('vacancies')">${t('btn.back')}</button>
+        <button class="btn btn-secondary btn-sm mb-2" onclick="navTo('vacancies')">→ رجوع</button>
         <h1 class="page-title">${esc(v.title)}</h1>
-        <p class="page-subtitle">👤 ${t('vacancies.owner')}: ${esc(owner ? owner.name : '—')} • ${badge(v.status, VACANCY_STATUSES)}</p>
+        <p class="page-subtitle">👤 ${esc(owner ? owner.name : '—')} • ${badge(v.status, VACANCY_STATUSES)}</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-secondary" onclick="openVacancyForm('${v.id}')">${t('vacancies.edit')}</button>
-        ${isClosed ? `<button class="btn btn-success" onclick="reopenVacancy('${v.id}')">${t('vacancies.reopen')}</button>` : `<button class="btn btn-warning" onclick="closeVacancy('${v.id}')">${t('vacancies.close')}</button>`}
-        <button class="btn btn-danger" onclick="deleteVacancy('${v.id}')">${t('vacancies.delete')}</button>
-        ${canAddCV(m) && !isClosed ? `<button class="btn btn-primary" onclick="openCandidateForm(null,'${v.id}')">${t('btn.addCandidate')}</button>` : ''}
+        <button class="btn btn-secondary" onclick="openVacancyForm('${v.id}')">✏️ تعديل</button>
+        ${isClosed ? `<button class="btn btn-success" onclick="reopenVacancy('${v.id}')"> إعادة فتح</button>` : `<button class="btn btn-warning" onclick="closeVacancy('${v.id}')">🔒 إغلاق</button>`}
+        <button class="btn btn-danger" onclick="deleteVacancy('${v.id}')">️ حذف</button>
+        ${canAddCV(m) && !isClosed ? `<button class="btn btn-primary" onclick="openCandidateForm(null,'${v.id}')">➕ إضافة مرشح</button>` : ''}
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div><div class="stat-label">${t('vacancies.totalCandidates')}</div><div class="stat-value">${cs.length}</div></div><div class="stat-icon"></div></div>
-      <div class="stat-card success"><div><div class="stat-label">${t('dashboard.accepted')}</div><div class="stat-value">${cs.filter(c => c.status === 'accepted').length}</div></div><div class="stat-icon">✅</div></div>
-      <div class="stat-card danger"><div><div class="stat-label">${t('dashboard.rejected')}</div><div class="stat-value">${cs.filter(c => c.status === 'rejected').length}</div></div><div class="stat-icon">❌</div></div>
+      <div class="stat-card"><div><div class="stat-label">إجمالي المرشحين</div><div class="stat-value">${cs.length}</div></div><div class="stat-icon">👥</div></div>
+      <div class="stat-card success"><div><div class="stat-label">المقبولون</div><div class="stat-value">${cs.filter(c => c.status === 'accepted').length}</div></div><div class="stat-icon">✅</div></div>
+      <div class="stat-card danger"><div><div class="stat-label">المرفوضون</div><div class="stat-value">${cs.filter(c => c.status === 'rejected').length}</div></div><div class="stat-icon">❌</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">${t('nav.candidates')} (${cs.length})</div></div>
-      ${cs.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('vacancies.noCandidates')}</div></div>` : `
+      <div class="card-header"><div class="card-title">المرشحون (${cs.length})</div></div>
+      ${cs.length === 0 ? `<div class="empty-state"><div class="empty-state-title">لا يوجد مرشحون</div></div>` : `
         <div class="table-wrapper"><table>
-          <thead><tr><th>${t('candidates.name')}</th><th>${t('candidates.phone')}</th><th>${t('candidates.email')}</th><th>${t('candidates.date')}</th><th>${t('candidates.status')}</th>${canViewCV(m) ? `<th>${t('candidates.cvColumn')}</th>` : ''}<th>${t('candidates.actions')}</th></tr></thead>
-          <tbody>${cs.map(c => `
-            <tr>
-              <td><strong>${esc(c.name)}</strong></td>
-              <td>${esc(c.phone || '—')}</td>
-              <td>${esc(c.email || '—')}</td>
-              <td>${fmtDate(c.createdAt)}</td>
-              <td>${badge(c.status, CANDIDATE_STATUSES)}</td>
-              ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')">${t('btn.view')}</button>` : '—'}</td>` : ''}
-              <td><button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">${t('btn.delete')}</button></td>
-            </tr>`).join('')}</tbody>
-        </table></div>
-      `}
-    </div>
-  `;
+          <thead><tr><th>الاسم</th><th>الجوال</th><th>البريد</th><th>التاريخ</th><th>الحالة</th>${canViewCV(m) ? '<th>CV</th>' : ''}<th>إجراءات</th></tr></thead>
+          <tbody>${cs.map(c => `<tr>
+            <td><strong>${esc(c.name)}</strong></td>
+            <td>${esc(c.phone || '—')}</td>
+            <td>${esc(c.email || '—')}</td>
+            <td>${fmtDate(c.createdAt)}</td>
+            <td>${badge(c.status, CANDIDATE_STATUSES)}</td>
+            ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')">👁️</button>` : '—'}</td>` : ''}
+            <td><button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">🗑️</button></td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+    </div>`;
 }
 
+// ==================== CANDIDATES ====================
 function renderCandidates(m) {
   const visibleC = getVisibleCandidates(m);
   const filtered = visibleC.filter(c => {
@@ -1192,133 +790,85 @@ function renderCandidates(m) {
   });
   return `
     <div class="page-header">
-      <div><h1 class="page-title">${t('candidates.title')}</h1><p class="page-subtitle">${filtered.length} ${t('candidates.candidate')}</p></div>
-      ${canAddCV(m) ? `<button class="btn btn-primary" onclick="openCandidateForm()">${t('candidates.new')}</button>` : ''}
+      <div><h1 class="page-title">المرشحون</h1><p class="page-subtitle">${filtered.length} مرشح</p></div>
+      ${canAddCV(m) ? `<button class="btn btn-primary" onclick="openCandidateForm()">➕ مرشح جديد</button>` : ''}
     </div>
     <div class="card">
       <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-        <input type="text" class="form-control" id="candSearch" placeholder="${t('candidates.search')}" value="${esc(state.filters.search)}" style="flex:1;min-width:200px">
+        <input type="text" class="form-control" id="candSearch" placeholder="🔍 بحث..." value="${esc(state.filters.search)}" style="flex:1;min-width:200px">
         <select class="form-control" id="vacancyFilter" style="max-width:250px">
-          <option value="all">${t('candidates.allVacancies')}</option>
+          <option value="all">كل الشواغر</option>
           ${getVisibleVacancies(m).map(v => `<option value="${v.id}" ${state.filters.vacancyId === v.id ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
         </select>
         <select class="form-control" id="statusFilter" style="max-width:200px">
-          <option value="all">${t('candidates.allStatuses')}</option>
-          ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${state.filters.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}
+          <option value="all">كل الحالات</option>
+          ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${state.filters.status === s.key ? 'selected' : ''}>${s.label}</option>`).join('')}
         </select>
       </div>
-      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('candidates.noResults')}</div></div>` : `
+      ${filtered.length === 0 ? `<div class="empty-state"><div class="empty-state-title">لا توجد نتائج</div></div>` : `
         <div class="table-wrapper"><table>
-          <thead><tr><th>${t('candidates.name')}</th><th>${t('candidates.job')}</th><th>${t('candidates.phone')}</th><th>${t('candidates.status')}</th>${canViewCV(m) ? `<th>${t('candidates.cv')}</th>` : ''}<th>${t('candidates.actions')}</th></tr></thead>
+          <thead><tr><th>الاسم</th><th>الوظيفة</th><th>الجوال</th><th>الحالة</th>${canViewCV(m) ? '<th>CV</th>' : ''}<th>إجراءات</th></tr></thead>
           <tbody>${filtered.map(c => {
     const v = state.vacancies.find(v => v.id === c.vacancyId);
     return `<tr>
-              <td><strong>${esc(c.name)}</strong></td>
-              <td>${v ? esc(v.title) : '—'}</td>
-              <td>${esc(c.phone || '—')}</td>
-              <td>
-                <select class="form-control" style="padding:4px 8px;font-size:12px;min-width:130px" onchange="updateCandidateStatus('${c.id}', this.value)">
-                  ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}
-                </select>
-              </td>
-              ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')"></button>` : '—'}</td>` : ''}
-              <td>
-                <div style="display:flex;gap:5px">
-                  <button class="btn btn-warning btn-sm" onclick="openQuickNotes('${c.id}')" title="${t('candidates.notes')}">📝</button>
-                  <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">${t('btn.delete')}</button>
-                </div>
-              </td>
-            </tr>`;
+      <td><strong>${esc(c.name)}</strong></td>
+      <td>${v ? esc(v.title) : '—'}</td>
+      <td>${esc(c.phone || '—')}</td>
+      <td><select class="form-control" style="padding:4px 8px;font-size:12px;min-width:130px" onchange="updateCandidateStatus('${c.id}', this.value)">
+        ${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${s.label}</option>`).join('')}
+      </select></td>
+      ${canViewCV(m) ? `<td>${c.cvData ? `<button class="btn btn-secondary btn-sm" onclick="viewCV('${c.id}')">📄</button>` : '—'}</td>` : ''}
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-warning btn-sm" onclick="openQuickNotes('${c.id}')">📝</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${c.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
   }).join('')}</tbody>
-        </table></div>
-      `}
-    </div>
-  `;
-}
-
-function openQuickNotes(id) {
-  const c = state.candidates.find(x => x.id === id);
-  if (!c) return;
-  const body = `
-    <div class="form-group">
-      <label style="font-size:14px;margin-bottom:8px">${t('candidates.notes')}: <strong style="color:var(--primary)">${esc(c.name)}</strong></label>
-      <textarea class="form-control" id="quickNoteText" rows="6" placeholder="${state.language === 'ar' ? 'اكتب ملاحظاتك هنا' : 'Write your notes here'}">${esc(c.notes || '')}</textarea>
-    </div>
-  `;
-  const footer = `
-    <button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button>
-    <button class="btn btn-primary" onclick="saveQuickNote('${id}')"> ${t('btn.save')}</button>
-  `;
-  openModal('📝 ' + t('candidates.notes'), body, footer);
-}
-
-async function saveQuickNote(id) {
-  const c = state.candidates.find(x => x.id === id);
-  if (c) {
-    c.notes = document.getElementById('quickNoteText').value;
-    await saveToFirebase();
-    closeModal();
-    render();
-    showToast(t('msg.saved'));
-  }
-}
-
-async function updateCandidateStatus(id, newStatus) {
-  const c = state.candidates.find(x => x.id === id);
-  if (c) {
-    c.status = newStatus;
-    await saveToFirebase();
-    showToast(t('msg.updated'));
-  }
+        </table></div>`}
+    </div>`;
 }
 
 let pendingCV = null;
 function openCandidateForm(id = null, defaultVacancyId = null) {
   const m = getCurrentManager();
-  if (!canAddCV(m)) { showToast(t('msg.noPermissionAddCV'), 'error'); return; }
+  if (!canAddCV(m)) { showToast('ليس لديك صلاحية', 'error'); return; }
   const c = id ? state.candidates.find(x => x.id === id) : { name: '', phone: '', email: '', vacancyId: defaultVacancyId || '', status: 'new', notes: '', cvData: null, cvName: null };
   pendingCV = c.cvData ? { data: c.cvData, name: c.cvName, type: c.cvType } : null;
   const visibleV = getVisibleVacancies(m);
-  if (visibleV.length === 0) { showToast(t('msg.noVacanciesAvailable'), 'error'); return; }
+  if (visibleV.length === 0) { showToast('لا توجد شواغر', 'error'); return; }
   const body = `
     <form id="candidateForm">
       <div class="form-grid">
-        <div class="form-group"><label>${t('form.name')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="name" value="${esc(c.name)}" required></div>
-        <div class="form-group"><label>${t('form.phone')}</label><input type="tel" class="form-control" name="phone" value="${esc(c.phone || '')}"></div>
-        <div class="form-group"><label>${t('form.email')}</label><input type="email" class="form-control" name="email" value="${esc(c.email || '')}"></div>
-        <div class="form-group"><label>${t('form.vacancy')} <span style="color:var(--danger)">${t('form.required')}</span></label>
-          <select class="form-control" name="vacancyId" required>
-            <option value="">${t('form.select')}</option>
+        <div class="form-group"><label>الاسم <span style="color:var(--danger)">*</span></label><input type="text" class="form-control" name="name" value="${esc(c.name)}" required></div>
+        <div class="form-group"><label>الجوال</label><input type="tel" class="form-control" name="phone" value="${esc(c.phone || '')}"></div>
+        <div class="form-group"><label>البريد</label><input type="email" class="form-control" name="email" value="${esc(c.email || '')}"></div>
+        <div class="form-group"><label>الشاغر <span style="color:var(--danger)">*</span></label>
+          <select class="form-control" name="vacancyId" required><option value="">-- اختر --</option>
             ${visibleV.map(v => `<option value="${v.id}" ${c.vacancyId === v.id ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
           </select>
         </div>
-        <div class="form-group"><label>${t('form.candidateStatus')}</label>
-          <select class="form-control" name="status">${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${statusLabel(s.key, CANDIDATE_STATUSES)}</option>`).join('')}</select>
+        <div class="form-group"><label>الحالة</label>
+          <select class="form-control" name="status">${CANDIDATE_STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${s.label}</option>`).join('')}</select>
         </div>
       </div>
       <div class="form-group">
-        <label>${t('form.cv')}</label>
+        <label>السيرة الذاتية</label>
         <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafbfc" onclick="document.getElementById('cvFile').click()">
-          <div style="font-size:32px;opacity:.6"></div>
-          <div style="color:var(--text-light);font-size:13px">${t('form.cvClick')}</div>
+          <div style="font-size:32px;opacity:.6">📄</div>
+          <div style="color:var(--text-light);font-size:13px">اضغط لاختيار ملف</div>
           <input type="file" id="cvFile" accept=".pdf,.doc,.docx" style="display:none">
         </div>
         <div id="fileInfo" style="display:${pendingCV ? 'flex' : 'none'};margin-top:8px;padding:8px;background:var(--primary-50);border-radius:6px;font-size:12px;align-items:center;gap:8px">
-           <span id="fileName">${esc(pendingCV?.name || '')}</span>
-          <button type="button" class="btn btn-sm btn-secondary" onclick="removeCV()" style="padding:2px 8px">${t('form.remove')}</button>
-        </div>
-        <div id="uploadProgress" class="upload-progress">
-          <div style="font-size:12px;color:var(--primary)">${t('msg.uploading')}</div>
-          <div class="upload-progress-bar"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
+          📎 <span id="fileName">${esc(pendingCV?.name || '')}</span>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="removeCV()">إزالة</button>
         </div>
       </div>
-      <div class="form-group"><label>${t('form.notes')}</label><textarea class="form-control" name="notes" rows="2">${esc(c.notes || '')}</textarea></div>
+      <div class="form-group"><label>ملاحظات</label><textarea class="form-control" name="notes" rows="2">${esc(c.notes || '')}</textarea></div>
     </form>`;
-  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveCandidate('${id || ''}')">${t('btn.save')}</button>`;
-  openModal(id ? t('btn.edit') : t('candidates.new'), body, footer);
+  openModal(id ? 'تعديل المرشح' : '➕ مرشح جديد', body, `<button class="btn btn-secondary" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveCandidate('${id || ''}')">💾 حفظ</button>`);
   document.getElementById('cvFile').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
-    if (f.size > 10 * 1024 * 1024) { showToast(t('msg.fileTooLarge'), 'error'); return; }
+    if (f.size > 10 * 1024 * 1024) { showToast('حجم الملف كبير', 'error'); return; }
     const r = new FileReader();
     r.onload = ev => {
       pendingCV = { data: ev.target.result, name: f.name, type: f.type };
@@ -1334,144 +884,338 @@ function removeCV() { pendingCV = null; document.getElementById('cvFile').value 
 async function saveCandidate(id) {
   const form = document.getElementById('candidateForm');
   const data = Object.fromEntries(new FormData(form));
-  if (!data.name.trim() || !data.vacancyId) { showToast(t('msg.nameVacancyRequired'), 'error'); return; }
+  if (!data.name.trim() || !data.vacancyId) { showToast('الاسم والشاغر مطلوبان', 'error'); return; }
   const v = state.vacancies.find(x => x.id === data.vacancyId);
-  
-  // Show upload progress if CV is being uploaded
-  if (pendingCV) {
-    document.getElementById('uploadProgress').classList.add('active');
-    document.getElementById('uploadProgressFill').style.width = '30%';
-  }
   
   if (id) {
     const c = state.candidates.find(x => x.id === id);
     Object.assign(c, data);
     if (v) c.vacancyTitle = v.title;
-    
-    // Save CV separately if uploaded
-    if (pendingCV) {
-      document.getElementById('uploadProgressFill').style.width = '60%';
-      const cvSaved = await saveCVToFirebase(c.id, pendingCV.data, pendingCV.name, pendingCV.type);
-      if (cvSaved) {
-        c.cvData = pendingCV.data;
-        c.cvName = pendingCV.name;
-        c.cvType = pendingCV.type;
-        c.hasCV = true;
-      } else {
-        showToast(t('msg.uploadFailed'), 'error');
-      }
-    }
-    showToast(t('msg.updated'));
+    if (pendingCV) { c.cvData = pendingCV.data; c.cvName = pendingCV.name; c.cvType = pendingCV.type; }
+    await updateCandidateOnly(c); // ✅ تحديث فردي
+    showToast('تم التحديث');
   } else {
-    const newCandidate = {
-      id: uid(), ...data,
-      vacancyTitle: v ? v.title : 'Unknown',
-      cvData: null, cvName: null, cvType: null, hasCV: false,
+    const newC = {
+      id: uid(), ...data, vacancyTitle: v ? v.title : 'Unknown',
+      cvData: pendingCV?.data || null, cvName: pendingCV?.name || null, cvType: pendingCV?.type || null,
       createdAt: Date.now()
     };
-    
-    // Save CV separately if uploaded
-    if (pendingCV) {
-      document.getElementById('uploadProgressFill').style.width = '60%';
-      const cvSaved = await saveCVToFirebase(newCandidate.id, pendingCV.data, pendingCV.name, pendingCV.type);
-      if (cvSaved) {
-        newCandidate.cvData = pendingCV.data;
-        newCandidate.cvName = pendingCV.name;
-        newCandidate.cvType = pendingCV.type;
-        newCandidate.hasCV = true;
-      } else {
-        showToast(t('msg.uploadFailed'), 'error');
-      }
-    }
-    
-    state.candidates.push(newCandidate);
-    showToast(t('msg.added'));
+    state.candidates.push(newC);
+    await saveToFirebase();
+    showToast('تمت الإضافة');
   }
-  
-  document.getElementById('uploadProgressFill').style.width = '100%';
   pendingCV = null;
-  await saveToFirebase();
   closeModal();
   render();
 }
 
 async function deleteCandidate(id) {
-  if (!confirm(t('msg.confirmDelete'))) return;
+  if (!confirm('حذف المرشح؟')) return;
   state.candidates = state.candidates.filter(x => x.id !== id);
-  await deleteCVFromFirebase(id);
+  await saveToFirebase(); showToast('تم الحذف'); render();
+}
+
+function openQuickNotes(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (!c) return;
+  const body = `<div class="form-group"><label>ملاحظات: <strong style="color:var(--primary)">${esc(c.name)}</strong></label>
+    <textarea class="form-control" id="quickNoteText" rows="6">${esc(c.notes || '')}</textarea></div>`;
+  openModal('📝 ملاحظات', body, `<button class="btn btn-secondary" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveQuickNote('${id}')">💾 حفظ</button>`);
+}
+
+async function saveQuickNote(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (c) {
+    c.notes = document.getElementById('quickNoteText').value;
+    await updateCandidateOnly(c);
+    closeModal(); render(); showToast('تم الحفظ');
+  }
+}
+
+async function updateCandidateStatus(id, newStatus) {
+  const c = state.candidates.find(x => x.id === id);
+  if (c) { c.status = newStatus; await updateCandidateOnly(c); showToast('تم التحديث'); }
+}
+
+function viewCV(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (!c || !c.cvData) { showToast('لا يوجد ملف', 'error'); return; }
+  const isPdf = (c.cvType || '').includes('pdf') || (c.cvName || '').toLowerCase().endsWith('.pdf');
+  const body = isPdf ? `<iframe src="${c.cvData}" style="width:100%;height:70vh;border:none;border-radius:8px"></iframe>` : `<div style="text-align:center;padding:40px"><button class="btn btn-primary" onclick="downloadCV('${id}')">⬇️ تحميل</button></div>`;
+  openModal(`📄 ${esc(c.cvName || 'CV')}`, body, `<button class="btn btn-secondary" onclick="closeModal()">إغلاق</button><button class="btn btn-primary" onclick="downloadCV('${id}')">⬇️ تحميل</button>`, true);
+}
+
+function downloadCV(id) {
+  const c = state.candidates.find(x => x.id === id);
+  if (!c || !c.cvData) return;
+  const a = document.createElement('a'); a.href = c.cvData; a.download = c.cvName || 'cv.pdf'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ==================== INTERVIEWS (NEW!) ====================
+function renderInterviews(m) {
+  const visibleVIds = getVisibleVacancies(m).map(v => v.id);
+  const myInterviews = state.interviews.filter(i => visibleVIds.includes(i.vacancyId)).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+  const upcoming = myInterviews.filter(i => new Date(i.date) >= new Date(new Date().toDateString()));
+  const past = myInterviews.filter(i => new Date(i.date) < new Date(new Date().toDateString()));
+  
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">📅 المقابلات</h1><p class="page-subtitle">${myInterviews.length} مقابلة (${upcoming.length} قادمة)</p></div>
+      <button class="btn btn-primary" onclick="openInterviewForm()">➕ إنشاء مقابلة</button>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card info"><div><div class="stat-label">مقابلات قادمة</div><div class="stat-value">${upcoming.length}</div></div><div class="stat-icon">📅</div></div>
+      <div class="stat-card"><div><div class="stat-label">مقابلات سابقة</div><div class="stat-value">${past.length}</div></div><div class="stat-icon">✅</div></div>
+      <div class="stat-card accent"><div><div class="stat-label">Google Meet</div><div class="stat-value">${myInterviews.filter(i => i.type === 'google').length}</div></div><div class="stat-icon"></div></div>
+      <div class="stat-card warning"><div><div class="stat-label">في المقر</div><div class="stat-value">${myInterviews.filter(i => i.type === 'office').length}</div></div><div class="stat-icon">🏢</div></div>
+    </div>
+    
+    ${upcoming.length > 0 ? `
+    <div class="card">
+      <div class="card-header"><div class="card-title">📅 المقابلات القادمة</div></div>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>المرشح</th><th>الوظيفة</th><th>النوع</th><th>التاريخ</th><th>الوقت</th><th>التفاصيل</th><th>إجراءات</th></tr></thead>
+        <tbody>${upcoming.map(i => {
+          const c = state.candidates.find(x => x.id === i.candidateId);
+          const v = state.vacancies.find(x => x.id === i.vacancyId);
+          const typeInfo = INTERVIEW_TYPES.find(t => t.key === i.type);
+          return `<tr>
+            <td><strong>${esc(c ? c.name : '—')}</strong></td>
+            <td>${v ? esc(v.title) : '—'}</td>
+            <td><span class="badge ${typeInfo ? typeInfo.class : ''}">${typeInfo ? typeInfo.icon + ' ' + typeInfo.label : i.type}</span></td>
+            <td>${fmtDate(i.date)}</td>
+            <td>${i.time || '—'}</td>
+            <td>${i.type === 'google' ? (i.link ? `<a href="${esc(i.link)}" target="_blank" style="color:var(--accent)"> رابط</a>` : '—') : (i.location || '—')}</td>
+            <td><div style="display:flex;gap:5px">
+              ${i.link && i.type === 'google' ? `<a href="${esc(i.link)}" target="_blank" class="btn btn-info btn-sm">📹 دخول</a>` : ''}
+              <button class="btn btn-secondary btn-sm" onclick="openInterviewForm('${i.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteInterview('${i.id}')">🗑️</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>` : '<div class="card"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-title">لا توجد مقابلات قادمة</div><p>اضغط "إنشاء مقابلة" لإضافة مقابلة جديدة</p></div></div>'}
+    
+    ${past.length > 0 ? `
+    <div class="card">
+      <div class="card-header"><div class="card-title">✅ المقابلات السابقة</div></div>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>المرشح</th><th>الوظيفة</th><th>النوع</th><th>التاريخ</th><th>الوقت</th><th>إجراءات</th></tr></thead>
+        <tbody>${past.map(i => {
+          const c = state.candidates.find(x => x.id === i.candidateId);
+          const v = state.vacancies.find(x => x.id === i.vacancyId);
+          const typeInfo = INTERVIEW_TYPES.find(t => t.key === i.type);
+          return `<tr style="opacity:0.7">
+            <td><strong>${esc(c ? c.name : '—')}</strong></td>
+            <td>${v ? esc(v.title) : '—'}</td>
+            <td><span class="badge ${typeInfo ? typeInfo.class : ''}">${typeInfo ? typeInfo.icon + ' ' + typeInfo.label : i.type}</span></td>
+            <td>${fmtDate(i.date)}</td>
+            <td>${i.time || '—'}</td>
+            <td><div style="display:flex;gap:5px">
+              <button class="btn btn-secondary btn-sm" onclick="openInterviewForm('${i.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteInterview('${i.id}')">🗑️</button>
+            </div></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>` : ''}`;
+}
+
+let selectedInterviewType = null;
+function openInterviewForm(id = null) {
+  const m = getCurrentManager();
+  const visibleV = getVisibleVacancies(m);
+  if (visibleV.length === 0) { showToast('لا توجد شواغر متاحة', 'error'); return; }
+  
+  const i = id ? state.interviews.find(x => x.id === id) : { vacancyId: '', candidateId: '', type: '', date: '', time: '', link: '', location: '', notes: '' };
+  selectedInterviewType = i.type || null;
+  
+  const body = `
+    <form id="interviewForm">
+      <div class="form-group">
+        <label>الشاغر الوظيفي <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="intVacancySelect" required onchange="updateCandidateList()">
+          <option value="">-- اختر الشاغر --</option>
+          ${visibleV.map(v => `<option value="${v.id}" ${i.vacancyId === v.id ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>المرشح <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="intCandidateSelect" required>
+          <option value="">-- اختر المرشح --</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>نوع المقابلة <span style="color:var(--danger)">*</span></label>
+        <div class="interview-type-selector">
+          <div class="interview-type-option ${selectedInterviewType === 'google' ? 'selected' : ''}" onclick="selectInterviewType('google')">
+            <div class="icon">📹</div>
+            <div class="label">مقابلة Google Meet</div>
+            <div class="desc">مقابلة عن بُعد عبر رابط</div>
+          </div>
+          <div class="interview-type-option ${selectedInterviewType === 'office' ? 'selected' : ''}" onclick="selectInterviewType('office')">
+            <div class="icon">🏢</div>
+            <div class="label">مقابلة في مقر العمل</div>
+            <div class="desc">مقابلة حضورية</div>
+          </div>
+        </div>
+        <input type="hidden" name="type" id="intTypeInput" value="${i.type || ''}">
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group"><label>التاريخ <span style="color:var(--danger)">*</span></label><input type="date" class="form-control" name="date" value="${i.date || ''}" required></div>
+        <div class="form-group"><label>الوقت <span style="color:var(--danger)">*</span></label><input type="time" class="form-control" name="time" value="${i.time || ''}" required></div>
+      </div>
+      
+      <div id="googleFields" style="display:${selectedInterviewType === 'google' ? 'block' : 'none'}">
+        <div class="form-group">
+          <label> رابط Google Meet <span style="color:var(--danger)">*</span></label>
+          <input type="url" class="form-control" name="link" value="${esc(i.link || '')}" placeholder="https://meet.google.com/...">
+          <div style="font-size:11px;color:var(--text-light);margin-top:4px">الصق رابط الاجتماع من Google Meet</div>
+        </div>
+      </div>
+      
+      <div id="officeFields" style="display:${selectedInterviewType === 'office' ? 'block' : 'none'}">
+        <div class="form-group">
+          <label>🏢 الموقع / القاعة</label>
+          <input type="text" class="form-control" name="location" value="${esc(i.location || '')}" placeholder="مثال: القاعة الرئيسية - الطابق الثاني">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <textarea class="form-control" name="notes" rows="3" placeholder="أي ملاحظات إضافية...">${esc(i.notes || '')}</textarea>
+      </div>
+    </form>`;
+  
+  openModal(id ? '✏️ تعديل المقابلة' : '📅 إنشاء مقابلة جديدة', body, `<button class="btn btn-secondary" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveInterview('${id || ''}')">💾 حفظ</button>`);
+  
+  // Load candidates for initial vacancy
+  if (i.vacancyId) {
+    setTimeout(() => updateCandidateList(i.candidateId), 100);
+  }
+}
+
+function selectInterviewType(type) {
+  selectedInterviewType = type;
+  document.getElementById('intTypeInput').value = type;
+  document.querySelectorAll('.interview-type-option').forEach(el => el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('googleFields').style.display = type === 'google' ? 'block' : 'none';
+  document.getElementById('officeFields').style.display = type === 'office' ? 'block' : 'none';
+}
+
+function updateCandidateList(selectedId = null) {
+  const vacancyId = document.getElementById('intVacancySelect').value;
+  const candidateSelect = document.getElementById('intCandidateSelect');
+  if (!vacancyId) { candidateSelect.innerHTML = '<option value="">-- اختر الشاغر أولاً --</option>'; return; }
+  
+  const candidates = state.candidates.filter(c => c.vacancyId === vacancyId);
+  candidateSelect.innerHTML = '<option value="">-- اختر المرشح --</option>' + 
+    candidates.map(c => `<option value="${c.id}" ${selectedId === c.id ? 'selected' : ''}>${esc(c.name)} ${c.phone ? '(' + esc(c.phone) + ')' : ''}</option>`).join('');
+}
+
+async function saveInterview(id) {
+  const form = document.getElementById('interviewForm');
+  const data = Object.fromEntries(new FormData(form));
+  
+  if (!data.vacancyId || !data.candidateId || !data.type || !data.date || !data.time) {
+    showToast('جميع الحقول المطلوبة يجب ملؤها', 'error'); return;
+  }
+  if (data.type === 'google' && !data.link) { showToast('رابط Google Meet مطلوب', 'error'); return; }
+  
+  const candidate = state.candidates.find(c => c.id === data.candidateId);
+  const vacancy = state.vacancies.find(v => v.id === data.vacancyId);
+  
+  if (id) {
+    const i = state.interviews.find(x => x.id === id);
+    if (i) Object.assign(i, data);
+    showToast('تم تحديث المقابلة');
+  } else {
+    state.interviews.push({ id: uid(), ...data, createdAt: Date.now() });
+    showToast('تم إنشاء المقابلة');
+  }
+  
+  // تحديث حالة المرشح تلقائياً
+  if (candidate) {
+    candidate.status = 'interview_scheduled';
+    candidate.interviewDate = data.date;
+    candidate.interviewTime = data.time;
+    await updateCandidateOnly(candidate);
+  }
+  
   await saveToFirebase();
-  showToast(t('msg.deleted'));
+  closeModal();
   render();
 }
 
-function renderInterviews(m) {
-  const list = getVisibleCandidates(m).filter(c => c.interviewDate).sort((a, b) => new Date(a.interviewDate) - new Date(b.interviewDate));
-  return `<div class="page-header"><div><h1 class="page-title">${t('interviews.title')}</h1><p class="page-subtitle">${list.length} ${t('interviews.interview')}</p></div></div>
-    <div class="card">${list.length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('interviews.none')}</div></div>` : `
-      <div class="table-wrapper"><table><thead><tr><th>${t('interviews.candidate')}</th><th>${t('interviews.job')}</th><th>${t('interviews.date')}</th><th>${t('interviews.time')}</th><th>${t('candidates.status')}</th></tr></thead>
-      <tbody>${list.map(c => { const v = state.vacancies.find(v => v.id === c.vacancyId); return `<tr><td><strong>${esc(c.name)}</strong></td><td>${v ? esc(v.title) : '—'}</td><td>${fmtDate(c.interviewDate)}</td><td>${c.interviewTime || '—'}</td><td>${badge(c.status, CANDIDATE_STATUSES)}</td></tr>` }).join('')}</tbody></table></div>`}</div>`;
+async function deleteInterview(id) {
+  if (!confirm('حذف المقابلة؟')) return;
+  state.interviews = state.interviews.filter(x => x.id !== id);
+  await saveToFirebase(); showToast('تم الحذف'); render();
 }
 
+// ==================== ARCHIVE ====================
 function renderArchive(m) {
-  if (!canViewCV(m)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('archive.noPermission')}</div></div></div>`;
+  if (!canViewCV(m)) return `<div class="card"><div class="empty-state"><div class="empty-state-title">ليس لديك صلاحية</div></div></div>`;
   const q = (state.filters.search || '').toLowerCase();
   const list = state.candidates.filter(c => {
     if (!c.cvData) return false;
-    if (q && !(c.name || '').toLowerCase().includes(q) && !(c.vacancyTitle || '').toLowerCase().includes(q)) return false;
+    if (q && !(c.name || '').toLowerCase().includes(q)) return false;
     const v = state.vacancies.find(x => x.id === c.vacancyId);
-    const isVisibleNormal = getVisibleVacancies(m).some(vac => vac.id === c.vacancyId);
+    const isVisible = getVisibleVacancies(m).some(vac => vac.id === c.vacancyId);
     const isDeletedAllowed = v && v.isDeleted && (isAdminAccount(m) || v.ownerId === m.id);
-    return isVisibleNormal || isDeletedAllowed;
+    return isVisible || isDeletedAllowed;
   });
 
   const folders = {};
   list.forEach(c => {
-    const folderName = c.vacancyTitle || t('archive.unassigned');
+    const folderName = c.vacancyTitle || 'غير مصنف';
     if (!folders[folderName]) folders[folderName] = [];
     folders[folderName].push(c);
   });
 
   return `
-    <div class="page-header"><div><h1 class="page-title">${t('archive.title')}</h1><p class="page-subtitle">${list.length} ${t('archive.file')}</p></div></div>
+    <div class="page-header"><div><h1 class="page-title"> أرشيف السير الذاتية</h1><p class="page-subtitle">${list.length} ملف</p></div></div>
     <div class="card">
-      <div style="margin-bottom:16px"><input type="text" class="form-control" id="archiveSearch" placeholder="${t('archive.search')}" value="${esc(state.filters.search)}" style="max-width:400px"></div>
-      ${Object.keys(folders).length === 0 ? `<div class="empty-state"><div class="empty-state-title">${t('archive.none')}</div></div>` :
+      <input type="text" class="form-control" id="archiveSearch" placeholder="🔍 بحث..." value="${esc(state.filters.search)}" style="max-width:400px;margin-bottom:16px">
+      ${Object.keys(folders).length === 0 ? `<div class="empty-state"><div class="empty-state-title">لا توجد ملفات</div></div>` :
       Object.entries(folders).map(([folderName, candidates]) => `
-          <div style="margin-bottom:24px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 14px;background:var(--primary-50);border-radius:8px;border-right:4px solid var(--accent)">
-              <span style="font-size:20px">📁</span>
-              <strong style="color:var(--primary);font-size:15px">${esc(folderName)}</strong>
-              <span class="badge b-hiring" style="margin-${state.language === 'ar' ? 'right' : 'left'}:auto">${candidates.length} CV</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding-${state.language === 'ar' ? 'right' : 'left'}:10px">
-              ${candidates.map(c => `
-                <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px">
-                  <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
-                    <div style="width:44px;height:44px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${initials(c.name)}</div>
-                    <div style="flex:1;min-width:0">
-                      <div style="font-weight:700;font-size:14px;color:var(--primary)">${esc(c.name)}</div>
-                      <div style="font-size:11px;color:var(--text-light)">${esc(c.cvName || '')} • ${fmtDate(c.createdAt)}</div>
-                    </div>
-                  </div>
-                  <div style="display:flex;gap:6px">
-                    <button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">${t('btn.view')}</button>
-                    <button class="btn btn-secondary btn-sm" style="flex:1" onclick="downloadCV('${c.id}')">${t('btn.download')}</button>
+        <div style="margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 14px;background:var(--primary-50);border-radius:8px;border-right:4px solid var(--accent)">
+            <span style="font-size:20px"></span>
+            <strong style="color:var(--primary);font-size:15px">${esc(folderName)}</strong>
+            <span class="badge b-hiring" style="margin-right:auto">${candidates.length} CV</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+            ${candidates.map(c => `
+              <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px">
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                  <div style="width:44px;height:44px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${initials(c.name)}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:700;font-size:14px;color:var(--primary)">${esc(c.name)}</div>
+                    <div style="font-size:11px;color:var(--text-light)">${esc(c.cvName || '')} • ${fmtDate(c.createdAt)}</div>
                   </div>
                 </div>
-              `).join('')}
-            </div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">👁️ عرض</button>
+                  <button class="btn btn-secondary btn-sm" style="flex:1" onclick="downloadCV('${c.id}')">⬇️ تحميل</button>
+                </div>
+              </div>`).join('')}
           </div>
-        `).join('')
-    }
+        </div>`).join('')}
     </div>`;
 }
 
+// ==================== CV REQUEST ====================
 function renderCVRequest(m) {
   const visibleV = getVisibleVacancies(m);
-  return `<div class="page-header"><div><h1 class="page-title">${t('cvrequest.title')}</h1></div></div>
+  return `<div class="page-header"><div><h1 class="page-title"> طلب السير الذاتية</h1></div></div>
     <div style="background:var(--gradient);color:#fff;padding:22px;border-radius:14px;margin-bottom:20px">
       <select id="cvRequestSelect" onchange="updateCVRequest()" style="width:100%;padding:12px;border-radius:8px;border:none;font-size:14px;font-weight:600;background:rgba(255,255,255,.95);color:var(--primary);cursor:pointer">
-        <option value="">${t('cvrequest.select')}</option>
+        <option value="">-- اختر الشاغر --</option>
         ${visibleV.map(v => { const count = state.candidates.filter(c => c.vacancyId === v.id && c.cvData).length; return `<option value="${v.id}">${esc(v.title)} (${count} CV)</option>` }).join('')}
       </select>
     </div><div id="cvRequestResult"></div>`;
@@ -1483,301 +1227,24 @@ function updateCVRequest() {
   if (!vid) { container.innerHTML = ''; return; }
   const v = state.vacancies.find(x => x.id === vid);
   const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
-  if (cs.length === 0) { container.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-title">${t('cvrequest.none')}</div></div></div>`; return; }
+  if (cs.length === 0) { container.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-title">لا توجد ملفات</div></div></div>`; return; }
   container.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">${esc(v.title)}</div>
-    <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="viewAllCVs('${vid}')">${t('cvrequest.viewAll')}</button><button class="btn btn-accent btn-sm" onclick="downloadAllCVs('${vid}')">${t('cvrequest.zip')}</button></div></div>
+    <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="viewAllCVs('${vid}')">️ عرض الكل</button><button class="btn btn-accent btn-sm" onclick="downloadAllCVs('${vid}')">⬇️ ZIP</button></div></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
       ${cs.map(c => `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">${initials(c.name)}</div>
           <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--primary)">${esc(c.name)}</div></div>
         </div>
-        <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">${t('btn.view')}</button><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">${t('btn.download')}</button></div>
+        <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" style="flex:1" onclick="viewCV('${c.id}')">👁️ عرض</button><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">⬇️</button></div>
       </div>`).join('')}</div></div>`;
-}
-
-function renderSettings(m) {
-  if (!isAdminAccount(m)) {
-    return `<div class="card"><div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-title">${t('settings.adminOnly')}</div></div></div>`;
-  }
-
-  return `
-    <div class="page-header"><div><h1 class="page-title">${t('settings.title')}</h1><p class="page-subtitle">${t('settings.subtitle')}</p></div></div>
-    
-    <div class="storage-indicator" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:18px;box-shadow:var(--shadow)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong style="color:var(--primary)">${t('settings.storage')}</strong>
-        <span style="font-size:12px;color:var(--text-light)">${t('settings.autoSave')}: <strong style="color:var(--success)">${t('settings.autoSaveEnabled')}</strong></span>
-      </div>
-      <div style="padding:12px;background:#d1fae5;border-radius:8px;font-size:13px;color:#065f46">
-        ✅ Firebase Cloud (مُقسّم) - ${state.language === 'ar' ? 'كل CV في مكان منفصل - لا حدود!' : 'Each CV in separate location - No limits!'}
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text-light)">
-        ${t('settings.lastSaved')}: <strong>${state.lastSaved ? fmtDateTime(state.lastSaved) : '—'}</strong>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-header"><div class="card-title">👥 ${t('settings.managers')} (${state.managers.length})</div><button class="btn btn-primary btn-sm" onclick="openManagerForm()">${t('settings.addManager')}</button></div>
-      <div class="table-wrapper"><table><thead><tr><th>${t('settings.name')}</th><th>${t('settings.username')}</th><th>${t('settings.role')}</th><th>${t('settings.password')}</th><th>${t('settings.allowedVacancies')}</th><th>${t('settings.actions')}</th></tr></thead>
-      <tbody>${state.managers.map(mgr => {
-    const vCount = isAdminAccount(mgr) ? '∞' : (mgr.permissions.canViewAllVacancies ? state.vacancies.filter(v => !v.isDeleted).length : (mgr.permissions.allowedVacancyIds?.length || 0));
-    const isProtected = isAdminAccount(mgr);
-    return `<tr style="${isProtected ? 'background:var(--primary-50)' : ''}">
-          <td><strong>${esc(mgr.name)} ${mgr.id === m.id ? `<span style="font-size:10px;color:var(--accent)">${t('settings.you')}</span>` : ''} ${isProtected ? '<span class="badge b-hiring" style="margin-right:6px">🔒 ' + (state.language === 'ar' ? 'محمي' : 'Protected') + '</span>' : ''}</strong></td>
-          <td><code style="background:var(--primary-50);padding:2px 8px;border-radius:4px;font-size:12px">@${esc(mgr.username)}</code></td>
-          <td>${isAdminAccount(mgr) ? `<span class="badge b-hiring">${t('settings.admin')}</span>` : esc(mgr.role || t('settings.manager'))}</td>
-          <td>****</td>
-          <td>${isAdminAccount(mgr) ? t('settings.all') : (vCount + ' ' + t('settings.vacancy'))}</td>
-          <td><div style="display:flex;gap:5px">
-            ${isProtected ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;cursor:not-allowed" title="${t('settings.protected')}">🔒 ${t('settings.protected')}</button>` : `
-              <button class="btn btn-secondary btn-sm" onclick="openManagerForm('${mgr.id}')">${t('settings.editPermissions')}</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteManager('${mgr.id}')">${t('btn.delete')}</button>
-            `}
-          </div></td>
-        </tr>`;
-  }).join('')}</tbody></table></div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title mb-3">${t('settings.freeSpace')}</div>
-      <p style="font-size:13px;color:var(--text-light);margin-bottom:12px">${t('settings.freeSpaceDesc')}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-warning" onclick="freeUpSpace()">🗑️ ${t('settings.freeSpace')}</button>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title mb-3">${t('settings.backup')}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="exportBackup()">${t('settings.export')}</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">${t('settings.import')}</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
-        <button class="btn btn-danger" onclick="clearAllData()">${t('settings.clear')}</button>
-      </div>
-    </div>`;
-}
-
-function freeUpSpace() {
-  const candidatesWithCV = state.candidates.filter(c => c.cvData);
-  if (candidatesWithCV.length === 0) {
-    showToast(state.language === 'ar' ? 'لا توجد ملفات CV لحذفها' : 'No CV files to delete', 'warning');
-    return;
-  }
-
-  const body = `
-    <div style="margin-bottom:16px">
-      <p style="font-size:14px;margin-bottom:12px">⚠️ ${state.language === 'ar' ? 'سيتم حذف ملفات CV من المرشحين التاليين (لن يتم حذف المرشحين أنفسهم):' : 'CV files will be deleted from the following candidates (candidates themselves will not be deleted):'}</p>
-      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:12px">
-        ${candidatesWithCV.map(c => {
-    const v = state.vacancies.find(x => x.id === c.vacancyId);
-    return `<div style="padding:8px;border-bottom:1px solid var(--border-light);font-size:13px">
-            <strong>${esc(c.name)}</strong> - ${esc(v ? v.title : '—')}
-            <div style="font-size:11px;color:var(--text-light)">${esc(c.cvName || '')} • ${fmtDate(c.createdAt)}</div>
-          </div>`;
-  }).join('')}
-      </div>
-    </div>
-    <div style="padding:12px;background:#fef3c7;border-radius:8px;font-size:13px">
-      ⚠️ ${state.language === 'ar' ? 'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف ملفات CV فقط، وليس بيانات المرشحين.' : 'This action cannot be undone. Only CV files will be deleted, not candidate data.'}
-    </div>
-  `;
-  const footer = `
-    <button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button>
-    <button class="btn btn-danger" onclick="confirmFreeSpace()">🗑️ ${state.language === 'ar' ? 'حذف جميع ملفات CV' : 'Delete All CV Files'}</button>
-  `;
-  openModal('🗑️ ' + t('settings.freeSpace'), body, footer);
-}
-
-async function confirmFreeSpace() {
-  for (const c of state.candidates) {
-    if (c.cvData) {
-      await deleteCVFromFirebase(c.id);
-      c.cvData = null;
-      c.cvName = null;
-      c.cvType = null;
-      c.hasCV = false;
-    }
-  }
-  await saveToFirebase();
-  closeModal();
-  render();
-  showToast(state.language === 'ar' ? 'تم حذف جميع ملفات CV وتحرير المساحة' : 'All CV files deleted and space freed', 'success');
-}
-
-function openManagerForm(id = null) {
-  const currentM = getCurrentManager();
-  if (!isAdminAccount(currentM)) {
-    showToast(t('msg.noPermissionSettings'), 'error');
-    return;
-  }
-  const mgr = id ? state.managers.find(x => x.id === id) : { name: '', role: 'manager', username: '', password: '', permissions: { canViewAllVacancies: false, canAddVacancy: false, canViewCV: false, canAddCV: false, allowedVacancyIds: [] } };
-
-  if (id && isAdminAccount(mgr)) {
-    showToast(t('msg.cannotEditAdmin'), 'error');
-    return;
-  }
-
-  const body = `
-    <form id="managerForm">
-      <div class="form-grid">
-        <div class="form-group"><label>${t('form.fullName')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="name" value="${esc(mgr.name)}" required></div>
-        <div class="form-group"><label>${t('form.loginUsername')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="username" value="${esc(mgr.username || '')}" required ${id ? 'readonly style="background:#f0f2f7"' : ''}></div>
-        <div class="form-group"><label>${t('form.loginPassword')} <span style="color:var(--danger)">${t('form.required')}</span></label><input type="text" class="form-control" name="password" value="${esc(mgr.password || '123456')}" required></div>
-        <div class="form-group"><label>${t('form.role')}</label>
-          <select class="form-control" name="role">
-            <option value="manager" ${mgr.role === 'manager' ? 'selected' : ''}>${t('form.roleManager')}</option>
-            <option value="admin" ${mgr.role === 'admin' ? 'selected' : ''}>${t('form.roleAdmin')}</option>
-          </select>
-        </div>
-      </div>
-      <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-      <h4 style="margin-bottom:12px;color:var(--primary)">${t('form.permissions')}</h4>
-      <div class="permissions-grid">
-        <label class="permission-item"><input type="checkbox" name="canViewAllVacancies" ${mgr.permissions.canViewAllVacancies ? 'checked' : ''}> ${t('form.viewAllVacancies')}</label>
-        <label class="permission-item"><input type="checkbox" name="canAddVacancy" ${mgr.permissions.canAddVacancy ? 'checked' : ''}> ${t('form.addVacancy')}</label>
-        <label class="permission-item"><input type="checkbox" name="canViewCV" ${mgr.permissions.canViewCV ? 'checked' : ''}> ${t('form.viewCV')}</label>
-        <label class="permission-item"><input type="checkbox" name="canAddCV" ${mgr.permissions.canAddCV ? 'checked' : ''}> ${t('form.addCV')}</label>
-      </div>
-      <div class="form-group mt-3" id="allowedVacanciesGroup" style="display:${mgr.permissions.canViewAllVacancies ? 'none' : 'block'}">
-        <label>${t('form.allowedVacancies')}</label>
-        <select class="form-control" name="allowedVacancyIds" multiple size="6" style="height:auto">
-          ${state.vacancies.filter(v => !v.isDeleted).map(v => `<option value="${v.id}" ${(mgr.permissions.allowedVacancyIds || []).includes(v.id) ? 'selected' : ''}>${esc(v.title)}</option>`).join('')}
-        </select>
-        <div style="font-size:11px;color:var(--text-light);margin-top:4px">${t('form.allowedVacanciesHint')}</div>
-      </div>
-    </form>`;
-  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('btn.cancel')}</button><button class="btn btn-primary" onclick="saveManager('${id || ''}')">${t('btn.savePermissions')}</button>`;
-  openModal(id ? t('btn.edit') : t('settings.addManager'), body, footer);
-  const viewAllCb = document.querySelector('input[name="canViewAllVacancies"]');
-  const allowedGroup = document.getElementById('allowedVacanciesGroup');
-  viewAllCb.addEventListener('change', () => {
-    allowedGroup.style.display = viewAllCb.checked ? 'none' : 'block';
-  });
-}
-
-async function saveManager(id) {
-  const currentM = getCurrentManager();
-  if (!isAdminAccount(currentM)) {
-    showToast(t('msg.noPermissionSettings'), 'error');
-    return;
-  }
-  const form = document.getElementById('managerForm');
-  const data = Object.fromEntries(new FormData(form));
-  if (!data.name.trim() || !data.username.trim() || !data.password.trim()) { showToast(t('msg.required'), 'error'); return; }
-
-  if (data.username.toLowerCase() === ADMIN_USERNAME && (!id || id !== state.managers.find(m => m.username === ADMIN_USERNAME)?.id)) {
-    showToast(state.language === 'ar' ? 'اسم المستخدم admin محجوز ولا يمكن استخدامه' : 'Username admin is reserved and cannot be used', 'error');
-    return;
-  }
-
-  const allowedSelect = form.querySelector('select[name="allowedVacancyIds"]');
-  const allowedIds = Array.from(allowedSelect.selectedOptions).map(opt => opt.value);
-  const newPerms = {
-    canViewAllVacancies: data.canViewAllVacancies === 'on',
-    canAddVacancy: data.canAddVacancy === 'on',
-    canViewCV: data.canViewCV === 'on',
-    canAddCV: data.canAddCV === 'on',
-    allowedVacancyIds: allowedIds
-  };
-  if (id) {
-    const mgr = state.managers.find(x => x.id === id);
-    if (isAdminAccount(mgr)) {
-      showToast(t('msg.cannotEditAdmin'), 'error');
-      return;
-    }
-    mgr.name = data.name; mgr.username = data.username; mgr.password = data.password; mgr.role = data.role; mgr.permissions = newPerms;
-    showToast(t('msg.updated'));
-  } else {
-    if (state.managers.some(m => m.username.toLowerCase() === data.username.toLowerCase())) {
-      showToast(state.language === 'ar' ? 'اسم المستخدم موجود مسبقاً' : 'Username already exists', 'error');
-      return;
-    }
-    state.managers.push({ id: uid(), name: data.name, username: data.username, password: data.password, role: data.role, permissions: newPerms });
-    showToast(t('msg.added'));
-  }
-  await saveToFirebase(); closeModal(); render();
-}
-
-async function deleteManager(id) {
-  const currentM = getCurrentManager();
-  if (!isAdminAccount(currentM)) {
-    showToast(t('msg.noPermissionSettings'), 'error');
-    return;
-  }
-  const mgr = state.managers.find(x => x.id === id);
-  if (!mgr) return;
-  if (isAdminAccount(mgr)) {
-    showToast(t('msg.cannotDeleteAdmin'), 'error');
-    return;
-  }
-  if (!confirm(t('msg.confirmDeleteManager'))) return;
-  state.managers = state.managers.filter(x => x.id !== id);
-  await saveToFirebase(); showToast(t('msg.deleted')); render();
-}
-
-function exportBackup() {
-  const data = { managers: state.managers, vacancies: state.vacancies, candidates: state.candidates, language: state.language, exportDate: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `avnzor_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
-  showToast(t('msg.exported'));
-}
-
-function importBackup(e) {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = async ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!confirm(t('msg.confirmImport'))) return;
-      state.managers = data.managers || []; state.vacancies = data.vacancies || []; state.candidates = data.candidates || [];
-      if (data.language) state.language = data.language;
-      if (!state.managers.some(m => m.username === ADMIN_USERNAME)) {
-        state.managers.unshift({
-          id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
-          permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
-        });
-      }
-      await saveToFirebase(); render(); showToast(t('msg.imported'));
-    } catch (err) { showToast(t('msg.invalidFile'), 'error'); }
-  };
-  r.readAsText(f);
-}
-
-async function clearAllData() {
-  if (!confirm(t('msg.confirmClear1'))) return;
-  if (!confirm(t('msg.confirmClear2'))) return;
-  state.vacancies = []; state.candidates = [];
-  state.managers = [{
-    id: uid(), name: state.language === 'ar' ? 'مدير النظام' : 'System Admin', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin',
-    permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] }
-  }];
-  state.currentManagerId = state.managers[0].id;
-  await saveToFirebase(); render(); showToast(t('msg.deleted'));
-}
-
-function viewCV(id) {
-  const m = getCurrentManager();
-  if (!canViewCV(m)) { showToast(t('msg.noPermissionCV'), 'error'); return; }
-  const c = state.candidates.find(x => x.id === id);
-  if (!c || !c.cvData) { showToast(t('msg.noFile'), 'error'); return; }
-  const isPdf = (c.cvType || '').includes('pdf') || (c.cvName || '').toLowerCase().endsWith('.pdf');
-  const body = isPdf ? `<iframe src="${c.cvData}" style="width:100%;height:70vh;border:none;border-radius:8px"></iframe>` : `<div style="text-align:center;padding:40px"><button class="btn btn-primary" onclick="downloadCV('${id}')">${t('btn.download')}</button></div>`;
-  const footer = `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button><button class="btn btn-primary" onclick="downloadCV('${id}')">${t('btn.download')}</button>`;
-  openModal(`📄 ${esc(c.cvName || 'CV')}`, body, footer, true);
-}
-
-function downloadCV(id) {
-  const c = state.candidates.find(x => x.id === id);
-  if (!c || !c.cvData) return;
-  const a = document.createElement('a'); a.href = c.cvData; a.download = c.cvName || 'cv.pdf'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
 async function downloadAllCVs(vid) {
   const v = state.vacancies.find(x => x.id === vid);
   const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
   if (cs.length === 0 || typeof JSZip === 'undefined') return;
-  showToast(t('msg.preparing'));
+  showToast('جاري التجهيز...');
   const zip = new JSZip();
   const folder = zip.folder((v.title || 'CVs').replace(/[^\w\u0600-\u06FF]/g, '_'));
   cs.forEach((c, i) => {
@@ -1786,17 +1253,169 @@ async function downloadAllCVs(vid) {
   });
   const blob = await zip.generateAsync({ type: 'blob' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${v.title}_CVs.zip`; a.click();
-  showToast(t('msg.downloaded'));
+  showToast('تم التحميل');
 }
 
 function viewAllCVs(vid) {
   const cs = state.candidates.filter(c => c.vacancyId === vid && c.cvData);
   if (cs.length === 0) return;
   const body = cs.map((c, i) => `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${i + 1}. ${esc(c.name)}</strong><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">${t('btn.download')}</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${i + 1}. ${esc(c.name)}</strong><button class="btn btn-secondary btn-sm" onclick="downloadCV('${c.id}')">⬇️</button></div>
     <iframe src="${c.cvData}" style="width:100%;height:400px;border:1px solid var(--border);border-radius:8px"></iframe>
   </div>`).join('');
-  openModal(`📄 (${cs.length})`, body, `<button class="btn btn-secondary" onclick="closeModal()">${t('user.close')}</button>`, true);
+  openModal(`📄 (${cs.length})`, body, `<button class="btn btn-secondary" onclick="closeModal()">إغلاق</button>`, true);
+}
+
+// ==================== SETTINGS ====================
+function renderSettings(m) {
+  if (!isAdminAccount(m)) return `<div class="card"><div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-title">متاح لـ admin فقط</div></div></div>`;
+
+  return `
+    <div class="page-header"><div><h1 class="page-title">⚙️ إدارة المستخدمين</h1></div></div>
+    
+    <div style="background:#d1fae5;border:1px solid #10b981;color:#065f46;padding:12px;border-radius:8px;font-size:13px;margin-bottom:18px">
+      ✅ Firebase Cloud - CVs محفوظة مع بيانات المرشح (لا حدود!)
+      <div style="margin-top:6px;font-size:12px">آخر تحديث: <strong>${state.lastSaved ? fmtDateTime(state.lastSaved) : '—'}</strong></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header"><div class="card-title"> المستخدمون (${state.managers.length})</div><button class="btn btn-primary btn-sm" onclick="openManagerForm()">➕ إضافة مستخدم</button></div>
+      <div class="table-wrapper"><table><thead><tr><th>الاسم</th><th>المستخدم</th><th>الدور</th><th>إجراءات</th></tr></thead>
+      <tbody>${state.managers.map(mgr => {
+    const isProtected = isAdminAccount(mgr);
+    return `<tr style="${isProtected ? 'background:var(--primary-50)' : ''}">
+      <td><strong>${esc(mgr.name)} ${mgr.id === m.id ? '<span style="font-size:10px;color:var(--accent)">(أنت)</span>' : ''}</strong></td>
+      <td><code style="background:var(--primary-50);padding:2px 8px;border-radius:4px;font-size:12px">@${esc(mgr.username)}</code></td>
+      <td>${isAdminAccount(mgr) ? '<span class="badge b-hiring">مدير نظام</span>' : esc(mgr.role || 'مدير')}</td>
+      <td><div style="display:flex;gap:5px">
+        ${isProtected ? `<button class="btn btn-secondary btn-sm" disabled style="opacity:0.5">🔒 محمي</button>` : `
+          <button class="btn btn-secondary btn-sm" onclick="openManagerForm('${mgr.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteManager('${mgr.id}')">🗑️</button>`}
+      </div></td>
+    </tr>`;
+  }).join('')}</tbody></table></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title mb-3">💾 النسخ الاحتياطي</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="exportBackup()">📤 تصدير</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 استيراد</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ حذف الكل</button>
+      </div>
+    </div>`;
+}
+
+function openManagerForm(id = null) {
+  const mgr = id ? state.managers.find(x => x.id === id) : { name: '', role: 'manager', username: '', password: '', permissions: { canViewAllVacancies: false, canAddVacancy: false, canViewCV: false, canAddCV: false, allowedVacancyIds: [] } };
+  if (id && isAdminAccount(mgr)) { showToast('لا يمكن تعديل admin', 'error'); return; }
+  const body = `
+    <form id="managerForm">
+      <div class="form-grid">
+        <div class="form-group"><label>الاسم <span style="color:var(--danger)">*</span></label><input type="text" class="form-control" name="name" value="${esc(mgr.name)}" required></div>
+        <div class="form-group"><label>المستخدم <span style="color:var(--danger)">*</span></label><input type="text" class="form-control" name="username" value="${esc(mgr.username || '')}" required ${id ? 'readonly style="background:#f0f2f7"' : ''}></div>
+        <div class="form-group"><label>كلمة المرور <span style="color:var(--danger)">*</span></label><input type="text" class="form-control" name="password" value="${esc(mgr.password || '123456')}" required></div>
+        <div class="form-group"><label>الدور</label>
+          <select class="form-control" name="role">
+            <option value="manager" ${mgr.role === 'manager' ? 'selected' : ''}>مدير عادي</option>
+            <option value="admin" ${mgr.role === 'admin' ? 'selected' : ''}>مدير النظام</option>
+          </select>
+        </div>
+      </div>
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+      <h4 style="margin-bottom:12px;color:var(--primary)">⚙️ الصلاحيات</h4>
+      <div class="permissions-grid">
+        <label class="permission-item"><input type="checkbox" name="canViewAllVacancies" ${mgr.permissions.canViewAllVacancies ? 'checked' : ''}> رؤية كل الشواغر</label>
+        <label class="permission-item"><input type="checkbox" name="canAddVacancy" ${mgr.permissions.canAddVacancy ? 'checked' : ''}> إضافة شواغر</label>
+        <label class="permission-item"><input type="checkbox" name="canViewCV" ${mgr.permissions.canViewCV ? 'checked' : ''}> عرض CVs</label>
+        <label class="permission-item"><input type="checkbox" name="canAddCV" ${mgr.permissions.canAddCV ? 'checked' : ''}> إضافة مرشحين</label>
+      </div>
+    </form>`;
+  openModal(id ? '✏️ تعديل' : '➕ مستخدم جديد', body, `<button class="btn btn-secondary" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveManager('${id || ''}')">💾 حفظ</button>`);
+}
+
+async function saveManager(id) {
+  const form = document.getElementById('managerForm');
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.name.trim() || !data.username.trim() || !data.password.trim()) { showToast('البيانات مطلوبة', 'error'); return; }
+  if (data.username.toLowerCase() === ADMIN_USERNAME && (!id || id !== state.managers.find(m => m.username === ADMIN_USERNAME)?.id)) { showToast('admin محجوز', 'error'); return; }
+  
+  const allowedSelect = form.querySelector('select[name="allowedVacancyIds"]');
+  const allowedIds = allowedSelect ? Array.from(allowedSelect.selectedOptions).map(opt => opt.value) : [];
+  const newPerms = {
+    canViewAllVacancies: data.canViewAllVacancies === 'on',
+    canAddVacancy: data.canAddVacancy === 'on',
+    canViewCV: data.canViewCV === 'on',
+    canAddCV: data.canAddCV === 'on',
+    allowedVacancyIds: allowedIds
+  };
+  
+  if (id) {
+    const mgr = state.managers.find(x => x.id === id);
+    mgr.name = data.name; mgr.username = data.username; mgr.password = data.password; mgr.role = data.role; mgr.permissions = newPerms;
+    showToast('تم التحديث');
+  } else {
+    if (state.managers.some(m => m.username.toLowerCase() === data.username.toLowerCase())) { showToast('المستخدم موجود', 'error'); return; }
+    state.managers.push({ id: uid(), name: data.name, username: data.username, password: data.password, role: data.role, permissions: newPerms });
+    showToast('تمت الإضافة');
+  }
+  await saveToFirebase(); closeModal(); render();
+}
+
+async function deleteManager(id) {
+  const mgr = state.managers.find(x => x.id === id);
+  if (!mgr || isAdminAccount(mgr)) { showToast('لا يمكن الحذف', 'error'); return; }
+  if (!confirm('حذف المستخدم؟')) return;
+  state.managers = state.managers.filter(x => x.id !== id);
+  await saveToFirebase(); showToast('تم الحذف'); render();
+}
+
+function exportBackup() {
+  const data = { managers: state.managers, vacancies: state.vacancies, candidates: state.candidates, interviews: state.interviews, language: state.language, exportDate: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `avnzor_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
+  showToast('تم التصدير (يشمل CVs)');
+}
+
+async function importBackup(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!confirm('سيتم استبدال جميع البيانات. متابعة؟')) return;
+      state.managers = data.managers || [];
+      state.vacancies = data.vacancies || [];
+      state.candidates = data.candidates || [];
+      state.interviews = data.interviews || [];
+      if (data.language) state.language = data.language;
+      if (!state.managers.some(m => m.username === ADMIN_USERNAME)) {
+        state.managers.unshift({ id: uid(), name: 'مدير النظام', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin', permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] } });
+      }
+      await saveToFirebase(); render(); showToast('تم الاستيراد (يشمل CVs)');
+    } catch (err) { showToast('ملف غير صالح', 'error'); }
+  };
+  r.readAsText(f);
+}
+
+async function clearAllData() {
+  if (!confirm('⚠️ حذف جميع البيانات؟')) return;
+  if (!confirm('تأكيد أخير؟')) return;
+  state.vacancies = []; state.candidates = []; state.interviews = [];
+  state.managers = [{ id: uid(), name: 'مدير النظام', username: ADMIN_USERNAME, password: ADMIN_PASSWORD, role: 'admin', permissions: { canViewAllVacancies: true, canAddVacancy: true, canViewCV: true, canAddCV: true, allowedVacancyIds: [] } }];
+  state.currentManagerId = state.managers[0].id;
+  await saveToFirebase(); render(); showToast('تم الحذف');
+}
+
+function setLanguage(lang) {
+  state.language = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  saveToFirebase();
+  if (state.currentManagerId && getCurrentManager()) render();
+  showToast('تم تغيير اللغة');
 }
 
 function attachPageEvents() {
@@ -1807,17 +1426,12 @@ function attachPageEvents() {
   const as = document.getElementById('archiveSearch'); if (as) as.addEventListener('input', e => { state.filters.search = e.target.value; render(); });
 }
 
-// Initialize Firebase and App
+// Initialize
 (async () => {
   await initFirebase();
   loadSession();
-  
-  if (state.currentManagerId && getManager(state.currentManagerId)) {
-    showApp();
-  } else {
-    document.getElementById('loginPage').style.display = 'flex';
-  }
-  
+  if (state.currentManagerId && getManager(state.currentManagerId)) { showApp(); }
+  else { document.getElementById('loginPage').style.display = 'flex'; }
   if (window.innerWidth <= 900) { document.getElementById('menuToggle').style.display = 'inline-flex'; }
   window.addEventListener('resize', () => { document.getElementById('menuToggle').style.display = window.innerWidth <= 900 ? 'inline-flex' : 'none'; });
 })();
